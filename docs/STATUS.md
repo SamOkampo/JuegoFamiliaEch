@@ -2,24 +2,38 @@
 
 ## Checkpoint actual
 
-- Repositorio inicializado.
-- Fase 0 sustancialmente completada.
-- Fase 1 en desarrollo en `phase-1-web-foundation`.
-- Primera demo local implementada: jugadores, turnos, revelar/cambiar preguntas y primer mazo original.
-- Aún no existe backend ni sincronización entre dispositivos.
+- Fase 0 completada salvo nombre comercial definitivo.
+- Fase 1 integrada en `main` mediante PR #1 con CI verde.
+- Fase 2 en desarrollo en `phase-2-cloudflare-realtime`.
+- Backend Cloudflare creado y desplegado como `juego-familia-ech`.
+- Durable Object `GameRoom` provisionado con SQLite.
+- API de crear/unirse a sala implementada.
+- Lobby con WebSocket Hibernation, presencia y reconexión implementado.
+- Frontend `/online` y `/room/[code]` conectado al Worker.
+
+## Infraestructura actual
+
+- Frontend: Next.js + TypeScript.
+- Realtime/backend: Cloudflare Worker.
+- Coordinación de salas: Durable Objects.
+- Persistencia por sala: SQLite del Durable Object.
+- Endpoint: `https://juego-familia-ech.socampoecheverry.workers.dev`.
+- Sin Supabase para este proyecto.
 
 ## Siguiente bloque
 
-1. Añadir tests del motor local.
-2. Añadir CI de build + typecheck.
-3. Verificar que la Fase 1 compile en limpio.
-4. Integrar Fase 1.
-5. Empezar Fase 2 con Supabase y salas realtime.
+1. Pasar CI de la rama de Fase 2.
+2. Verificar dos o más clientes conectados a la misma sala.
+3. Añadir estado listo/no listo.
+4. Permitir al host iniciar partida.
+5. Sincronizar primer turno y pregunta.
+6. Añadir transferencia de host/reentrada robusta.
 
 ## Decisiones vigentes
 
-- Mobile-first.
-- Sin cuenta para entrar al MVP.
-- Supabase para Postgres + Realtime, salvo que una prueba técnica demuestre una razón fuerte para cambiar.
-- El software guía la conversación; no intenta sustituirla.
+- Mobile-first y sin cuenta para entrar al MVP.
+- Una sala se coordina desde un único Durable Object para evitar carreras de estado.
+- WebSocket Hibernation para mantener conexiones con menor coste cuando la sala está inactiva.
+- Las salas expiran automáticamente tras 12 horas.
+- Los tokens de jugador son credenciales locales de sesión y nunca deben guardarse en Git.
 - Contenido propio o licenciado únicamente.
