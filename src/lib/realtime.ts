@@ -13,9 +13,13 @@ export type RoomPlayer = {
 export type RoomGameState = {
   deckVersion: string;
   currentPlayerId: string;
-  questionIndex: number;
+  questionIndex: number | null;
   turnNumber: number;
   revealed: boolean;
+  usedQuestionCount: number;
+  startedAt: string;
+  finishedAt: string | null;
+  finishReason: "deck-complete" | "host-ended" | null;
 };
 
 export type RoomSnapshot = {
@@ -47,6 +51,10 @@ export type ClientRoomEvent =
   | { type: "sync" }
   | { type: "ready"; ready: boolean }
   | { type: "start" }
+  | { type: "reveal"; expectedTurnNumber: number }
+  | { type: "skip-question"; expectedTurnNumber: number }
+  | { type: "next-turn"; expectedTurnNumber: number }
+  | { type: "finish" }
   | { type: "leave" };
 
 export function normalizeRoomCode(value: string): string {
@@ -190,10 +198,15 @@ export function roomErrorMessage(code: string): string {
     ROOM_FULL: "La sala ya está llena.",
     NAME_TAKEN: "Ese nombre ya está usado en la sala.",
     UNAUTHORIZED_PLAYER: "Tu acceso a esta sala ya no es válido.",
-    HOST_ONLY: "Solo el anfitrión puede iniciar la partida.",
+    HOST_ONLY: "Solo el anfitrión puede hacer eso.",
     ROOM_NOT_READY: "Todos deben estar conectados y marcarse como listos.",
     GAME_ALREADY_STARTED: "La partida ya comenzó.",
+    GAME_NOT_PLAYING: "La partida no está activa.",
     PLAYER_NOT_FOUND: "Tu jugador ya no está en esta sala.",
+    TURN_CONTROL_ONLY:
+      "Solo la persona del turno o el anfitrión pueden controlar esta ronda.",
+    STALE_TURN: "Ese turno ya cambió. Actualizamos la partida.",
+    REVEAL_FIRST: "Revela la pregunta antes de pasar a la siguiente persona.",
   };
   return messages[code] ?? code;
 }
