@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";\nimport { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useMemo, useState } from "react";
 import {
   cleanPlayerName,
   getQuestion,
