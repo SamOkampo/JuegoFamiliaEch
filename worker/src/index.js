@@ -90,6 +90,43 @@ function canStartRoom(room) {
   );
 }
 
+function nextPlayerId(room) {
+  if (!room.game || room.players.length === 0) return null;
+
+  const currentIndex = room.players.findIndex(
+    (player) => player.id === room.game.currentPlayerId,
+  );
+  const start = currentIndex >= 0 ? currentIndex : 0;
+
+  for (let offset = 1; offset <= room.players.length; offset += 1) {
+    const candidate = room.players[(start + offset) % room.players.length];
+    if (candidate?.connected) return candidate.id;
+  }
+
+  return room.players[(start + 1) % room.players.length]?.id ?? null;
+}
+
+function nextUnusedQuestionIndex(game) {
+  const used = new Set(game.usedQuestionIndexes ?? []);
+  const available = [];
+
+  for (let index = 0; index < QUESTION_COUNT; index += 1) {
+    if (!used.has(index)) available.push(index);
+  }
+
+  if (available.length === 0) return null;
+  return available[secureRandomIndex(available.length)];
+}
+
+function finishGame(room, reason) {
+  if (!room.game) return;
+
+  room.status = "finished";
+  room.game.revealed = true;
+  room.game.finishedAt = new Date().toISOString();
+  room.game.finishReason = reason;
+}
+
 function publicSnapshot(room) {
   return {
     code: room.code,
@@ -109,9 +146,13 @@ function publicSnapshot(room) {
       ? {
           deckVersion: room.game.deckVersion,
           currentPlayerId: room.game.currentPlayerId,
-          questionIndex: room.game.questionIndex,
+          questionIndex: room.game.revealed ? room.game.questionIndex : null,
           turnNumber: room.game.turnNumber,
           revealed: Boolean(room.game.revealed),
+          usedQuestionCount: room.game.usedQuestionIndexes.length,
+          startedAt: room.game.startedAt,
+          finishedAt: room.game.finishedAt ?? null,
+          finishReason: room.game.finishReason ?? null,
         }
       : null,
   };
@@ -152,6 +193,7 @@ export class GameRoom extends DurableObject {
 
   transferHostIfNeeded(previousHostId = this.room?.hostId) {
     if (!this.room || this.room.players.length === 0) return;
+
     const currentHost = this.room.players.find(
       (player) => player.id === previousHostId,
     );
@@ -164,6 +206,31 @@ export class GameRoom extends DurableObject {
     if (replacement) {
       this.room.hostId = replacement.id;
     }
+  }
+
+  canControlTurn(player) {
+    if (!this.room?.game) return false;
+    return (
+      player.id === this.room.game.currentPlayerId ||
+      player.id === this.room.hostId
+    );
+  }
+
+  validateExpectedTurn(ws, event) {
+    const expected = Number(event?.expectedTurnNumber);
+    const actual = this.room?.game?.turnNumber;
+
+    if (!Number.isInteger(expected) || expected !== actual) {
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          error: "STALE_TURN",
+          expectedTurnNumber: actual ?? null,
+        }),
+      );
+      return false;
+    }
+    return true;
   }
 
   async broadcastSnapshot() {
@@ -405,15 +472,106 @@ export class GameRoom extends DurableObject {
         return;
       }
 
+      const questionIndex = secureRandomIndex(QUESTION_COUNT);
       this.room.status = "playing";
       this.room.game = {
         deckVersion: DECK_VERSION,
         currentPlayerId:
           this.room.players[secureRandomIndex(this.room.players.length)].id,
-        questionIndex: secureRandomIndex(QUESTION_COUNT),
+        questionIndex,
+        usedQuestionIndexes: [questionIndex],
         turnNumber: 1,
         revealed: false,
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        finishReason: null,
       };
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (
+      event?.type === "reveal" ||
+      event?.type === "skip-question" ||
+      event?.type === "next-turn"
+    ) {
+      if (this.room.status !== "playing" || !this.room.game) {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
+        return;
+      }
+      if (!this.canControlTurn(player)) {
+        ws.send(JSON.stringify({ type: "error", error: "TURN_CONTROL_ONLY" }));
+        return;
+      }
+      if (!this.validateExpectedTurn(ws, event)) {
+        return;
+      }
+    }
+
+    if (event?.type === "reveal") {
+      if (!this.room.game.revealed) {
+        this.room.game.revealed = true;
+        this.room.version += 1;
+        await this.persist();
+        await this.broadcastSnapshot();
+      }
+      return;
+    }
+
+    if (event?.type === "skip-question") {
+      const nextQuestion = nextUnusedQuestionIndex(this.room.game);
+      if (nextQuestion === null) {
+        finishGame(this.room, "deck-complete");
+      } else {
+        this.room.game.questionIndex = nextQuestion;
+        this.room.game.usedQuestionIndexes.push(nextQuestion);
+        this.room.game.revealed = false;
+      }
+
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "next-turn") {
+      if (!this.room.game.revealed) {
+        ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
+        return;
+      }
+
+      const nextQuestion = nextUnusedQuestionIndex(this.room.game);
+      const nextPlayer = nextPlayerId(this.room);
+
+      if (nextQuestion === null || !nextPlayer) {
+        finishGame(this.room, "deck-complete");
+      } else {
+        this.room.game.currentPlayerId = nextPlayer;
+        this.room.game.questionIndex = nextQuestion;
+        this.room.game.usedQuestionIndexes.push(nextQuestion);
+        this.room.game.turnNumber += 1;
+        this.room.game.revealed = false;
+      }
+
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "finish") {
+      if (player.id !== this.room.hostId) {
+        ws.send(JSON.stringify({ type: "error", error: "HOST_ONLY" }));
+        return;
+      }
+      if (this.room.status !== "playing" || !this.room.game) {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
+        return;
+      }
+
+      finishGame(this.room, "host-ended");
       this.room.version += 1;
       await this.persist();
       await this.broadcastSnapshot();
@@ -442,6 +600,17 @@ export class GameRoom extends DurableObject {
           this.room.players.find((item) => item.connected)?.id ??
           this.room.players[0].id;
       }
+
+      if (
+        this.room.status === "playing" &&
+        this.room.game?.currentPlayerId === player.id
+      ) {
+        const replacement =
+          this.room.players.find((item) => item.connected)?.id ??
+          this.room.players[0].id;
+        this.room.game.currentPlayerId = replacement;
+      }
+
       this.room.version += 1;
       await this.persist();
       await this.broadcastSnapshot();
@@ -597,7 +766,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "2.2-ready-and-start",
+        phase: "3-core-game-loop",
         durableObjects: true,
       });
     }
