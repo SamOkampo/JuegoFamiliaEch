@@ -525,3 +525,108 @@ input:focus {
     width: fit-content;
   }
 }
+
+
+.readyPill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: #f0ebe5;
+  font-size: 0.72rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.readyPill.isReady {
+  color: #2f7445;
+  background: rgba(79, 159, 104, 0.12);
+}
+
+.lobbyActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.waitingHost {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0 6px;
+  font-size: 0.88rem;
+}
+
+.synchronizedGame {
+  padding: 28px;
+}
+
+.syncGameTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.syncGameTop h2 {
+  margin: 0;
+  max-width: 16ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.syncPill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #2f7445;
+  background: rgba(79, 159, 104, 0.12);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.syncedQuestionCard {
+  display: flex;
+  min-height: 330px;
+  margin-top: 24px;
+  padding: 26px;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(233, 103, 79, 0.14), transparent 32%),
+    var(--surface);
+}
+
+.syncedQuestionCard .questionText {
+  margin: auto;
+}
+
+.syncedNote {
+  margin: 18px 0 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 680px) {
+  .lobbyActions {
+    grid-template-columns: 1fr;
+  }
+
+  .memberRow {
+    flex-wrap: wrap;
+  }
+
+  .readyPill {
+    margin-left: auto;
+  }
+
+  .syncGameTop {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .syncPill {
+    width: fit-content;
+  }
+}
