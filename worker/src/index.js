@@ -3,8 +3,11 @@ import { DurableObject } from "cloudflare:workers";
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_PLAYERS = 12;
 const ROOM_TTL_MS = 12 * 60 * 60 * 1000;
-const QUESTION_COUNT = 12;
-const DECK_VERSION = "core-v1";
+const QUESTION_COUNT = 160;
+const DECK_VERSION = "core-v2-160";
+const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
+const AGE_BANDS = [8, 12, 16];
+const INTENSITIES = [1, 2, 3];
 
 function corsHeaders() {
   return {
@@ -108,14 +111,50 @@ function nextPlayerId(room) {
 
 function nextUnusedQuestionIndex(game) {
   const used = new Set(game.usedQuestionIndexes ?? []);
-  const available = [];
-
-  for (let index = 0; index < QUESTION_COUNT; index += 1) {
-    if (!used.has(index)) available.push(index);
-  }
+  const available = (game.questionPool ?? []).filter(
+    (index) => !used.has(index),
+  );
 
   if (available.length === 0) return null;
   return available[secureRandomIndex(available.length)];
+}
+
+function validateQuestionPool(value) {
+  if (!Array.isArray(value)) return null;
+
+  const unique = [
+    ...new Set(
+      value.filter(
+        (index) =>
+          Number.isInteger(index) &&
+          index >= 0 &&
+          index < QUESTION_COUNT,
+      ),
+    ),
+  ];
+
+  if (unique.length < 2 || unique.length > QUESTION_COUNT) return null;
+  return unique;
+}
+
+function normalizeRoomSettings(value, current) {
+  const next = { ...current };
+
+  if (GROUP_TYPES.includes(value?.groupType)) {
+    next.groupType = value.groupType;
+  }
+
+  const youngestAge = Number(value?.youngestAge);
+  if (AGE_BANDS.includes(youngestAge)) {
+    next.youngestAge = youngestAge;
+  }
+
+  const maxIntensity = Number(value?.maxIntensity);
+  if (INTENSITIES.includes(maxIntensity)) {
+    next.maxIntensity = maxIntensity;
+  }
+
+  return next;
 }
 
 function finishGame(room, reason) {
@@ -135,6 +174,7 @@ function publicSnapshot(room) {
     createdAt: room.createdAt,
     version: room.version,
     canStart: canStartRoom(room),
+    settings: room.settings,
     players: room.players.map((player) => ({
       id: player.id,
       name: player.name,
@@ -150,6 +190,7 @@ function publicSnapshot(room) {
           turnNumber: room.game.turnNumber,
           revealed: Boolean(room.game.revealed),
           usedQuestionCount: room.game.usedQuestionIndexes.length,
+          questionPoolSize: room.game.questionPool.length,
           startedAt: room.game.startedAt,
           finishedAt: room.game.finishedAt ?? null,
           finishReason: room.game.finishReason ?? null,
@@ -272,6 +313,11 @@ export class GameRoom extends DurableObject {
       createdAt: new Date(now).toISOString(),
       expiresAt: now + ROOM_TTL_MS,
       version: 1,
+      settings: {
+        groupType: "family",
+        youngestAge: 12,
+        maxIntensity: 2,
+      },
       game: null,
       players: [
         {
@@ -462,6 +508,29 @@ export class GameRoom extends DurableObject {
       return;
     }
 
+    if (event?.type === "settings") {
+      if (player.id !== this.room.hostId) {
+        ws.send(JSON.stringify({ type: "error", error: "HOST_ONLY" }));
+        return;
+      }
+      if (this.room.status !== "lobby") {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_ALREADY_STARTED" }));
+        return;
+      }
+
+      this.room.settings = normalizeRoomSettings(
+        event.settings,
+        this.room.settings,
+      );
+      for (const member of this.room.players) {
+        member.ready = false;
+      }
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
     if (event?.type === "start") {
       if (player.id !== this.room.hostId) {
         ws.send(JSON.stringify({ type: "error", error: "HOST_ONLY" }));
@@ -471,11 +540,25 @@ export class GameRoom extends DurableObject {
         ws.send(JSON.stringify({ type: "error", error: "ROOM_NOT_READY" }));
         return;
       }
+      if (event?.deckVersion !== DECK_VERSION) {
+        ws.send(
+          JSON.stringify({ type: "error", error: "DECK_VERSION_MISMATCH" }),
+        );
+        return;
+      }
 
-      const questionIndex = secureRandomIndex(QUESTION_COUNT);
+      const questionPool = validateQuestionPool(event?.questionPool);
+      if (!questionPool) {
+        ws.send(JSON.stringify({ type: "error", error: "INVALID_QUESTION_POOL" }));
+        return;
+      }
+
+      const questionIndex =
+        questionPool[secureRandomIndex(questionPool.length)];
       this.room.status = "playing";
       this.room.game = {
         deckVersion: DECK_VERSION,
+        questionPool,
         currentPlayerId:
           this.room.players[secureRandomIndex(this.room.players.length)].id,
         questionIndex,
@@ -766,7 +849,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "3-core-game-loop",
+        phase: "5-original-content",
         durableObjects: true,
       });
     }
