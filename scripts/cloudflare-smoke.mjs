@@ -120,7 +120,11 @@ try {
     (room) => room.status === "playing" && room.game?.turnNumber === 1,
     "game start",
   );
-  send(hostSocket, { type: "start" });
+  send(hostSocket, {
+    type: "start",
+    deckVersion: "core-v2-160",
+    questionPool: [0, 1, 2, 3, 4, 5],
+  });
   const startedRoom = await started;
 
   assert(startedRoom.game, "Expected game state after start");
