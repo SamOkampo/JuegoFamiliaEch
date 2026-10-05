@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QUESTIONS } from "@/lib/questions";
 import {
   buildRoomWebSocketUrl,
+  clearRoomSession,
   loadRoomSession,
   normalizeRoomCode,
   roomErrorMessage,
@@ -18,6 +19,7 @@ type ConnectionState = "connecting" | "online" | "offline";
 
 export default function RoomPage() {
   const params = useParams<{ code: string }>();
+  const router = useRouter();
   const code = normalizeRoomCode(params.code ?? "");
   const [session, setSession] = useState<RoomSession | null>(null);
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
@@ -150,6 +152,14 @@ export default function RoomPage() {
     if (!sent) {
       setError("Todavía no estás conectado a la sala.");
     }
+  }
+
+  function leaveRoom() {
+    sendRoomEvent(socketRef.current, { type: "leave" });
+    clearRoomSession(code);
+    socketRef.current?.close(1000, "explicit leave");
+    socketRef.current = null;
+    router.push("/online");
   }
 
   if (error && !session) {
@@ -294,9 +304,11 @@ export default function RoomPage() {
         </section>
       )}
 
-      <p className="backLink">
-        <Link href="/online">← Salir al inicio multijugador</Link>
-      </p>
+      <div className="backLink">
+        <button type="button" className="textButton" onClick={leaveRoom}>
+          ← Salir de la sala
+        </button>
+      </div>
     </main>
   );
 }
