@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import {
   cleanPlayerName,
@@ -73,12 +74,18 @@ export default function HomePage() {
     return (
       <main className="shell">
         <section className="hero">
-          <p className="eyebrow">PROTOTIPO · FASE 1</p>
+          <p className="eyebrow">JUEGOFAMILIAECH</p>
           <h1>Una ronda para conocernos mejor.</h1>
           <p className="lede">
-            Añade a quienes están contigo. Esta primera versión funciona en un
-            solo dispositivo; las salas sincronizadas llegan en la Fase 2.
+            Prueba el modo local en un solo teléfono o crea una sala online para
+            que cada persona juegue desde su propio dispositivo.
           </p>
+          <div className="modeActions">
+            <Link className="button primary linkButton" href="/online">
+              Jugar online
+            </Link>
+            <span className="muted">Cloudflare realtime · sin cuenta</span>
+          </div>
         </section>
 
         <section className="panel">

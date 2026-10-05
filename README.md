@@ -58,7 +58,7 @@ Preguntas de seguimiento generadas por IA, packs (familia, amigos, pareja, equip
 - Next.js (App Router)
 - TypeScript
 - React
-- Supabase (Postgres + Realtime) a partir de la Fase 2
+- Cloudflare Workers + Durable Objects (SQLite + WebSockets) a partir de la Fase 2
 - PWA
 - Vitest / Playwright
 - GitHub Actions
