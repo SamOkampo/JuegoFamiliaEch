@@ -3,6 +3,8 @@ import { DurableObject } from "cloudflare:workers";
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_PLAYERS = 12;
 const ROOM_TTL_MS = 12 * 60 * 60 * 1000;
+const QUESTION_COUNT = 12;
+const DECK_VERSION = "core-v1";
 
 function corsHeaders() {
   return {
@@ -26,8 +28,7 @@ function json(data, status = 200) {
 
 function withCors(response) {
   const headers = new Headers(response.headers);
-  const cors = corsHeaders();
-  for (const [key, value] of Object.entries(cors)) {
+  for (const [key, value] of Object.entries(corsHeaders())) {
     headers.set(key, value);
   }
   return new Response(response.body, {
@@ -63,6 +64,13 @@ function randomRoomCode() {
   return code;
 }
 
+function secureRandomIndex(length) {
+  if (length <= 1) return 0;
+  const values = new Uint32Array(1);
+  crypto.getRandomValues(values);
+  return values[0] % length;
+}
+
 function randomToken() {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
@@ -74,6 +82,14 @@ function randomToken() {
     .replace(/=+$/g, "");
 }
 
+function canStartRoom(room) {
+  return (
+    room.status === "lobby" &&
+    room.players.length >= 2 &&
+    room.players.every((player) => player.connected && player.ready)
+  );
+}
+
 function publicSnapshot(room) {
   return {
     code: room.code,
@@ -81,12 +97,23 @@ function publicSnapshot(room) {
     hostId: room.hostId,
     createdAt: room.createdAt,
     version: room.version,
+    canStart: canStartRoom(room),
     players: room.players.map((player) => ({
       id: player.id,
       name: player.name,
       connected: Boolean(player.connected),
+      ready: Boolean(player.ready),
       joinedAt: player.joinedAt,
     })),
+    game: room.game
+      ? {
+          deckVersion: room.game.deckVersion,
+          currentPlayerId: room.game.currentPlayerId,
+          questionIndex: room.game.questionIndex,
+          turnNumber: room.game.turnNumber,
+          revealed: Boolean(room.game.revealed),
+        }
+      : null,
   };
 }
 
@@ -123,6 +150,22 @@ export class GameRoom extends DurableObject {
     );
   }
 
+  transferHostIfNeeded(previousHostId = this.room?.hostId) {
+    if (!this.room || this.room.players.length === 0) return;
+    const currentHost = this.room.players.find(
+      (player) => player.id === previousHostId,
+    );
+    if (currentHost?.connected) return;
+
+    const replacement =
+      this.room.players.find((player) => player.connected) ??
+      this.room.players[0];
+
+    if (replacement) {
+      this.room.hostId = replacement.id;
+    }
+  }
+
   async broadcastSnapshot() {
     if (!this.room) return;
     const payload = JSON.stringify({
@@ -134,7 +177,7 @@ export class GameRoom extends DurableObject {
       try {
         ws.send(payload);
       } catch {
-        // The close/error handlers will clean up stale connections.
+        // The close/error handlers clean up stale connections.
       }
     }
   }
@@ -162,12 +205,14 @@ export class GameRoom extends DurableObject {
       createdAt: new Date(now).toISOString(),
       expiresAt: now + ROOM_TTL_MS,
       version: 1,
+      game: null,
       players: [
         {
           id: playerId,
           name,
           token,
           connected: false,
+          ready: false,
           joinedAt: new Date(now).toISOString(),
           lastSeenAt: now,
         },
@@ -213,9 +258,12 @@ export class GameRoom extends DurableObject {
       name,
       token,
       connected: false,
+      ready: false,
       joinedAt: new Date(now).toISOString(),
       lastSeenAt: now,
     });
+
+    this.transferHostIfNeeded();
     this.room.version += 1;
 
     await this.persist();
@@ -265,6 +313,8 @@ export class GameRoom extends DurableObject {
 
     player.connected = true;
     player.lastSeenAt = Date.now();
+
+    this.transferHostIfNeeded();
     this.room.version += 1;
     await this.persist();
 
@@ -301,6 +351,7 @@ export class GameRoom extends DurableObject {
   async webSocketMessage(ws, message) {
     const attachment = ws.deserializeAttachment();
     const playerId = attachment?.playerId ?? "";
+    const player = this.room?.players.find((item) => item.id === playerId);
 
     if (message === "ping") {
       ws.send("pong");
@@ -315,7 +366,12 @@ export class GameRoom extends DurableObject {
       return;
     }
 
-    if (event?.type === "sync" && this.room) {
+    if (!this.room || !player) {
+      ws.send(JSON.stringify({ type: "error", error: "PLAYER_NOT_FOUND" }));
+      return;
+    }
+
+    if (event?.type === "sync") {
       ws.send(
         JSON.stringify({
           type: "snapshot",
@@ -325,37 +381,107 @@ export class GameRoom extends DurableObject {
       return;
     }
 
-    if (event?.type === "leave" && this.room) {
-      const player = this.room.players.find((item) => item.id === playerId);
-      if (player) {
-        player.connected = false;
-        player.lastSeenAt = Date.now();
-        this.room.version += 1;
-        await this.persist();
-        await this.broadcastSnapshot();
+    if (event?.type === "ready") {
+      if (this.room.status !== "lobby") {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_ALREADY_STARTED" }));
+        return;
       }
-      ws.close(1000, "left room");
+
+      player.ready = Boolean(event.ready);
+      player.lastSeenAt = Date.now();
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "start") {
+      if (player.id !== this.room.hostId) {
+        ws.send(JSON.stringify({ type: "error", error: "HOST_ONLY" }));
+        return;
+      }
+      if (!canStartRoom(this.room)) {
+        ws.send(JSON.stringify({ type: "error", error: "ROOM_NOT_READY" }));
+        return;
+      }
+
+      this.room.status = "playing";
+      this.room.game = {
+        deckVersion: DECK_VERSION,
+        currentPlayerId:
+          this.room.players[secureRandomIndex(this.room.players.length)].id,
+        questionIndex: secureRandomIndex(QUESTION_COUNT),
+        turnNumber: 1,
+        revealed: false,
+      };
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "leave") {
+      const wasHost = player.id === this.room.hostId;
+      this.room.players = this.room.players.filter(
+        (item) => item.id !== player.id,
+      );
+
+      if (this.room.players.length === 0) {
+        this.room = null;
+        await this.ctx.storage.deleteAll();
+        try {
+          ws.close(1000, "room empty");
+        } catch {
+          // Socket may already be closing.
+        }
+        return;
+      }
+
+      if (wasHost) {
+        this.room.hostId =
+          this.room.players.find((item) => item.connected)?.id ??
+          this.room.players[0].id;
+      }
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+
+      try {
+        ws.close(1000, "left room");
+      } catch {
+        // Socket may already be closing.
+      }
       return;
     }
 
     ws.send(JSON.stringify({ type: "error", error: "UNSUPPORTED_MESSAGE" }));
   }
 
-  async webSocketClose(ws, code, reason) {
+  async markDisconnected(ws) {
     const attachment = ws.deserializeAttachment();
     const playerId = attachment?.playerId ?? "";
 
-    if (this.room) {
-      const player = this.room.players.find((item) => item.id === playerId);
-      if (player) {
-        player.connected = false;
-        player.lastSeenAt = Date.now();
-        this.room.version += 1;
-        await this.persist();
-        await this.broadcastSnapshot();
-      }
+    if (!this.room) return;
+
+    const player = this.room.players.find((item) => item.id === playerId);
+    if (!player) return;
+
+    const wasHost = player.id === this.room.hostId;
+    player.connected = false;
+    player.ready = false;
+    player.lastSeenAt = Date.now();
+
+    if (wasHost) {
+      this.transferHostIfNeeded(player.id);
     }
 
+    this.room.version += 1;
+    await this.persist();
+    await this.broadcastSnapshot();
+  }
+
+  async webSocketClose(ws, code, reason) {
+    await this.markDisconnected(ws);
     try {
       ws.close(code, reason);
     } catch {
@@ -364,19 +490,7 @@ export class GameRoom extends DurableObject {
   }
 
   async webSocketError(ws) {
-    const attachment = ws.deserializeAttachment();
-    const playerId = attachment?.playerId ?? "";
-
-    if (this.room) {
-      const player = this.room.players.find((item) => item.id === playerId);
-      if (player) {
-        player.connected = false;
-        player.lastSeenAt = Date.now();
-        this.room.version += 1;
-        await this.persist();
-        await this.broadcastSnapshot();
-      }
-    }
+    await this.markDisconnected(ws);
   }
 
   async alarm() {
@@ -483,7 +597,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "2.1-cloudflare-realtime",
+        phase: "2.2-ready-and-start",
         durableObjects: true,
       });
     }
