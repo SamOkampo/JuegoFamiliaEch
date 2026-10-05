@@ -4,12 +4,15 @@
 
 - Fase 0 completada salvo nombre comercial definitivo.
 - Fase 1 integrada en `main` mediante PR #1 con CI verde.
-- Fase 2 en desarrollo en `phase-2-cloudflare-realtime`.
-- Backend Cloudflare creado y desplegado como `juego-familia-ech`.
+- Fase 2 casi cerrada en `phase-2-cloudflare-realtime`; queda la validación E2E con varios dispositivos reales.
+- Backend Cloudflare desplegado como `juego-familia-ech`.
 - Durable Object `GameRoom` provisionado con SQLite.
-- API de crear/unirse a sala implementada.
-- Lobby con WebSocket Hibernation, presencia y reconexión implementado.
-- Frontend `/online` y `/room/[code]` conectado al Worker.
+- Crear/unirse a sala, presencia, reconexión y transferencia básica de host implementados.
+- Lobby listo/no listo sincronizado en tiempo real.
+- El host puede iniciar cuando todos están conectados y listos.
+- El Durable Object selecciona un primer jugador y una primera pregunta y los sincroniza a todos los teléfonos.
+- Salida explícita de sala elimina credenciales locales y limpia el jugador del backend.
+- El CI ahora cancela ejecuciones obsoletas y valida también la sintaxis del Worker.
 
 ## Infraestructura actual
 
@@ -19,15 +22,21 @@
 - Persistencia por sala: SQLite del Durable Object.
 - Endpoint: `https://juego-familia-ech.socampoecheverry.workers.dev`.
 - Sin Supabase para este proyecto.
+- Query strings ocultos en observabilidad para no registrar tokens WebSocket.
 
-## Siguiente bloque
+## Gate actual
 
-1. Pasar CI de la rama de Fase 2.
-2. Verificar dos o más clientes conectados a la misma sala.
-3. Añadir estado listo/no listo.
-4. Permitir al host iniciar partida.
-5. Sincronizar primer turno y pregunta.
-6. Añadir transferencia de host/reentrada robusta.
+1. Esperar CI verde del PR #2.
+2. Fusionar PR #2.
+3. Hacer prueba E2E real con dos navegadores/teléfonos en la misma sala.
+4. Si pasa, cerrar formalmente Fase 2 y seguir con Fase 3.
+
+## Próximo bloque de Fase 3
+
+1. Revelar pregunta de forma sincronizada.
+2. Cambiar pregunta sin repetir.
+3. Siguiente turno idempotente.
+4. Finalizar partida y recap mínimo.
 
 ## Decisiones vigentes
 
