@@ -115,7 +115,8 @@ Criterios:
 - [ ] Analítica mínima y respetuosa.
 - [ ] Error monitoring.
 - [ ] Privacidad/términos.
-- [ ] Beta con grupos reales.\n- [ ] Smoke físico iPhone Safari + Android Chrome según `docs/MOBILE_QA.md`.
+- [ ] Beta con grupos reales.
+- [ ] Smoke físico iPhone Safari + Android Chrome según `docs/MOBILE_QA.md`.
 - [ ] Métricas de activación y finalización de partida.
 
 ## Fase 11 — Expansión
