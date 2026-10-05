@@ -5,7 +5,7 @@ test("deep link prefills the room code on mobile", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: /Cada persona/i })).toBeVisible();
   await expect(page.getByLabel("Código de sala")).toHaveValue("ABC123");
-  await expect(page.getByLabel("Tu nombre").last()).toBeVisible();
+  await expect(page.getByLabel("Tu nombre para entrar")).toBeVisible();
 });
 
 test("room deep link without credentials fails safely and stays usable", async ({ page }) => {
