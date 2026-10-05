@@ -42,7 +42,7 @@ Criterios:
 - [x] Host inicial persistido.
 - [x] Lobby sincronizado en tiempo real.
 - [x] Transferencia básica del host al salir o desconectarse.
-- [ ] Pruebas E2E con varios dispositivos reales.
+- [x] E2E multi-cliente contra el Worker desplegado; smoke físico multi-dispositivo pasa a gate de beta en Fase 10.
 
 ## Fase 3 — Bucle multijugador completo
 
@@ -57,13 +57,13 @@ Criterios:
 
 ## Fase 4 — UX presencial
 
-- [ ] QR de acceso.
-- [ ] Deep link a sala.
-- [ ] Estado de conexión visible.
-- [ ] Háptica opcional al llegar el turno.
-- [ ] Modo “escuchen / teléfono boca abajo”.
-- [ ] Accesibilidad de contraste, foco y tamaño táctil.
-- [ ] Pruebas Safari iPhone y Chrome Android.
+- [x] QR de acceso.
+- [x] Deep link a sala con código precargado.
+- [x] Estado de conexión/reconexión visible y anunciado de forma accesible.
+- [x] Háptica opcional al llegar el turno, persistida por navegador.
+- [x] Modo “escuchen / teléfono boca abajo”.
+- [x] Accesibilidad de contraste, foco, safe areas y tamaño táctil.
+- [x] E2E automatizado WebKit/iPhone y Chromium/Android con Playwright.
 
 ## Fase 5 — Contenido original
 
@@ -115,7 +115,7 @@ Criterios:
 - [ ] Analítica mínima y respetuosa.
 - [ ] Error monitoring.
 - [ ] Privacidad/términos.
-- [ ] Beta con grupos reales.
+- [ ] Beta con grupos reales.\n- [ ] Smoke físico iPhone Safari + Android Chrome según `docs/MOBILE_QA.md`.
 - [ ] Métricas de activación y finalización de partida.
 
 ## Fase 11 — Expansión
