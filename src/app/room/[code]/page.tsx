@@ -4,7 +4,15 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { QUESTIONS } from "@/lib/questions";
+import {
+  getQuestionPoolIndexes,
+  GROUP_TYPE_LABELS,
+  QUESTION_DECK_VERSION,
+  QUESTIONS,
+  type AgeBand,
+  type GroupType,
+  type QuestionIntensity,
+} from "@/lib/questions";
 import {
   buildRoomWebSocketUrl,
   clearRoomSession,
@@ -22,6 +30,18 @@ import {
 } from "@/lib/presential";
 
 type ConnectionState = "connecting" | "online" | "offline";
+
+const AGE_LABELS: Record<AgeBand, string> = {
+  8: "8–11 años",
+  12: "12–15 años",
+  16: "16+ años",
+};
+
+const INTENSITY_LABELS: Record<QuestionIntensity, string> = {
+  1: "Ligero",
+  2: "Conectar",
+  3: "Profundo",
+};
 
 export default function RoomPage() {
   const params = useParams<{ code: string }>();
@@ -196,6 +216,14 @@ export default function RoomPage() {
     return QUESTIONS[room.game.questionIndex % QUESTIONS.length];
   }, [room]);
 
+  const questionPool = useMemo(
+    () =>
+      room
+        ? getQuestionPoolIndexes(QUESTIONS, room.settings)
+        : [],
+    [room],
+  );
+
   const isHost = Boolean(session && room && session.playerId === room.hostId);
   const canControlTurn = Boolean(
     session &&
@@ -250,8 +278,40 @@ export default function RoomPage() {
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
+  function updateRoomSettings(
+    patch: Partial<{
+      groupType: GroupType;
+      youngestAge: AgeBand;
+      maxIntensity: QuestionIntensity;
+    }>,
+  ) {
+    if (!room || !isHost) return;
+
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "settings",
+      settings: {
+        ...room.settings,
+        ...patch,
+      },
+    });
+
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
   function startGame() {
-    const sent = sendRoomEvent(socketRef.current, { type: "start" });
+    if (!room) return;
+
+    const pool = getQuestionPoolIndexes(QUESTIONS, room.settings);
+    if (pool.length < 2) {
+      setError("Los filtros dejaron muy pocas preguntas. Ajusta la ronda.");
+      return;
+    }
+
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "start",
+      deckVersion: QUESTION_DECK_VERSION,
+      questionPool: pool,
+    });
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
@@ -438,7 +498,7 @@ export default function RoomPage() {
                 <div className="cardMeta">
                   <span>pregunta oculta</span>
                   <span>
-                    {room.game.usedQuestionCount} de {QUESTIONS.length}
+                    {room.game.usedQuestionCount} de {room.game.questionPoolSize}
                   </span>
                 </div>
                 <p className="hiddenPrompt">
@@ -506,6 +566,100 @@ export default function RoomPage() {
               El anfitrión podrá iniciar cuando el grupo completo esté listo.
             </p>
           </div>
+
+          <section className="contentSettings" aria-label="Configurar preguntas">
+            <div>
+              <p className="eyebrow">TIPO DE RONDA</p>
+              <strong>El mazo se adapta al grupo antes de empezar.</strong>
+              <p className="muted">
+                Si el anfitrión cambia un filtro, todos vuelven a “No listo”
+                para confirmar la nueva ronda.
+              </p>
+            </div>
+
+            {room ? (
+              isHost ? (
+                <div className="filterGrid">
+                  <label>
+                    Grupo
+                    <select
+                      value={room.settings.groupType}
+                      onChange={(event) =>
+                        updateRoomSettings({
+                          groupType: event.target.value as GroupType,
+                        })
+                      }
+                    >
+                      {(
+                        Object.entries(GROUP_TYPE_LABELS) as Array<
+                          [GroupType, string]
+                        >
+                      ).map(([value, label]) => (
+                        <option value={value} key={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Persona más joven
+                    <select
+                      value={room.settings.youngestAge}
+                      onChange={(event) =>
+                        updateRoomSettings({
+                          youngestAge: Number(event.target.value) as AgeBand,
+                        })
+                      }
+                    >
+                      {(
+                        Object.entries(AGE_LABELS) as Array<[string, string]>
+                      ).map(([value, label]) => (
+                        <option value={value} key={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Profundidad máxima
+                    <select
+                      value={room.settings.maxIntensity}
+                      onChange={(event) =>
+                        updateRoomSettings({
+                          maxIntensity: Number(
+                            event.target.value,
+                          ) as QuestionIntensity,
+                        })
+                      }
+                    >
+                      {(
+                        Object.entries(INTENSITY_LABELS) as Array<
+                          [string, string]
+                        >
+                      ).map(([value, label]) => (
+                        <option value={value} key={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              ) : (
+                <p className="filterSummary">
+                  {GROUP_TYPE_LABELS[room.settings.groupType]} ·{" "}
+                  {AGE_LABELS[room.settings.youngestAge]} · hasta{" "}
+                  {INTENSITY_LABELS[room.settings.maxIntensity]}
+                </p>
+              )
+            ) : null}
+
+            <p className="poolCount" role="status">
+              <strong>{questionPool.length}</strong> preguntas disponibles con
+              estos filtros.
+            </p>
+          </section>
 
           <section className="invitePanel" aria-label="Invitar personas">
             <div>

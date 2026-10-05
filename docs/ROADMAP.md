@@ -67,11 +67,11 @@ Criterios:
 
 ## Fase 5 — Contenido original
 
-- [ ] 150+ preguntas originales.
-- [ ] Categorías y niveles de intensidad.
-- [ ] Filtros por tipo de grupo/edad cuando corresponda.
-- [ ] Revisión de duplicados y calidad.
-- [ ] Política editorial documentada.
+- [x] 160 preguntas originales en `core-v2-160`.
+- [x] Ocho categorías y tres niveles de intensidad.
+- [x] Filtros sincronizados por grupo, edad mínima editorial e intensidad máxima.
+- [x] CI valida IDs, duplicados normalizados, metadatos, categorías y pools de filtros.
+- [x] Política editorial documentada en `docs/CONTENT_POLICY.md`.
 
 ## Fase 6 — Pantalla central
 
