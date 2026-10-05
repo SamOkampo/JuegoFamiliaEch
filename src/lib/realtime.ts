@@ -6,7 +6,16 @@ export type RoomPlayer = {
   id: string;
   name: string;
   connected: boolean;
+  ready: boolean;
   joinedAt: string;
+};
+
+export type RoomGameState = {
+  deckVersion: string;
+  currentPlayerId: string;
+  questionIndex: number;
+  turnNumber: number;
+  revealed: boolean;
 };
 
 export type RoomSnapshot = {
@@ -15,7 +24,9 @@ export type RoomSnapshot = {
   hostId: string;
   createdAt: string;
   version: number;
+  canStart: boolean;
   players: RoomPlayer[];
+  game: RoomGameState | null;
 };
 
 export type RoomSession = {
@@ -31,6 +42,12 @@ type RoomAuthResponse = {
   token: string;
   room: RoomSnapshot;
 };
+
+export type ClientRoomEvent =
+  | { type: "sync" }
+  | { type: "ready"; ready: boolean }
+  | { type: "start" }
+  | { type: "leave" };
 
 export function normalizeRoomCode(value: string): string {
   return value
@@ -151,6 +168,15 @@ export function buildRoomWebSocketUrl(
   return url.toString();
 }
 
+export function sendRoomEvent(
+  socket: WebSocket | null,
+  event: ClientRoomEvent,
+): boolean {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return false;
+  socket.send(JSON.stringify(event));
+  return true;
+}
+
 export function roomErrorMessage(code: string): string {
   const messages: Record<string, string> = {
     NAME_REQUIRED: "Escribe tu nombre para continuar.",
@@ -159,6 +185,10 @@ export function roomErrorMessage(code: string): string {
     ROOM_FULL: "La sala ya está llena.",
     NAME_TAKEN: "Ese nombre ya está usado en la sala.",
     UNAUTHORIZED_PLAYER: "Tu acceso a esta sala ya no es válido.",
+    HOST_ONLY: "Solo el anfitrión puede iniciar la partida.",
+    ROOM_NOT_READY: "Todos deben estar conectados y marcarse como listos.",
+    GAME_ALREADY_STARTED: "La partida ya comenzó.",
+    PLAYER_NOT_FOUND: "Tu jugador ya no está en esta sala.",
   };
   return messages[code] ?? code;
 }
