@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { QUESTIONS } from "@/lib/questions";
 import {
   buildRoomWebSocketUrl,
   loadRoomSession,
   normalizeRoomCode,
+  roomErrorMessage,
+  sendRoomEvent,
   type RoomSession,
   type RoomSnapshot,
 } from "@/lib/realtime";
@@ -21,6 +24,7 @@ export default function RoomPage() {
   const [connection, setConnection] =
     useState<ConnectionState>("connecting");
   const [error, setError] = useState("");
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     const saved = loadRoomSession(code);
@@ -35,7 +39,6 @@ export default function RoomPage() {
     }
 
     let stopped = false;
-    let socket: WebSocket | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let retryDelay = 1000;
 
@@ -44,18 +47,19 @@ export default function RoomPage() {
       setConnection("connecting");
 
       const ws = new WebSocket(buildRoomWebSocketUrl(saved));
-      socket = ws;
+      socketRef.current = ws;
 
       ws.onopen = () => {
         if (stopped) return;
         retryDelay = 1000;
         setConnection("online");
         setError("");
-        ws.send(JSON.stringify({ type: "sync" }));
+        sendRoomEvent(ws, { type: "sync" });
       };
 
       ws.onmessage = (event) => {
         if (event.data === "pong") return;
+
         try {
           const payload = JSON.parse(String(event.data)) as {
             type?: string;
@@ -65,6 +69,12 @@ export default function RoomPage() {
 
           if (payload.type === "snapshot" && payload.room) {
             setRoom(payload.room);
+            setError("");
+            return;
+          }
+
+          if (payload.type === "error" && payload.error) {
+            setError(roomErrorMessage(payload.error));
           }
         } catch {
           // Ignore malformed frames and wait for the next snapshot.
@@ -79,6 +89,7 @@ export default function RoomPage() {
 
       ws.onclose = () => {
         if (stopped) return;
+        socketRef.current = null;
         setConnection("offline");
         retryTimer = setTimeout(connect, retryDelay);
         retryDelay = Math.min(retryDelay * 2, 8000);
@@ -90,7 +101,8 @@ export default function RoomPage() {
     return () => {
       stopped = true;
       if (retryTimer) clearTimeout(retryTimer);
-      socket?.close(1000, "page closed");
+      socketRef.current?.close(1000, "page closed");
+      socketRef.current = null;
     };
   }, [code]);
 
@@ -99,11 +111,44 @@ export default function RoomPage() {
     [room, session],
   );
 
+  const currentPlayer = useMemo(
+    () =>
+      room?.game
+        ? room.players.find((player) => player.id === room.game?.currentPlayerId)
+        : undefined,
+    [room],
+  );
+
+  const currentQuestion = useMemo(() => {
+    if (!room?.game || QUESTIONS.length === 0) return undefined;
+    return QUESTIONS[room.game.questionIndex % QUESTIONS.length];
+  }, [room]);
+
+  const isHost = Boolean(session && room && session.playerId === room.hostId);
+
   async function copyCode() {
     try {
       await navigator.clipboard.writeText(code);
     } catch {
       // The visible code can still be copied manually.
+    }
+  }
+
+  function toggleReady() {
+    if (!me) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "ready",
+      ready: !me.ready,
+    });
+    if (!sent) {
+      setError("Todavía no estás conectado a la sala.");
+    }
+  }
+
+  function startGame() {
+    const sent = sendRoomEvent(socketRef.current, { type: "start" });
+    if (!sent) {
+      setError("Todavía no estás conectado a la sala.");
     }
   }
 
@@ -143,45 +188,111 @@ export default function RoomPage() {
         </span>
       </header>
 
-      <section className="panel lobbyPanel">
-        <div className="lobbyIntro">
-          <p className="eyebrow">LOBBY EN TIEMPO REAL</p>
-          <h2>
-            {me ? "Hola, " + me.name + "." : "Esperando tu conexión…"}
-          </h2>
-          <p className="muted">
-            Pide a todos que entren a la misma sala. Verás aparecer sus nombres
-            aquí en tiempo real.
-          </p>
-        </div>
+      {error ? <p className="errorBanner">{error}</p> : null}
 
-        <div className="memberList" aria-live="polite">
-          {room?.players.map((player, index) => (
-            <div className="memberRow" key={player.id}>
-              <span className={"presenceDot " + (player.connected ? "on" : "")} />
-              <div className="memberIdentity">
-                <strong>{player.name}</strong>
-                <small>
-                  {player.id === room.hostId
-                    ? "Anfitrión"
-                    : "Jugador " + (index + 1)}
-                </small>
-              </div>
-              {player.id === session?.playerId ? (
-                <span className="youPill">Tú</span>
-              ) : null}
+      {room?.status === "playing" && room.game ? (
+        <section className="panel synchronizedGame">
+          <div className="syncGameTop">
+            <div>
+              <p className="eyebrow">PARTIDA SINCRONIZADA · TURNO {room.game.turnNumber}</p>
+              <h2>
+                {currentPlayer?.id === session?.playerId
+                  ? "Es tu turno."
+                  : "Turno de " + (currentPlayer?.name ?? "otro jugador") + "."}
+              </h2>
             </div>
-          )) ?? <p className="muted">Conectando con la sala…</p>}
-        </div>
+            <span className="syncPill">En vivo</span>
+          </div>
 
-        <div className="lobbyFooter">
-          <strong>{room?.players.length ?? 0} conectados a la sala</strong>
-          <p className="muted">
-            En el siguiente bloque añadiremos “Listo”, inicio del host y el
-            primer turno sincronizado.
+          <div className="syncedQuestionCard">
+            <div className="cardMeta">
+              <span>{currentQuestion?.category ?? "pregunta"}</span>
+              <span>nivel {currentQuestion?.intensity ?? "—"}</span>
+            </div>
+            <p className="questionText">
+              {currentQuestion?.text ?? "Preparando la pregunta…"}
+            </p>
+          </div>
+
+          <p className="muted syncedNote">
+            Todos los teléfonos de la sala reciben el mismo jugador y la misma
+            pregunta desde Cloudflare. En el siguiente bloque añadiremos
+            revelar, cambiar pregunta y pasar turno.
           </p>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="panel lobbyPanel">
+          <div className="lobbyIntro">
+            <p className="eyebrow">LOBBY EN TIEMPO REAL</p>
+            <h2>
+              {me ? "Hola, " + me.name + "." : "Esperando tu conexión…"}
+            </h2>
+            <p className="muted">
+              Cuando todos estén conectados, cada persona marca “Estoy listo”.
+              El anfitrión podrá iniciar cuando el grupo completo esté listo.
+            </p>
+          </div>
+
+          <div className="memberList" aria-live="polite">
+            {room?.players.map((player, index) => (
+              <div className="memberRow" key={player.id}>
+                <span className={"presenceDot " + (player.connected ? "on" : "")} />
+                <div className="memberIdentity">
+                  <strong>{player.name}</strong>
+                  <small>
+                    {player.id === room.hostId
+                      ? "Anfitrión"
+                      : "Jugador " + (index + 1)}
+                  </small>
+                </div>
+                <span className={"readyPill " + (player.ready ? "isReady" : "")}>
+                  {player.ready ? "Listo" : "No listo"}
+                </span>
+                {player.id === session?.playerId ? (
+                  <span className="youPill">Tú</span>
+                ) : null}
+              </div>
+            )) ?? <p className="muted">Conectando con la sala…</p>}
+          </div>
+
+          <div className="lobbyActions">
+            <button
+              type="button"
+              className={"button " + (me?.ready ? "secondary" : "primary")}
+              disabled={!me || connection !== "online"}
+              onClick={toggleReady}
+            >
+              {me?.ready ? "Ya no estoy listo" : "Estoy listo"}
+            </button>
+
+            {isHost ? (
+              <button
+                type="button"
+                className="button primary"
+                disabled={!room?.canStart || connection !== "online"}
+                onClick={startGame}
+              >
+                Iniciar partida
+              </button>
+            ) : (
+              <p className="muted waitingHost">
+                Esperando a que el anfitrión inicie.
+              </p>
+            )}
+          </div>
+
+          <div className="lobbyFooter">
+            <strong>
+              {room?.players.filter((player) => player.connected).length ?? 0} de{" "}
+              {room?.players.length ?? 0} conectados
+            </strong>
+            <p className="muted">
+              Para empezar se necesitan al menos 2 personas, todas conectadas y
+              marcadas como listas.
+            </p>
+          </div>
+        </section>
+      )}
 
       <p className="backLink">
         <Link href="/online">← Salir al inicio multijugador</Link>
