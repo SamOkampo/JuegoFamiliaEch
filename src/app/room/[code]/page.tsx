@@ -84,9 +84,7 @@ export default function RoomPage() {
       };
 
       ws.onerror = () => {
-        if (!stopped) {
-          setConnection("offline");
-        }
+        if (!stopped) setConnection("offline");
       };
 
       ws.onclose = () => {
@@ -122,11 +120,23 @@ export default function RoomPage() {
   );
 
   const currentQuestion = useMemo(() => {
-    if (!room?.game || QUESTIONS.length === 0) return undefined;
+    if (
+      !room?.game ||
+      !room.game.revealed ||
+      room.game.questionIndex === null ||
+      QUESTIONS.length === 0
+    ) {
+      return undefined;
+    }
     return QUESTIONS[room.game.questionIndex % QUESTIONS.length];
   }, [room]);
 
   const isHost = Boolean(session && room && session.playerId === room.hostId);
+  const canControlTurn = Boolean(
+    session &&
+      room?.game &&
+      (session.playerId === room.game.currentPlayerId || isHost),
+  );
 
   async function copyCode() {
     try {
@@ -142,16 +152,44 @@ export default function RoomPage() {
       type: "ready",
       ready: !me.ready,
     });
-    if (!sent) {
-      setError("Todavía no estás conectado a la sala.");
-    }
+    if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
   function startGame() {
     const sent = sendRoomEvent(socketRef.current, { type: "start" });
-    if (!sent) {
-      setError("Todavía no estás conectado a la sala.");
-    }
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function revealQuestion() {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "reveal",
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function skipQuestion() {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "skip-question",
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function nextTurn() {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "next-turn",
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function finishGame() {
+    const sent = sendRoomEvent(socketRef.current, { type: "finish" });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
   function leaveRoom() {
@@ -200,11 +238,48 @@ export default function RoomPage() {
 
       {error ? <p className="errorBanner">{error}</p> : null}
 
-      {room?.status === "playing" && room.game ? (
+      {room?.status === "finished" && room.game ? (
         <section className="panel synchronizedGame">
           <div className="syncGameTop">
             <div>
-              <p className="eyebrow">PARTIDA SINCRONIZADA · TURNO {room.game.turnNumber}</p>
+              <p className="eyebrow">RONDA TERMINADA</p>
+              <h2>Gracias por sentarse a conversar.</h2>
+            </div>
+            <span className="syncPill">Completada</span>
+          </div>
+
+          <div className="recapGrid">
+            <div>
+              <strong>{room.players.length}</strong>
+              <span>personas</span>
+            </div>
+            <div>
+              <strong>{room.game.turnNumber}</strong>
+              <span>turnos</span>
+            </div>
+            <div>
+              <strong>{room.game.usedQuestionCount}</strong>
+              <span>preguntas usadas</span>
+            </div>
+          </div>
+
+          <p className="muted syncedNote">
+            {room.game.finishReason === "deck-complete"
+              ? "El mazo de esta versión llegó a su final."
+              : "El anfitrión decidió cerrar la ronda."}
+          </p>
+
+          <button type="button" className="button secondary wide" onClick={leaveRoom}>
+            Salir de la sala
+          </button>
+        </section>
+      ) : room?.status === "playing" && room.game ? (
+        <section className="panel synchronizedGame">
+          <div className="syncGameTop">
+            <div>
+              <p className="eyebrow">
+                PARTIDA EN VIVO · TURNO {room.game.turnNumber}
+              </p>
               <h2>
                 {currentPlayer?.id === session?.playerId
                   ? "Es tu turno."
@@ -214,21 +289,80 @@ export default function RoomPage() {
             <span className="syncPill">En vivo</span>
           </div>
 
-          <div className="syncedQuestionCard">
-            <div className="cardMeta">
-              <span>{currentQuestion?.category ?? "pregunta"}</span>
-              <span>nivel {currentQuestion?.intensity ?? "—"}</span>
-            </div>
-            <p className="questionText">
-              {currentQuestion?.text ?? "Preparando la pregunta…"}
-            </p>
+          <div className={"syncedQuestionCard " + (room.game.revealed ? "revealed" : "")}>
+            {room.game.revealed ? (
+              <>
+                <div className="cardMeta">
+                  <span>{currentQuestion?.category ?? "pregunta"}</span>
+                  <span>nivel {currentQuestion?.intensity ?? "—"}</span>
+                </div>
+                <p className="questionText">
+                  {currentQuestion?.text ?? "Preparando la pregunta…"}
+                </p>
+                <p className="listenHint">
+                  Ahora dejen el teléfono y escuchen la historia.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="cardMeta">
+                  <span>pregunta oculta</span>
+                  <span>
+                    {room.game.usedQuestionCount} de {QUESTIONS.length}
+                  </span>
+                </div>
+                <p className="hiddenPrompt">
+                  {canControlTurn
+                    ? "Cuando estén listos, revela la pregunta para todo el grupo."
+                    : "Esperando a que la persona del turno revele la pregunta."}
+                </p>
+                {canControlTurn ? (
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={revealQuestion}
+                  >
+                    Revelar pregunta
+                  </button>
+                ) : null}
+              </>
+            )}
           </div>
 
-          <p className="muted syncedNote">
-            Todos los teléfonos de la sala reciben el mismo jugador y la misma
-            pregunta desde Cloudflare. En el siguiente bloque añadiremos
-            revelar, cambiar pregunta y pasar turno.
-          </p>
+          {canControlTurn ? (
+            <div className="gameActionGrid">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={skipQuestion}
+              >
+                Cambiar pregunta
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                disabled={!room.game.revealed}
+                onClick={nextTurn}
+              >
+                Siguiente persona
+              </button>
+            </div>
+          ) : (
+            <p className="muted syncedNote">
+              Escucha la respuesta. Los controles de turno aparecen en el
+              teléfono de la persona que está jugando.
+            </p>
+          )}
+
+          {isHost ? (
+            <button
+              type="button"
+              className="textButton dangerTextButton"
+              onClick={finishGame}
+            >
+              Terminar partida
+            </button>
+          ) : null}
         </section>
       ) : (
         <section className="panel lobbyPanel">
@@ -304,11 +438,13 @@ export default function RoomPage() {
         </section>
       )}
 
-      <div className="backLink">
-        <button type="button" className="textButton" onClick={leaveRoom}>
-          ← Salir de la sala
-        </button>
-      </div>
+      {room?.status !== "finished" ? (
+        <div className="backLink">
+          <button type="button" className="textButton" onClick={leaveRoom}>
+            ← Salir de la sala
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }
