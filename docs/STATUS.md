@@ -4,15 +4,20 @@
 
 - Fase 0 completada salvo nombre comercial definitivo.
 - Fase 1 integrada en `main` mediante PR #1 con CI verde.
-- Fase 2 casi cerrada en `phase-2-cloudflare-realtime`; queda la validación E2E con varios dispositivos reales.
+- Fases 2 y 3 implementadas en `phase-2-cloudflare-realtime`, pendientes del gate final de CI/merge y de una prueba E2E física con dos dispositivos.
 - Backend Cloudflare desplegado como `juego-familia-ech`.
 - Durable Object `GameRoom` provisionado con SQLite.
 - Crear/unirse a sala, presencia, reconexión y transferencia básica de host implementados.
 - Lobby listo/no listo sincronizado en tiempo real.
-- El host puede iniciar cuando todos están conectados y listos.
-- El Durable Object selecciona un primer jugador y una primera pregunta y los sincroniza a todos los teléfonos.
-- Salida explícita de sala elimina credenciales locales y limpia el jugador del backend.
-- El CI ahora cancela ejecuciones obsoletas y valida también la sintaxis del Worker.
+- El host inicia únicamente cuando hay 2+ jugadores conectados y listos.
+- El servidor elige el primer jugador y la primera pregunta.
+- Las preguntas permanecen ocultas hasta el evento sincronizado de revelar.
+- Cambiar pregunta evita reutilizar preguntas ya vistas o saltadas.
+- El siguiente turno usa `expectedTurnNumber` para rechazar dobles clics/eventos obsoletos.
+- La partida termina por decisión del host o al agotar el mazo.
+- Existe recap mínimo con personas, turnos y preguntas usadas.
+- Salida explícita elimina credenciales locales y limpia el jugador del backend.
+- El CI cancela ejecuciones obsoletas y valida typecheck, tests, sintaxis del Worker y build.
 
 ## Infraestructura actual
 
@@ -26,17 +31,19 @@
 
 ## Gate actual
 
-1. Esperar CI verde del PR #2.
-2. Fusionar PR #2.
-3. Hacer prueba E2E real con dos navegadores/teléfonos en la misma sala.
-4. Si pasa, cerrar formalmente Fase 2 y seguir con Fase 3.
+1. Obtener CI verde del head actual del PR #2.
+2. Fusionar PR #2 a `main`.
+3. Hacer prueba E2E física con dos navegadores/teléfonos en la misma sala.
+4. Si la prueba física revela un bug, corregirlo antes de iniciar Fase 4.
 
-## Próximo bloque de Fase 3
+## Próxima fase
 
-1. Revelar pregunta de forma sincronizada.
-2. Cambiar pregunta sin repetir.
-3. Siguiente turno idempotente.
-4. Finalizar partida y recap mínimo.
+Fase 4 — UX presencial:
+- QR/deep link.
+- háptica opcional.
+- modo teléfono boca abajo.
+- accesibilidad.
+- pruebas Safari iPhone y Chrome Android.
 
 ## Decisiones vigentes
 
