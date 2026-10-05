@@ -908,3 +908,75 @@ input {
     color: var(--ink);
   }
 }
+
+
+.contentSettings {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 250, 244, 0.72);
+}
+
+.contentSettings strong {
+  display: block;
+  line-height: 1.35;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.filterGrid label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.filterGrid select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 38px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.filterSummary,
+.poolCount {
+  margin: 0;
+}
+
+.filterSummary {
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--muted);
+  background: white;
+  font-weight: 750;
+}
+
+.poolCount {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.poolCount strong {
+  display: inline;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+@media (max-width: 680px) {
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+}
