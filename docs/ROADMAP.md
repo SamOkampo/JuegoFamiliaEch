@@ -24,8 +24,8 @@ Criterios:
 - [x] Turnos cíclicos.
 - [x] Revelar y cambiar pregunta.
 - [x] Primer mazo de preguntas originales.
-- [ ] Tests unitarios del motor.
-- [ ] CI de build + typecheck.
+- [x] Tests unitarios del motor.
+- [x] CI de build + typecheck.
 
 ## Fase 2 — Salas multijugador realtime
 
@@ -46,14 +46,14 @@ Criterios:
 
 ## Fase 3 — Bucle multijugador completo
 
-- [ ] Lobby y listo/no listo.
-- [ ] Inicio controlado por host.
-- [ ] Turnos consistentes entre clientes.
-- [ ] Revelar pregunta.
-- [ ] Cambiar pregunta.
-- [ ] Siguiente turno idempotente.
-- [ ] Finalizar partida.
-- [ ] Evitar repetición de preguntas durante una sesión.
+- [x] Lobby y listo/no listo.
+- [x] Inicio controlado por host.
+- [x] Turnos consistentes entre clientes.
+- [x] Revelar pregunta.
+- [x] Cambiar pregunta sin repetir.
+- [x] Siguiente turno idempotente mediante `expectedTurnNumber`.
+- [x] Finalizar partida manualmente o al agotar el mazo.
+- [x] Evitar repetición de preguntas durante una sesión.
 
 ## Fase 4 — UX presencial
 
