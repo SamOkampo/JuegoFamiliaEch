@@ -687,3 +687,224 @@ input:focus {
     min-height: 88px;
   }
 }
+
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+button,
+input,
+.button,
+.textButton {
+  min-height: 44px;
+}
+
+button,
+a,
+input {
+  touch-action: manipulation;
+}
+
+:where(button, a, input):focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.deepLinkNotice {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 250, 244, 0.9);
+  line-height: 1.45;
+}
+
+.roomUtilities {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hapticToggle {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 250, 244, 0.82);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.hapticToggle.enabled {
+  color: #2f7445;
+  background: rgba(79, 159, 104, 0.12);
+}
+
+.invitePanel {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.invitePanel strong {
+  display: block;
+  line-height: 1.35;
+}
+
+.inviteUrlText {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+}
+
+.inviteActions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+}
+
+.qrWrap {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 20px;
+  text-align: center;
+  background: white;
+}
+
+.qrWrap img {
+  display: block;
+  width: min(240px, 100%);
+  height: auto;
+  border-radius: 14px;
+}
+
+.qrWrap p,
+.inviteFeedback {
+  margin: 0;
+}
+
+.inviteFeedback {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.listenModeButton {
+  align-self: center;
+  margin-top: 10px;
+}
+
+.listenOverlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding:
+    max(22px, env(safe-area-inset-top))
+    max(22px, env(safe-area-inset-right))
+    max(22px, env(safe-area-inset-bottom))
+    max(22px, env(safe-area-inset-left));
+  background: rgba(43, 33, 26, 0.94);
+}
+
+.listenOverlayCard {
+  width: min(560px, 100%);
+  padding: 30px;
+  border-radius: 28px;
+  color: #fffaf4;
+  text-align: center;
+}
+
+.listenOverlayCard .eyebrow {
+  color: rgba(255, 250, 244, 0.66);
+}
+
+.listenOverlayCard h2 {
+  margin: 8px auto 16px;
+  max-width: 11ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.4rem, 10vw, 5rem);
+  font-weight: 500;
+  line-height: 0.98;
+}
+
+.listenOverlayCard p:not(.eyebrow) {
+  max-width: 38rem;
+  margin: 0 auto 26px;
+  color: rgba(255, 250, 244, 0.82);
+  line-height: 1.55;
+}
+
+.listenOverlayCard .button {
+  border-color: rgba(255, 250, 244, 0.35);
+  color: #fffaf4;
+  background: transparent;
+}
+
+@media (max-width: 680px) {
+  .roomUtilities {
+    align-items: flex-start;
+  }
+
+  .inviteActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .panel,
+  .memberRow,
+  .invitePanel,
+  .syncedQuestionCard {
+    border-width: 2px;
+  }
+
+  .muted,
+  .tapHint,
+  .memberIdentity small {
+    color: var(--ink);
+  }
+}
