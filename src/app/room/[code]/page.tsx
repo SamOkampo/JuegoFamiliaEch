@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import QRCode from "qrcode";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { QUESTIONS } from "@/lib/questions";
@@ -14,6 +15,11 @@ import {
   type RoomSession,
   type RoomSnapshot,
 } from "@/lib/realtime";
+import {
+  buildRoomInviteUrl,
+  buildRoomShareText,
+  HAPTICS_STORAGE_KEY,
+} from "@/lib/presential";
 
 type ConnectionState = "connecting" | "online" | "offline";
 
@@ -26,7 +32,14 @@ export default function RoomPage() {
   const [connection, setConnection] =
     useState<ConnectionState>("connecting");
   const [error, setError] = useState("");
+  const [inviteUrl, setInviteUrl] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteFeedback, setInviteFeedback] = useState("");
+  const [hapticsEnabled, setHapticsEnabled] = useState(false);
+  const [listenMode, setListenMode] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+  const turnSignatureRef = useRef<string | null>(null);
 
   useEffect(() => {
     const saved = loadRoomSession(code);
@@ -106,6 +119,58 @@ export default function RoomPage() {
     };
   }, [code]);
 
+  useEffect(() => {
+    setInviteUrl(buildRoomInviteUrl(window.location.origin, code));
+    setHapticsEnabled(
+      window.localStorage.getItem(HAPTICS_STORAGE_KEY) === "true",
+    );
+  }, [code]);
+
+  useEffect(() => {
+    if (!inviteUrl) return;
+
+    let active = true;
+    void QRCode.toDataURL(inviteUrl, {
+      width: 240,
+      margin: 1,
+      errorCorrectionLevel: "M",
+    })
+      .then((dataUrl) => {
+        if (active) setQrDataUrl(dataUrl);
+      })
+      .catch(() => {
+        if (active) setQrDataUrl("");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [inviteUrl]);
+
+  useEffect(() => {
+    if (!room?.game || room.status !== "playing") return;
+
+    const signature =
+      room.game.turnNumber + ":" + room.game.currentPlayerId;
+    if (turnSignatureRef.current === signature) return;
+
+    turnSignatureRef.current = signature;
+    setListenMode(false);
+
+    if (
+      hapticsEnabled &&
+      room.game.currentPlayerId === session?.playerId
+    ) {
+      navigator.vibrate?.([90, 60, 90]);
+    }
+  }, [
+    hapticsEnabled,
+    room?.game?.currentPlayerId,
+    room?.game?.turnNumber,
+    room?.status,
+    session?.playerId,
+  ]);
+
   const me = useMemo(
     () => room?.players.find((player) => player.id === session?.playerId),
     [room, session],
@@ -141,9 +206,39 @@ export default function RoomPage() {
   async function copyCode() {
     try {
       await navigator.clipboard.writeText(code);
+      setInviteFeedback("Código copiado.");
     } catch {
-      // The visible code can still be copied manually.
+      setInviteFeedback("No pudimos copiarlo automáticamente.");
     }
+  }
+
+  async function shareInvite() {
+    if (!inviteUrl) return;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Únete a mi sala",
+          text: buildRoomShareText(code),
+          url: inviteUrl,
+        });
+        setInviteFeedback("Invitación compartida.");
+        return;
+      }
+
+      await navigator.clipboard.writeText(inviteUrl);
+      setInviteFeedback("Enlace copiado.");
+    } catch (cause) {
+      if (cause instanceof DOMException && cause.name === "AbortError") return;
+      setInviteFeedback("No pudimos compartir. Copia el código manualmente.");
+    }
+  }
+
+  function toggleHaptics() {
+    const next = !hapticsEnabled;
+    setHapticsEnabled(next);
+    window.localStorage.setItem(HAPTICS_STORAGE_KEY, String(next));
+    if (next) navigator.vibrate?.(45);
   }
 
   function toggleReady() {
@@ -202,12 +297,12 @@ export default function RoomPage() {
 
   if (error && !session) {
     return (
-      <main className="shell">
+      <main className="shell" id="main-content">
         <section className="panel emptyRoom">
           <p className="eyebrow">SALA {code}</p>
           <h1>No pudimos reconectarte.</h1>
           <p className="lede">{error}</p>
-          <Link className="button primary linkButton" href="/online">
+          <Link className="button primary linkButton" href={"/online?room=" + code}>
             Entrar de nuevo
           </Link>
         </section>
@@ -216,27 +311,51 @@ export default function RoomPage() {
   }
 
   return (
-    <main className="shell roomShell">
+    <main className="shell roomShell" id="main-content">
       <header className="roomHeader">
         <div>
           <p className="eyebrow">SALA</p>
-          <button className="roomCode" type="button" onClick={copyCode}>
+          <button
+            className="roomCode"
+            type="button"
+            onClick={copyCode}
+            aria-label={"Copiar código de sala " + code}
+          >
             {code}
           </button>
           <p className="tapHint">Toca el código para copiarlo.</p>
         </div>
 
-        <span className={"connectionBadge " + connection}>
-          <span aria-hidden="true" />
-          {connection === "online"
-            ? "Conectado"
-            : connection === "connecting"
-              ? "Conectando"
-              : "Reconectando"}
-        </span>
+        <div className="roomUtilities">
+          <span
+            className={"connectionBadge " + connection}
+            role="status"
+            aria-live="polite"
+          >
+            <span aria-hidden="true" />
+            {connection === "online"
+              ? "Conectado"
+              : connection === "connecting"
+                ? "Conectando"
+                : "Reconectando"}
+          </span>
+
+          <button
+            type="button"
+            className={"hapticToggle " + (hapticsEnabled ? "enabled" : "")}
+            onClick={toggleHaptics}
+            aria-pressed={hapticsEnabled}
+          >
+            {hapticsEnabled ? "Vibración activada" : "Activar vibración"}
+          </button>
+        </div>
       </header>
 
-      {error ? <p className="errorBanner">{error}</p> : null}
+      {error ? (
+        <p className="errorBanner" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       {room?.status === "finished" && room.game ? (
         <section className="panel synchronizedGame">
@@ -289,7 +408,11 @@ export default function RoomPage() {
             <span className="syncPill">En vivo</span>
           </div>
 
-          <div className={"syncedQuestionCard " + (room.game.revealed ? "revealed" : "")}>
+          <div
+            className={
+              "syncedQuestionCard " + (room.game.revealed ? "revealed" : "")
+            }
+          >
             {room.game.revealed ? (
               <>
                 <div className="cardMeta">
@@ -302,6 +425,13 @@ export default function RoomPage() {
                 <p className="listenHint">
                   Ahora dejen el teléfono y escuchen la historia.
                 </p>
+                <button
+                  type="button"
+                  className="button secondary listenModeButton"
+                  onClick={() => setListenMode(true)}
+                >
+                  Modo escuchar
+                </button>
               </>
             ) : (
               <>
@@ -377,10 +507,67 @@ export default function RoomPage() {
             </p>
           </div>
 
+          <section className="invitePanel" aria-label="Invitar personas">
+            <div>
+              <p className="eyebrow">INVITAR</p>
+              <strong>Comparte el código o deja que escaneen el QR.</strong>
+              <p className="muted inviteUrlText">{inviteUrl}</p>
+            </div>
+
+            <div className="inviteActions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setShowInvite((current) => !current)}
+                aria-expanded={showInvite}
+              >
+                {showInvite ? "Ocultar QR" : "Mostrar QR"}
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                onClick={shareInvite}
+              >
+                Compartir invitación
+              </button>
+            </div>
+
+            {showInvite ? (
+              <div className="qrWrap">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    width={240}
+                    height={240}
+                    alt={"Código QR para entrar a la sala " + code}
+                  />
+                ) : (
+                  <p className="muted">Generando QR…</p>
+                )}
+                <p>
+                  Al escanearlo se abre la sala <strong>{code}</strong> lista
+                  para escribir el nombre.
+                </p>
+              </div>
+            ) : null}
+
+            {inviteFeedback ? (
+              <p className="inviteFeedback" role="status">
+                {inviteFeedback}
+              </p>
+            ) : null}
+          </section>
+
           <div className="memberList" aria-live="polite">
             {room?.players.map((player, index) => (
               <div className="memberRow" key={player.id}>
-                <span className={"presenceDot " + (player.connected ? "on" : "")} />
+                <span
+                  className={"presenceDot " + (player.connected ? "on" : "")}
+                  aria-hidden="true"
+                />
+                <span className="srOnly">
+                  {player.connected ? "Conectado" : "Desconectado"}
+                </span>
                 <div className="memberIdentity">
                   <strong>{player.name}</strong>
                   <small>
@@ -443,6 +630,31 @@ export default function RoomPage() {
           <button type="button" className="textButton" onClick={leaveRoom}>
             ← Salir de la sala
           </button>
+        </div>
+      ) : null}
+
+      {listenMode ? (
+        <div
+          className="listenOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="listen-mode-title"
+        >
+          <div className="listenOverlayCard">
+            <p className="eyebrow">MODO ESCUCHAR</p>
+            <h2 id="listen-mode-title">Pon el teléfono boca abajo.</h2>
+            <p>
+              La tecnología ya hizo su parte. Ahora mira a la persona que está
+              hablando y escucha su historia.
+            </p>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => setListenMode(false)}
+            >
+              Volver a la ronda
+            </button>
+          </div>
         </div>
       ) : null}
     </main>

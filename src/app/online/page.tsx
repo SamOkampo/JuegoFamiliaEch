@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createOnlineRoom,
@@ -18,6 +18,17 @@ export default function OnlinePage() {
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState("");
+  const [deepLinked, setDeepLinked] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const room = normalizeRoomCode(params.get("room") ?? "");
+
+    if (room.length === 6) {
+      setJoinCode(room);
+      setDeepLinked(true);
+    }
+  }, []);
 
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
@@ -59,9 +70,9 @@ export default function OnlinePage() {
   }
 
   return (
-    <main className="shell">
+    <main className="shell" id="main-content">
       <section className="hero">
-        <p className="eyebrow">MULTIJUGADOR · FASE 2</p>
+        <p className="eyebrow">MULTIJUGADOR</p>
         <h1>Cada persona, su teléfono. Una sola conversación.</h1>
         <p className="lede">
           Crea una sala o entra con el código de alguien que esté contigo.
@@ -69,15 +80,26 @@ export default function OnlinePage() {
         </p>
       </section>
 
-      {error ? <p className="errorBanner">{error}</p> : null}
+      {error ? (
+        <p className="errorBanner" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <section className="onlineGrid">
+      {deepLinked ? (
+        <p className="deepLinkNotice" role="status">
+          Sala <strong>{joinCode}</strong> detectada desde la invitación. Solo
+          escribe tu nombre para entrar.
+        </p>
+      ) : null}
+
+      <section className="onlineGrid" aria-label="Opciones multijugador">
         <form className="panel onlineCard" onSubmit={handleCreate}>
           <div>
             <p className="eyebrow">NUEVA SALA</p>
             <h2>Yo voy a reunir al grupo</h2>
             <p className="muted">
-              Recibirás un código de seis caracteres para compartir.
+              Recibirás un código de seis caracteres y un QR para compartir.
             </p>
           </div>
           <label htmlFor="create-name">Tu nombre</label>
@@ -103,8 +125,7 @@ export default function OnlinePage() {
             <p className="eyebrow">UNIRME</p>
             <h2>Ya tengo un código</h2>
             <p className="muted">
-              Escribe el código que aparece en el teléfono de quien creó la
-              sala.
+              Puedes escribirlo o llegar aquí escaneando el QR de la sala.
             </p>
           </div>
           <label htmlFor="join-code">Código de sala</label>
@@ -112,13 +133,16 @@ export default function OnlinePage() {
             id="join-code"
             className="codeInput"
             value={joinCode}
-            onChange={(event) => setJoinCode(normalizeRoomCode(event.target.value))}
+            onChange={(event) =>
+              setJoinCode(normalizeRoomCode(event.target.value))
+            }
             placeholder="ABC123"
             maxLength={6}
             autoCapitalize="characters"
             autoComplete="off"
+            inputMode="text"
           />
-          <label htmlFor="join-name">Tu nombre</label>
+          <label htmlFor="join-name">Tu nombre para entrar</label>
           <input
             id="join-name"
             value={joinName}
@@ -126,6 +150,7 @@ export default function OnlinePage() {
             placeholder="Ej. Andrea"
             maxLength={24}
             autoComplete="name"
+            autoFocus={deepLinked}
           />
           <button
             className="button secondary wide"
