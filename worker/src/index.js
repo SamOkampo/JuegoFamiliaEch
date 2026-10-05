@@ -8,6 +8,11 @@ const DECK_VERSION = "core-v2-160";
 const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
 const AGE_BANDS = [8, 12, 16];
 const INTENSITIES = [1, 2, 3];
+const DEFAULT_ROOM_SETTINGS = {
+  groupType: "family",
+  youngestAge: 12,
+  maxIntensity: 2,
+};
 
 function corsHeaders() {
   return {
@@ -214,6 +219,23 @@ export class GameRoom extends DurableObject {
 
     ctx.blockConcurrencyWhile(async () => {
       this.room = (await ctx.storage.get("room")) ?? null;
+
+      if (this.room && !this.room.settings) {
+        this.room.settings = { ...DEFAULT_ROOM_SETTINGS };
+      }
+
+      if (this.room?.game && !Array.isArray(this.room.game.questionPool)) {
+        const legacyCount =
+          this.room.game.deckVersion === "core-v1" ? 12 : QUESTION_COUNT;
+        this.room.game.questionPool = Array.from(
+          { length: legacyCount },
+          (_, index) => index,
+        );
+      }
+
+      if (this.room) {
+        await ctx.storage.put("room", this.room);
+      }
     });
   }
 
@@ -313,11 +335,7 @@ export class GameRoom extends DurableObject {
       createdAt: new Date(now).toISOString(),
       expiresAt: now + ROOM_TTL_MS,
       version: 1,
-      settings: {
-        groupType: "family",
-        youngestAge: 12,
-        maxIntensity: 2,
-      },
+      settings: { ...DEFAULT_ROOM_SETTINGS },
       game: null,
       players: [
         {
