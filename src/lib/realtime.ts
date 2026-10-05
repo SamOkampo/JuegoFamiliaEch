@@ -1,3 +1,9 @@
+import type {
+  AgeBand,
+  GroupType,
+  QuestionIntensity,
+} from "./questions";
+
 export const GAME_API_URL =
   process.env.NEXT_PUBLIC_GAME_API_URL?.replace(/\/$/, "") ??
   "https://juego-familia-ech.socampoecheverry.workers.dev";
@@ -10,6 +16,12 @@ export type RoomPlayer = {
   joinedAt: string;
 };
 
+export type RoomSettings = {
+  groupType: GroupType;
+  youngestAge: AgeBand;
+  maxIntensity: QuestionIntensity;
+};
+
 export type RoomGameState = {
   deckVersion: string;
   currentPlayerId: string;
@@ -17,6 +29,7 @@ export type RoomGameState = {
   turnNumber: number;
   revealed: boolean;
   usedQuestionCount: number;
+  questionPoolSize: number;
   startedAt: string;
   finishedAt: string | null;
   finishReason: "deck-complete" | "host-ended" | null;
@@ -29,6 +42,7 @@ export type RoomSnapshot = {
   createdAt: string;
   version: number;
   canStart: boolean;
+  settings: RoomSettings;
   players: RoomPlayer[];
   game: RoomGameState | null;
 };
@@ -50,7 +64,8 @@ type RoomAuthResponse = {
 export type ClientRoomEvent =
   | { type: "sync" }
   | { type: "ready"; ready: boolean }
-  | { type: "start" }
+  | { type: "settings"; settings: RoomSettings }
+  | { type: "start"; deckVersion: string; questionPool: number[] }
   | { type: "reveal"; expectedTurnNumber: number }
   | { type: "skip-question"; expectedTurnNumber: number }
   | { type: "next-turn"; expectedTurnNumber: number }
@@ -207,6 +222,10 @@ export function roomErrorMessage(code: string): string {
       "Solo la persona del turno o el anfitrión pueden controlar esta ronda.",
     STALE_TURN: "Ese turno ya cambió. Actualizamos la partida.",
     REVEAL_FIRST: "Revela la pregunta antes de pasar a la siguiente persona.",
+    DECK_VERSION_MISMATCH:
+      "Tu mazo de preguntas está desactualizado. Recarga la página.",
+    INVALID_QUESTION_POOL:
+      "Los filtros dejaron muy pocas preguntas. Ajusta edad o intensidad.",
   };
   return messages[code] ?? code;
 }
