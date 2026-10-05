@@ -124,6 +124,11 @@ export function saveRoomSession(session: RoomSession): void {
   window.localStorage.setItem(storageKey(session.code), JSON.stringify(session));
 }
 
+export function clearRoomSession(code: string): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(storageKey(code));
+}
+
 export function loadRoomSession(code: string): RoomSession | null {
   if (typeof window === "undefined") return null;
 
