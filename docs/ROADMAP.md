@@ -9,7 +9,7 @@ Este documento convierte la visión del producto en entregas verificables. Una f
 Criterios:
 - [x] Visión del MVP definida.
 - [x] Producto independiente: no copiar marca, estética, preguntas ni textos de Huellia.
-- [x] Stack base elegido: Next.js + TypeScript; Supabase previsto para realtime.
+- [x] Stack base elegido: Next.js + TypeScript + Cloudflare Workers/Durable Objects para realtime.
 - [x] Roadmap inicial documentado.
 - [ ] Definir nombre comercial e identidad antes de producción.
 
@@ -32,14 +32,17 @@ Criterios:
 **Objetivo:** cada persona juega desde su dispositivo.
 
 Criterios:
-- [ ] Proyecto Supabase y variables de entorno documentadas.
-- [ ] Tablas `rooms`, `players`, `game_state` y esquema de preguntas.
-- [ ] RLS mínima y segura.
-- [ ] Crear sala con código corto.
-- [ ] Unirse por código.
-- [ ] Presencia/reconexión.
-- [ ] Host y transferencia básica del host.
-- [ ] Estado sincronizado en tiempo real.
+- [x] Worker `juego-familia-ech` creado en Cloudflare.
+- [x] Durable Object `GameRoom` con almacenamiento SQLite.
+- [x] Una sala = un Durable Object nombrado por código.
+- [x] Crear sala con código corto.
+- [x] Unirse por código.
+- [x] Presencia por WebSocket con Hibernation API.
+- [x] Reconexión automática del navegador.
+- [x] Host inicial persistido.
+- [x] Lobby sincronizado en tiempo real.
+- [ ] Transferencia del host al salir.
+- [ ] Pruebas E2E con varios dispositivos reales.
 
 ## Fase 3 — Bucle multijugador completo
 
@@ -102,7 +105,7 @@ Criterios:
 - [ ] GitHub Actions obligatorio.
 - [ ] Validación de inputs.
 - [ ] Rate limiting.
-- [ ] Auditoría RLS.
+- [ ] Auditoría de autorización de salas/Durable Objects.
 - [ ] Revisión de privacidad y abuso.
 
 ## Fase 10 — Producción
