@@ -2,17 +2,18 @@
 
 ## Checkpoint actual
 
-- Fases 1, 2 y 3 están integradas en `main`.
-- Fase 4 — UX presencial está implementada en `phase-4-presential-ux` y pendiente únicamente de CI/merge.
+- Fases 1, 2, 3 y 4 están integradas en `main`.
+- PR #3 de Fase 4 pasó CI completo y fue fusionado en `a351a0c1ee3d67329a7c6255be98540a4621dd0d`.
 - Backend realtime: Cloudflare Worker + Durable Object `GameRoom` + SQLite.
 - Flujo de sala completo: crear, QR/deep link, unirse, listo/no listo, iniciar, turnos, revelar/cambiar, pasar turno, finalizar y recap.
 - El deep link usa `/online?room=CODIGO` para precargar la sala antes de pedir el nombre.
-- El lobby genera un QR localmente en el navegador; no usa un servicio externo de QR.
-- Existe compartir por Web Share API con fallback a copiar enlace.
-- Háptica opcional persistida en el navegador; en plataformas sin Vibration API simplemente no vibra.
+- El lobby genera el QR localmente en el navegador; no depende de un servicio externo.
+- Compartir invitación usa Web Share API con fallback a copiar enlace.
+- Háptica opcional persistida en el navegador; plataformas sin Vibration API continúan sin error.
 - Modo escuchar/teléfono boca abajo disponible después de revelar la pregunta.
-- UX móvil endurecida con safe areas, targets táctiles >=44 px, foco visible, reduced-motion y high-contrast preferences.
-- CI ahora incluye smoke de dos clientes reales contra el Worker desplegado y E2E móvil Playwright con iPhone/WebKit y Android/Chromium.
+- UX móvil incluye safe areas, targets táctiles >=44 px, foco visible, reduced-motion y high-contrast preferences.
+- CI incluye un smoke de dos clientes contra el Worker desplegado y E2E móvil con iPhone/WebKit y Android/Chromium.
+- El smoke físico en hardware real queda como gate de beta/producción, documentado en `docs/MOBILE_QA.md`.
 
 ## Infraestructura actual
 
@@ -25,11 +26,7 @@
 
 ## Gate actual
 
-1. Obtener CI verde del PR de Fase 4.
-2. Corregir cualquier fallo detectado.
-3. Fusionar a `main`.
-4. Considerar Fase 4 code-complete.
-5. El smoke físico iPhone + Android se conserva como gate de beta/producción en Fase 10, documentado en `docs/MOBILE_QA.md`.
+Fase 4 está cerrada a nivel de código y CI. El próximo trabajo de producto es Fase 5 — Contenido original.
 
 ## Próxima fase
 
