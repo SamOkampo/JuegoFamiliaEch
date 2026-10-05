@@ -41,7 +41,7 @@ Criterios:
 - [x] Reconexión automática del navegador.
 - [x] Host inicial persistido.
 - [x] Lobby sincronizado en tiempo real.
-- [ ] Transferencia del host al salir.
+- [x] Transferencia básica del host al salir o desconectarse.
 - [ ] Pruebas E2E con varios dispositivos reales.
 
 ## Fase 3 — Bucle multijugador completo
