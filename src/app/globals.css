@@ -630,3 +630,60 @@ input:focus {
     width: fit-content;
   }
 }
+
+
+.gameActionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.dangerTextButton {
+  display: block;
+  margin: 18px auto 0;
+  color: var(--accent-dark);
+}
+
+.recapGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.recapGrid > div {
+  display: flex;
+  min-height: 112px;
+  padding: 18px;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: white;
+}
+
+.recapGrid strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 7vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.recapGrid span {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  .gameActionGrid,
+  .recapGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .recapGrid > div {
+    min-height: 88px;
+  }
+}
