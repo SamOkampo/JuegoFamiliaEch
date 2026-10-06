@@ -82,3 +82,16 @@ El Durable Object de rate limiting:
 - existe exclusivamente para seguridad y disponibilidad.
 
 Este identificador no debe reutilizarse para analítica, publicidad, perfilado o seguimiento entre productos.
+
+
+## Analítica mínima de Fase 10
+
+La beta utiliza logs estructurados de Workers Observability para métricas agregadas del producto. Si más adelante se habilita Workers Analytics Engine, puede recibir el mismo esquema.
+
+El servidor puede registrar eventos como creación de sala, unión, inicio y finalización de partida junto con conteos numéricos agregados. No se incluyen nombres, códigos de sala, IDs de jugador, tokens ni respuestas.
+
+Para errores del navegador solo se permite registrar una categoría general de error y una superficie genérica de la aplicación. No se transmiten mensajes de error, stack traces ni la URL completa de una sala.
+
+La instalación PWA puede registrarse como un evento agregado.
+
+Estas métricas se usan para entender activación, finalización y estabilidad técnica, no para publicidad ni perfilado de personas. No contienen nombres, códigos de sala, tokens ni respuestas.

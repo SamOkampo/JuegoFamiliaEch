@@ -65,6 +65,67 @@ function withCors(response) {
   });
 }
 
+function writeProductMetric(env, event, { blobs = [], doubles = [] } = {}) {
+  const record = {
+    kind: "product_metric",
+    event,
+    blobs,
+    doubles,
+  };
+
+  try {
+    console.log(JSON.stringify(record));
+  } catch {
+    // Observability must never break gameplay.
+  }
+
+  try {
+    env.PRODUCT_ANALYTICS?.writeDataPoint({
+      indexes: [event],
+      blobs: [event, ...blobs],
+      doubles,
+    });
+  } catch {
+    // Optional Analytics Engine binding must never break gameplay.
+  }
+}
+
+const CLIENT_TELEMETRY_EVENTS = [
+  "client_error_runtime",
+  "client_error_promise",
+  "client_error_resource",
+  "pwa_installed",
+];
+
+const CLIENT_TELEMETRY_SURFACES = [
+  "home",
+  "online",
+  "room",
+  "display",
+  "offline",
+  "privacy",
+  "terms",
+  "other",
+];
+
+async function recordClientTelemetry(request, env) {
+  const parsed = await readJsonObject(request);
+  if (!parsed.ok) return inputError(parsed);
+
+  const event = String(parsed.data?.event ?? "");
+  const surface = String(parsed.data?.surface ?? "");
+
+  if (
+    !CLIENT_TELEMETRY_EVENTS.includes(event) ||
+    !CLIENT_TELEMETRY_SURFACES.includes(surface)
+  ) {
+    return json({ error: "INVALID_TELEMETRY" }, 400);
+  }
+
+  writeProductMetric(env, event, { blobs: [surface] });
+  return json({ ok: true }, 202);
+}
+
 function normalizeRoomCode(value) {
   return String(value ?? "")
     .trim()
@@ -379,6 +440,7 @@ export class RateLimiter extends DurableObject {
 export class GameRoom extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
+    this.env = env;
     this.room = null;
 
     ctx.blockConcurrencyWhile(async () => {
@@ -876,6 +938,17 @@ export class GameRoom extends DurableObject {
         finishReason: null,
       };
       this.room.version += 1;
+      writeProductMetric(this.env, "game_started", {
+        blobs: [
+          this.room.settings.groupType,
+          String(this.room.settings.youngestAge),
+          String(this.room.settings.maxIntensity),
+        ],
+        doubles: [
+          this.room.players.length,
+          questionPool.length,
+        ],
+      });
       await this.persist();
       await this.broadcastSnapshot();
       return;
@@ -1010,6 +1083,14 @@ export class GameRoom extends DurableObject {
       const nextQuestion = nextUnusedQuestionIndex(this.room.game);
       if (nextQuestion === null) {
         finishGame(this.room, "deck-complete");
+        writeProductMetric(this.env, "game_finished", {
+          blobs: ["deck-complete"],
+          doubles: [
+            this.room.players.length,
+            this.room.game.turnNumber,
+            this.room.game.savedMoments.length,
+          ],
+        });
       } else {
         this.room.game.questionIndex = nextQuestion;
         this.room.game.usedQuestionIndexes.push(nextQuestion);
@@ -1033,6 +1114,14 @@ export class GameRoom extends DurableObject {
 
       if (nextQuestion === null || !nextPlayer) {
         finishGame(this.room, "deck-complete");
+        writeProductMetric(this.env, "game_finished", {
+          blobs: ["deck-complete"],
+          doubles: [
+            this.room.players.length,
+            this.room.game.turnNumber,
+            this.room.game.savedMoments.length,
+          ],
+        });
       } else {
         this.room.game.currentPlayerId = nextPlayer;
         this.room.game.questionIndex = nextQuestion;
@@ -1058,6 +1147,14 @@ export class GameRoom extends DurableObject {
       }
 
       finishGame(this.room, "host-ended");
+      writeProductMetric(this.env, "game_finished", {
+        blobs: ["host-ended"],
+        doubles: [
+          this.room.players.length,
+          this.room.game.turnNumber,
+          this.room.game.savedMoments.length,
+        ],
+      });
       this.room.version += 1;
       await this.persist();
       await this.broadcastSnapshot();
@@ -1225,6 +1322,9 @@ async function createRoom(request, env) {
     if (!initResponse.ok) return withCors(initResponse);
 
     const payload = await initResponse.json();
+    writeProductMetric(env, "room_created", {
+      doubles: [1],
+    });
     return json(
       {
         code,
@@ -1265,6 +1365,9 @@ async function joinRoom(request, env, code) {
   if (!response.ok) return withCors(response);
 
   const payload = await response.json();
+  writeProductMetric(env, "player_joined", {
+    doubles: [payload.room.players.length],
+  });
   return json(
     {
       code,
@@ -1288,9 +1391,21 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "9-quality-security",
+        phase: "10-production-readiness",
         durableObjects: true,
       });
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/telemetry") {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "client-telemetry",
+        60,
+        60_000,
+      );
+      if (limited) return limited;
+      return recordClientTelemetry(request, env);
     }
 
     if (request.method === "POST" && url.pathname === "/api/rooms") {
@@ -1387,6 +1502,7 @@ export default {
       service: "JuegoFamiliaEch",
       message: "Realtime backend online.",
       endpoints: [
+        "POST /api/telemetry",
         "POST /api/rooms",
         "POST /api/rooms/:code/join",
         "GET /api/rooms/:code/state",

@@ -24,7 +24,7 @@ Definir reglas, alcance del MVP, arquitectura, modelo de datos, límites de prop
 Next.js + TypeScript, interfaz mobile-first, dominio del juego, motor local de turnos y una demo con preguntas originales.
 
 ### Fase 2 — Salas multijugador en tiempo real
-Crear/unirse a sala, código corto, presencia, reconexión, host, sincronización y base de datos con Supabase.
+Crear/unirse a sala, código corto, presencia, reconexión, host y sincronización con Cloudflare Workers + Durable Objects.
 
 ### Fase 3 — Bucle completo de juego
 Lobby, orden de turnos, revelar pregunta, saltar, profundizar, siguiente jugador, fin de partida y protección frente a acciones duplicadas.
@@ -60,7 +60,7 @@ Preguntas de seguimiento generadas por IA, packs (familia, amigos, pareja, equip
 - React
 - Cloudflare Workers + Durable Objects (SQLite + WebSockets) a partir de la Fase 2
 - PWA
-- Vitest / Playwright
+- Node test runner / Playwright
 - GitHub Actions
 
 ## Principios de producto

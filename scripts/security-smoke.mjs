@@ -93,6 +93,26 @@ let hostSocket;
 let guestSocket;
 
 try {
+  const invalidTelemetry = await postJson("/api/telemetry", {
+    event: "raw_error_message",
+    surface: "room",
+  });
+  assert(
+    invalidTelemetry.response.status === 400 &&
+      invalidTelemetry.payload?.error === "INVALID_TELEMETRY",
+    "Telemetry must reject arbitrary event names",
+  );
+
+  const validTelemetry = await postJson("/api/telemetry", {
+    event: "client_error_runtime",
+    surface: "room",
+  });
+  assert(
+    validTelemetry.response.status === 202 &&
+      validTelemetry.payload?.ok === true,
+    "Sanitized telemetry event should be accepted",
+  );
+
   const wrongType = await requestJson("/api/rooms", {
     method: "POST",
     headers: { "content-type": "text/plain" },

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { PwaRuntime } from "@/components/pwa-runtime";
+import { ClientErrorReporter } from "@/components/client-error-reporter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -51,6 +52,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <PwaRuntime />
+        <ClientErrorReporter />
         {children}
       </body>
     </html>

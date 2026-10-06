@@ -1576,3 +1576,47 @@ input {
     border-radius: 18px;
   }
 }
+
+
+.legalLinks {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 28px 0 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.legalLinks a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.legalPage {
+  max-width: 900px;
+}
+
+.legalDocument {
+  display: grid;
+  gap: 12px;
+}
+
+.legalDocument h2 {
+  margin: 18px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  font-weight: 500;
+}
+
+.legalDocument p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.legalDocument .legalNote {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+}

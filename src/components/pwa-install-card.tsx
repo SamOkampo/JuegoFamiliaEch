@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { sendClientTelemetry } from "@/lib/telemetry";
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -31,6 +32,7 @@ export function PwaInstallCard() {
     function handleInstalled() {
       setInstalled(true);
       setPromptEvent(null);
+      void sendClientTelemetry("pwa_installed");
     }
 
     window.addEventListener("beforeinstallprompt", handlePrompt);

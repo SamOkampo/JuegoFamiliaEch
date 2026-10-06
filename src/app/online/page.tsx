@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PwaInstallCard } from "@/components/pwa-install-card";
+import { LegalLinks } from "@/components/legal-links";
 import {
   createOnlineRoom,
   joinOnlineRoom,
@@ -172,6 +173,8 @@ export default function OnlinePage() {
       <p className="backLink">
         <Link href="/">← Volver al prototipo local</Link>
       </p>
+
+      <LegalLinks />
     </main>
   );
 }
