@@ -4,6 +4,7 @@
 
 - Fases 1 a 9 están integradas en `main`.
 - Fase 10 — Producción está en progreso en `phase-10-production-readiness`.
+- Worker backend de Fase 10 desplegado al 100% en Cloudflare: `372fa9f9-6abf-4dbc-af3c-46b6fdcd46a4`.
 - El repositorio ya contiene configuración de deploy del frontend Next.js a Cloudflare Workers mediante OpenNext.
 - CI valida tanto `next build` como `npm run build:cloudflare`.
 - Se añadieron rutas públicas `/privacy` y `/terms` para beta cerrada.
@@ -37,4 +38,4 @@
 
 ## Gate actual
 
-Pendiente desplegar el Worker backend de Fase 10, pasar CI del PR y verificar eventos reales. Analytics Engine queda como mejora opcional porque la cuenta aún no tiene esa capacidad habilitada.
+Backend de Fase 10 ya desplegado. Pendiente pasar CI del PR y verificar el build Cloudflare del frontend. Analytics Engine queda como mejora opcional porque la cuenta aún no tiene esa capacidad habilitada; las métricas funcionan desde Workers Observability.
