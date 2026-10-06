@@ -11,3 +11,20 @@ export function buildRoomInviteUrl(origin: string, code: string): string {
 export function buildRoomShareText(code: string): string {
   return "Únete a mi sala " + normalizeRoomCode(code) + " en JuegoFamiliaEch.";
 }
+
+
+export function buildCentralDisplayUrl(
+  origin: string,
+  code: string,
+  token: string,
+): string {
+  const normalizedOrigin = origin.replace(/\/$/, "");
+  const normalizedCode = normalizeRoomCode(code);
+  return (
+    normalizedOrigin +
+    "/display/" +
+    encodeURIComponent(normalizedCode) +
+    "#token=" +
+    encodeURIComponent(token)
+  );
+}

@@ -65,6 +65,7 @@ export type ClientRoomEvent =
   | { type: "sync" }
   | { type: "ready"; ready: boolean }
   | { type: "settings"; settings: RoomSettings }
+  | { type: "display-token" }
   | { type: "start"; deckVersion: string; questionPool: number[] }
   | { type: "reveal"; expectedTurnNumber: number }
   | { type: "skip-question"; expectedTurnNumber: number }
@@ -196,6 +197,22 @@ export function buildRoomWebSocketUrl(
   return url.toString();
 }
 
+export function buildDisplayWebSocketUrl(
+  code: string,
+  token: string,
+  apiUrl = GAME_API_URL,
+): string {
+  const url = new URL(
+    apiUrl.replace(/\/$/, "") +
+      "/api/rooms/" +
+      normalizeRoomCode(code) +
+      "/display/ws",
+  );
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.searchParams.set("token", token);
+  return url.toString();
+}
+
 export function sendRoomEvent(
   socket: WebSocket | null,
   event: ClientRoomEvent,
@@ -226,6 +243,10 @@ export function roomErrorMessage(code: string): string {
       "Tu mazo de preguntas está desactualizado. Recarga la página.",
     INVALID_QUESTION_POOL:
       "Los filtros dejaron muy pocas preguntas. Ajusta edad o intensidad.",
+    UNAUTHORIZED_DISPLAY:
+      "El enlace de pantalla central no es válido o ya expiró.",
+    DISPLAY_READ_ONLY:
+      "La pantalla central es de solo lectura.",
   };
   return messages[code] ?? code;
 }

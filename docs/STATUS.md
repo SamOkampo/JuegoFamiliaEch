@@ -2,44 +2,38 @@
 
 ## Checkpoint actual
 
-- Fases 1, 2, 3, 4 y 5 están integradas en `main`.
-- Fase 4 fue fusionada en `a351a0c1ee3d67329a7c6255be98540a4621dd0d`.
-- Fase 5 fue fusionada en `f271dcdab50cbcdec6393526c3b35f11cdf21c0c` después de CI completamente verde.
-- El mazo `core-v2-160` contiene 160 preguntas originales: 20 por cada una de ocho categorías.
-- Cada pregunta incluye intensidad, edad mínima editorial y tipos de grupo compatibles.
-- El anfitrión puede configurar tipo de grupo, edad de la persona más joven y profundidad máxima antes de iniciar.
-- Los filtros se sincronizan por Durable Object; cambiarlos devuelve a todos al estado “No listo”.
-- El cliente calcula el pool elegible y el Worker valida versión, rango, unicidad y tamaño antes de iniciar.
-- Preguntas vistas o saltadas no se repiten durante la partida.
-- CI editorial valida cantidad, IDs únicos, textos no duplicados, metadatos y cobertura de categorías/filtros.
-- Política editorial: `docs/CONTENT_POLICY.md`.
-- Worker `core-v2-160` desplegado al 100% en Cloudflare: `7e10918d-7209-4b13-b788-41efb1641622`.
-- El smoke E2E de dos clientes contra Cloudflare y las pruebas móviles iPhone/WebKit + Android/Chromium pasaron en verde.
+- Fases 1 a 5 están integradas en `main`.
+- Fase 6 — Pantalla central está implementada en `phase-6-central-display` y pendiente de CI/merge.
+- El anfitrión puede solicitar un token de display desde su WebSocket autenticado.
+- El enlace usa `/display/CODIGO#token=...`; el secreto queda en el fragmento del navegador y no se envía al servidor web del frontend.
+- La pantalla central se conecta a un endpoint WebSocket independiente y de solo lectura.
+- El Worker rechaza cualquier comando de juego enviado desde un display con `DISPLAY_READ_ONLY`.
+- El display recibe el mismo snapshot público que los jugadores: lobby, jugadores, turno, pregunta únicamente tras revelar y recap.
+- La pregunta permanece oculta en la pantalla central hasta que la persona del turno/host la revela.
+- UI diseñada para verse a distancia en TV, computador o iPad, con opción local de pantalla completa.
+- El smoke Cloudflare de Fase 6 valida sincronización del display y que no pueda modificar el juego.
+- Worker de Fase 6 desplegado al 100% en Cloudflare: `9c88f418-9ce6-4092-9ff8-a43243f91650`.
 
-## Infraestructura actual
+## Seguridad del display
 
-- Frontend: Next.js + TypeScript.
-- Realtime/backend: Cloudflare Worker.
-- Coordinación de salas: Durable Objects.
-- Persistencia por sala: SQLite del Durable Object.
-- Endpoint backend: `https://juego-familia-ech.socampoecheverry.workers.dev`.
-- Sin Supabase para este proyecto.
+- El código de sala no basta para observar la partida.
+- Se requiere un token aleatorio independiente.
+- El token solo se entrega a quien actualmente sea host.
+- Los query strings del Worker siguen redactados en observabilidad.
+- El display no tiene `playerId`, no cuenta como jugador y no cambia presencia/listo al conectarse o desconectarse.
+- Transferir el host no transfiere privilegios al display; el nuevo host puede solicitar el mismo enlace seguro.
 
 ## Gate actual
 
-Fases 4 y 5 están cerradas a nivel de código, CI y merge. El smoke físico en hardware real sigue reservado para la beta/producción.
+1. Pasar CI completo de Fase 6.
+2. Verificar smoke Cloudflare de display read-only.
+3. Pasar build + E2E móvil/display.
+4. Fusionar a `main`.
 
 ## Próxima fase
 
-Fase 6 — Pantalla central:
-- URL/modo display sin privilegios de jugador.
-- turno/pregunta sincronizados.
-- UI legible a distancia.
-
-## Decisiones vigentes
-
-- Todo el contenido core es original o deberá estar expresamente licenciado.
-- Nunca se copia branding, preguntas o textos de Huellia.
-- Un jugador siempre puede cambiar una pregunta sin justificarlo.
-- Los filtros editoriales reducen riesgo, pero no sustituyen criterio humano del anfitrión.
-- Cambios que reordenen índices requieren una nueva `QUESTION_DECK_VERSION`.
+Fase 7 — Recuerdos y reacciones:
+- reacciones ligeras;
+- “guardar este momento” con acción explícita;
+- recap enriquecido;
+- retención y consentimiento documentados.

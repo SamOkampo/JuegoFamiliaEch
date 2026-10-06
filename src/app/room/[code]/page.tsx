@@ -24,6 +24,7 @@ import {
   type RoomSnapshot,
 } from "@/lib/realtime";
 import {
+  buildCentralDisplayUrl,
   buildRoomInviteUrl,
   buildRoomShareText,
   HAPTICS_STORAGE_KEY,
@@ -58,6 +59,8 @@ export default function RoomPage() {
   const [inviteFeedback, setInviteFeedback] = useState("");
   const [hapticsEnabled, setHapticsEnabled] = useState(false);
   const [listenMode, setListenMode] = useState(false);
+  const [displayUrl, setDisplayUrl] = useState("");
+  const [displayFeedback, setDisplayFeedback] = useState("");
   const socketRef = useRef<WebSocket | null>(null);
   const turnSignatureRef = useRef<string | null>(null);
 
@@ -100,11 +103,22 @@ export default function RoomPage() {
             type?: string;
             room?: RoomSnapshot;
             error?: string;
+            token?: string;
           };
 
           if (payload.type === "snapshot" && payload.room) {
             setRoom(payload.room);
             setError("");
+            return;
+          }
+
+          if (payload.type === "display-token" && payload.token) {
+            setDisplayUrl(
+              buildCentralDisplayUrl(window.location.origin, code, payload.token),
+            );
+            setDisplayFeedback(
+              "Pantalla central preparada. Puedes abrirla o copiar su enlace.",
+            );
             return;
           }
 
@@ -267,6 +281,26 @@ export default function RoomPage() {
     setHapticsEnabled(next);
     window.localStorage.setItem(HAPTICS_STORAGE_KEY, String(next));
     if (next) navigator.vibrate?.(45);
+  }
+
+  function requestDisplay() {
+    const sent = sendRoomEvent(socketRef.current, { type: "display-token" });
+    if (!sent) {
+      setDisplayFeedback("Todavía no estás conectado a la sala.");
+    } else {
+      setDisplayFeedback("Preparando enlace seguro…");
+    }
+  }
+
+  async function copyDisplayUrl() {
+    if (!displayUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(displayUrl);
+      setDisplayFeedback("Enlace de pantalla copiado.");
+    } catch {
+      setDisplayFeedback("No pudimos copiar el enlace automáticamente.");
+    }
   }
 
   function toggleReady() {
@@ -711,6 +745,53 @@ export default function RoomPage() {
               </p>
             ) : null}
           </section>
+
+          {isHost ? (
+            <section className="displayLaunchPanel" aria-label="Pantalla central">
+              <div>
+                <p className="eyebrow">PANTALLA CENTRAL</p>
+                <strong>Usa un TV, computador o iPad como pantalla del grupo.</strong>
+                <p className="muted">
+                  Es solo lectura: muestra la sala, el turno y la pregunta, pero
+                  no puede marcar jugadores listos ni controlar la partida.
+                </p>
+              </div>
+
+              {!displayUrl ? (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={requestDisplay}
+                >
+                  Preparar pantalla central
+                </button>
+              ) : (
+                <div className="displayLaunchActions">
+                  <a
+                    className="button primary linkButton"
+                    href={displayUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Abrir pantalla
+                  </a>
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={copyDisplayUrl}
+                  >
+                    Copiar enlace
+                  </button>
+                </div>
+              )}
+
+              {displayFeedback ? (
+                <p className="inviteFeedback" role="status">
+                  {displayFeedback}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
 
           <div className="memberList" aria-live="polite">
             {room?.players.map((player, index) => (

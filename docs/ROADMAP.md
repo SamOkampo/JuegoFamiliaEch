@@ -75,10 +75,10 @@ Criterios:
 
 ## Fase 6 — Pantalla central
 
-- [ ] URL/modo display.
-- [ ] Sincronización de turno y pregunta.
-- [ ] UI legible a distancia.
-- [ ] Sin privilegios de jugador por defecto.
+- [x] URL/modo display protegido por token emitido al anfitrión.
+- [x] Sincronización realtime de lobby, turno, revelado y recap.
+- [x] UI responsive de alto contraste optimizada para TV/iPad/computador.
+- [x] WebSocket dedicado de solo lectura; comandos de juego son rechazados.
 
 ## Fase 7 — Recuerdos y reacciones
 

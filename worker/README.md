@@ -43,9 +43,10 @@ Server -> client:
 - `snapshot`: authoritative public room/game state, including synchronized content filters.
 - `error`: rejected command with a machine-readable code.
 
-Client -> server:
+Client -> server (player socket):
 
 - `sync`
+- `display-token` — host-only; returns the read-only central-display token.
 - `ready`
 - `settings` — host-only lobby filters: group type, youngest age and maximum intensity.
 - `start` — includes `deckVersion` and a validated array of eligible question indexes.
@@ -87,3 +88,24 @@ The Worker then stores the pool in the Durable Object and chooses only from unus
 `https://juego-familia-ech.socampoecheverry.workers.dev`
 
 The frontend reads `NEXT_PUBLIC_GAME_API_URL` when present and otherwise uses the production Worker endpoint above.
+
+
+## Central display
+
+The central display uses a separate WebSocket endpoint:
+
+`GET /api/rooms/:code/display/ws?token=...`
+
+The frontend receives the token only after the authenticated current host sends `display-token`. The shareable frontend URL stores that token in the URL fragment:
+
+`/display/:code#token=...`
+
+Fragments are not included in normal HTTP requests to the frontend server. The display client then uses the token only for the Cloudflare WebSocket upgrade; Worker observability has query-string redaction enabled.
+
+Display sockets:
+
+- receive the same public `snapshot` broadcasts as players;
+- may send only `sync` and text `ping`;
+- receive `DISPLAY_READ_ONLY` for game-mutating commands;
+- have no `playerId`;
+- never affect player presence, readiness, host transfer or turns.
