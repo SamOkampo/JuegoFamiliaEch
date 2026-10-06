@@ -90,12 +90,12 @@ Criterios:
 
 ## Fase 8 — PWA y resiliencia
 
-- [ ] Manifest e instalación.
-- [ ] Iconos/splash propios.
-- [ ] Recuperación tras refresh.
-- [ ] Recuperación tras suspensión móvil.
-- [ ] Estado offline/degradado.
-- [ ] Estrategia de reconexión.
+- [x] Manifest, metadata iOS e instalación/añadir a inicio.
+- [x] Iconos PNG propios generados por la app y colores de splash/theme.
+- [x] Recuperación tras refresh desde sesión local + snapshot autoritativo.
+- [x] Recuperación tras suspensión/focus/visibility con heartbeat y resync.
+- [x] Estado offline/degradado global + fallback de service worker.
+- [x] Backoff 1/2/4/8 s, heartbeat, detección de socket estancado y reconexión inmediata al volver la red.
 
 ## Fase 9 — Calidad, CI y seguridad
 
