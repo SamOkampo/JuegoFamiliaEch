@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LegalLinks } from "@/components/legal-links";
 import { FormEvent, useMemo, useState } from "react";
 import {
   cleanPlayerName,
@@ -139,6 +140,8 @@ export default function HomePage() {
             Comenzar ronda
           </button>
         </section>
+
+        <LegalLinks />
       </main>
     );
   }
