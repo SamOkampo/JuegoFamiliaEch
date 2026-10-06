@@ -112,12 +112,12 @@ Criterios:
 
 - [ ] Hosting.
 - [ ] Dominio.
-- [ ] Analítica mínima y respetuosa.
-- [ ] Error monitoring.
-- [ ] Privacidad/términos.
+- [x] Analítica mínima y respetuosa implementada con Workers Analytics Engine y sin PII de sala.
+- [x] Observabilidad backend + conteo cliente sanitizado de clases de error.
+- [x] Aviso de privacidad y términos beta publicados en `/privacy` y `/terms`.
 - [ ] Beta con grupos reales.
 - [ ] Smoke físico iPhone Safari + Android Chrome según `docs/MOBILE_QA.md`.
-- [ ] Métricas de activación y finalización de partida.
+- [x] Eventos server-side para salas creadas, juegos iniciados y juegos finalizados.
 
 ## Fase 11 — Expansión
 
