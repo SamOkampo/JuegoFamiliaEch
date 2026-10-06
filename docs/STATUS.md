@@ -2,38 +2,47 @@
 
 ## Checkpoint actual
 
-- Fases 1 a 5 están integradas en `main`.
-- Fase 6 — Pantalla central está implementada en `phase-6-central-display` y pendiente de CI/merge.
-- El anfitrión puede solicitar un token de display desde su WebSocket autenticado.
-- El enlace usa `/display/CODIGO#token=...`; el secreto queda en el fragmento del navegador y no se envía al servidor web del frontend.
-- La pantalla central se conecta a un endpoint WebSocket independiente y de solo lectura.
-- El Worker rechaza cualquier comando de juego enviado desde un display con `DISPLAY_READ_ONLY`.
-- El display recibe el mismo snapshot público que los jugadores: lobby, jugadores, turno, pregunta únicamente tras revelar y recap.
-- La pregunta permanece oculta en la pantalla central hasta que la persona del turno/host la revela.
-- UI diseñada para verse a distancia en TV, computador o iPad, con opción local de pantalla completa.
-- El smoke Cloudflare de Fase 6 valida sincronización del display y que no pueda modificar el juego.
-- Worker de Fase 6 desplegado al 100% en Cloudflare: `9c88f418-9ce6-4092-9ff8-a43243f91650`.
+- Fases 1, 2, 3, 4, 5 y 6 están integradas en `main`.
+- Fase 6 fue fusionada en `cfce25f8ef37c81145bc8306c9a5495b84902731` después de CI completamente verde.
+- Existe una pantalla central segura en `/display/:code` para TV, computador o iPad.
+- El anfitrión solicita un token de display desde su WebSocket autenticado.
+- El enlace usa `/display/CODIGO#token=...`; el secreto queda en el fragmento del navegador.
+- La pantalla central usa un WebSocket separado de solo lectura y no tiene `playerId`.
+- El Worker rechaza cualquier comando de juego desde display con `DISPLAY_READ_ONLY`.
+- El display sincroniza lobby, jugadores/listo, turno, pregunta revelada y recap final.
+- La pregunta sigue oculta en display hasta que se revela desde un jugador autorizado.
+- La pantalla central no altera presencia, ready, host, turnos ni estado de la partida.
+- UI preparada para verse a distancia y con modo pantalla completa local.
+- El smoke Cloudflare verificó sincronización player/display y que el display no puede mutar el juego.
+- Typecheck, unit tests, smoke Cloudflare, build y E2E mobile/display pasaron en verde.
+- Worker Fase 6 desplegado al 100% en Cloudflare: `9c88f418-9ce6-4092-9ff8-a43243f91650`.
 
-## Seguridad del display
+## Infraestructura actual
 
-- El código de sala no basta para observar la partida.
-- Se requiere un token aleatorio independiente.
-- El token solo se entrega a quien actualmente sea host.
-- Los query strings del Worker siguen redactados en observabilidad.
-- El display no tiene `playerId`, no cuenta como jugador y no cambia presencia/listo al conectarse o desconectarse.
-- Transferir el host no transfiere privilegios al display; el nuevo host puede solicitar el mismo enlace seguro.
+- Frontend: Next.js + TypeScript.
+- Realtime/backend: Cloudflare Worker.
+- Coordinación de salas: Durable Objects.
+- Persistencia por sala: SQLite del Durable Object.
+- Endpoint backend: `https://juego-familia-ech.socampoecheverry.workers.dev`.
+- Sin Supabase para este proyecto.
 
 ## Gate actual
 
-1. Pasar CI completo de Fase 6.
-2. Verificar smoke Cloudflare de display read-only.
-3. Pasar build + E2E móvil/display.
-4. Fusionar a `main`.
+Fase 6 está cerrada a nivel de código, seguridad, CI, despliegue del Worker y merge.
 
 ## Próxima fase
 
 Fase 7 — Recuerdos y reacciones:
 - reacciones ligeras;
-- “guardar este momento” con acción explícita;
+- “guardar este momento” solo con acción explícita;
 - recap enriquecido;
-- retención y consentimiento documentados.
+- política de retención;
+- consentimiento antes de cualquier futura captura multimedia.
+
+## Decisiones vigentes
+
+- La pantalla central es observador de solo lectura, no jugador.
+- El código de sala por sí solo no autoriza un display.
+- Los tokens de display no se exponen en snapshots públicos.
+- Query strings del Worker continúan redactados en observabilidad.
+- Todo contenido core sigue siendo original o expresamente licenciado.
