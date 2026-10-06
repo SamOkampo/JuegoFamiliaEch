@@ -46,7 +46,7 @@ test("room session survives refresh and reconnects after network loss", async ({
   await page.getByRole("button", { name: "Crear sala" }).click();
 
   await expect(page).toHaveURL(/\/room\/[A-Z0-9]{6}$/);
-  await expect(page.getByText("Conectado", { exact: true })).toBeVisible({
+  await expect(page.locator(".connectionBadge").filter({ hasText: "Conectado" })).toBeVisible({
     timeout: 15_000,
   });
 
@@ -61,7 +61,7 @@ test("room session survives refresh and reconnects after network loss", async ({
       name: "Copiar código de sala " + roomCode,
     }),
   ).toBeVisible();
-  await expect(page.getByText("Conectado", { exact: true })).toBeVisible({
+  await expect(page.locator(".connectionBadge").filter({ hasText: "Conectado" })).toBeVisible({
     timeout: 15_000,
   });
 
@@ -71,7 +71,7 @@ test("room session survives refresh and reconnects after network loss", async ({
   ).toBeVisible();
 
   await context.setOffline(false);
-  await expect(page.getByText("Conectado", { exact: true })).toBeVisible({
+  await expect(page.locator(".connectionBadge").filter({ hasText: "Conectado" })).toBeVisible({
     timeout: 20_000,
   });
 });
