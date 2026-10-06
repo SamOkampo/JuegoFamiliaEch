@@ -1265,17 +1265,41 @@ export default {
     }
 
     if (request.method === "POST" && url.pathname === "/api/rooms") {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "create-room",
+        12,
+        60_000,
+      );
+      if (limited) return limited;
       return createRoom(request, env);
     }
 
     const joinMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/join$/i);
     if (request.method === "POST" && joinMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "join-room",
+        60,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(joinMatch[1]);
       return joinRoom(request, env, code);
     }
 
     const stateMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/state$/i);
     if (request.method === "GET" && stateMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "room-state",
+        180,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(stateMatch[1]);
       const target = new URL("https://room/internal/state");
       target.search = url.search;
@@ -1289,6 +1313,14 @@ export default {
 
     const wsMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/ws$/i);
     if (request.method === "GET" && wsMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "player-ws-upgrade",
+        120,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(wsMatch[1]);
       const target = new URL("https://room/internal/ws");
       target.search = url.search;
@@ -1304,6 +1336,14 @@ export default {
       /^\/api\/rooms\/([A-Z0-9]{6})\/display\/ws$/i,
     );
     if (request.method === "GET" && displayWsMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "display-ws-upgrade",
+        60,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(displayWsMatch[1]);
       const target = new URL("https://room/internal/display/ws");
       target.search = url.search;
