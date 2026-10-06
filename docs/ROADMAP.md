@@ -82,11 +82,11 @@ Criterios:
 
 ## Fase 7 — Recuerdos y reacciones
 
-- [ ] Reacciones ligeras.
-- [ ] “Guardar este momento” solo con acción explícita.
-- [ ] Recap final.
-- [ ] Retención de datos definida.
-- [ ] Consentimiento antes de cualquier futura captura multimedia.
+- [x] Reacciones ligeras por turno con agregados sincronizados.
+- [x] “Guardar este momento” solo con acción explícita y reversible durante el turno.
+- [x] Recap final enriquecido con reacciones y momentos guardados.
+- [x] Retención definida: estado efímero eliminado con la sala a las 12 horas.
+- [x] Política de consentimiento previo para futura captura multimedia documentada.
 
 ## Fase 8 — PWA y resiliencia
 
