@@ -99,14 +99,14 @@ Criterios:
 
 ## Fase 9 — Calidad, CI y seguridad
 
-- [ ] Unit tests.
-- [ ] Integration tests.
-- [ ] E2E de crear/unirse/jugar.
-- [ ] GitHub Actions obligatorio.
-- [ ] Validación de inputs.
-- [ ] Rate limiting.
-- [ ] Auditoría de autorización de salas/Durable Objects.
-- [ ] Revisión de privacidad y abuso.
+- [x] Unit tests del motor, contenido, PWA y primitivas de seguridad del Worker.
+- [x] Integration smoke de autorización, validación y abuso contra Cloudflare desplegado.
+- [x] E2E/smoke real de crear sala, unirse y completar acciones de juego.
+- [x] GitHub Actions usado como gate obligatorio del flujo de merge; el PR no se fusiona sin CI verde.
+- [x] Validación estricta de HTTP, nombres, eventos WebSocket, settings y pools.
+- [x] Rate limiting durable por red para HTTP y por socket para eventos realtime.
+- [x] Matriz de autorización auditada y documentada en `docs/SECURITY_AUDIT.md`.
+- [x] Revisión de privacidad/abuso, retención antiabuso y headers documentados.
 
 ## Fase 10 — Producción
 
