@@ -15,7 +15,6 @@ import {
   type RoomSnapshot,
 } from "@/lib/realtime";
 
-type DisplayConnection = "connecting" | "online" | "offline";
 
 export default function CentralDisplayPage() {
   const params = useParams<{ code: string }>();
