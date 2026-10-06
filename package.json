@@ -11,7 +11,10 @@
     "test:e2e:mobile": "playwright test",
     "test:smoke:cloudflare": "node scripts/cloudflare-smoke.mjs",
     "test:worker-security": "node --test worker/test/*.test.mjs",
-    "test:integration:security": "node scripts/security-smoke.mjs"
+    "test:integration:security": "node scripts/security-smoke.mjs",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "preview:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "next": "^16.0.0",
@@ -26,6 +29,8 @@
     "tsx": "^4.20.0",
     "typescript": "^5.7.0",
     "@playwright/test": "^1.56.0",
-    "@types/qrcode": "^1.5.5"
+    "@types/qrcode": "^1.5.5",
+    "@opennextjs/cloudflare": "1.20.8",
+    "wrangler": "4.147.0"
   }
 }
