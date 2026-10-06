@@ -274,6 +274,20 @@ export function roomErrorMessage(code: string): string {
       "La pantalla central es de solo lectura.",
     INVALID_REACTION:
       "Esa reacción no está disponible.",
+    INVALID_NAME:
+      "Usa un nombre de 1 a 24 caracteres, sin controles invisibles.",
+    INVALID_JSON:
+      "La solicitud no tiene un formato válido.",
+    REQUEST_TOO_LARGE:
+      "La solicitud es demasiado grande.",
+    UNSUPPORTED_MEDIA_TYPE:
+      "El servidor esperaba datos JSON.",
+    INVALID_SETTINGS:
+      "La configuración de la ronda no es válida.",
+    MESSAGE_TOO_LARGE:
+      "Ese mensaje es demasiado grande.",
+    RATE_LIMITED:
+      "Demasiadas acciones seguidas. Espera unos segundos e inténtalo otra vez.",
   };
   return messages[code] ?? code;
 }

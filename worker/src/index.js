@@ -1,19 +1,33 @@
 import { DurableObject } from "cloudflare:workers";
+import {
+  AGE_BANDS,
+  consumeFixedWindow,
+  DECK_VERSION,
+  GROUP_TYPES,
+  INTENSITIES,
+  isOpaqueToken,
+  isUuid,
+  MAX_WS_MESSAGE_BYTES,
+  QUESTION_COUNT,
+  REACTION_TYPES,
+  readJsonObject,
+  validateClientEvent,
+  validatePlayerName,
+  validateQuestionPool,
+  validateRoomSettings,
+} from "./security.mjs";
 
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_PLAYERS = 12;
 const ROOM_TTL_MS = 12 * 60 * 60 * 1000;
-const QUESTION_COUNT = 160;
-const DECK_VERSION = "core-v2-160";
-const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
-const AGE_BANDS = [8, 12, 16];
-const INTENSITIES = [1, 2, 3];
+const SOCKET_EVENT_LIMIT = 60;
+const SOCKET_EVENT_WINDOW_MS = 10_000;
+const RATE_LIMIT_STORAGE_TTL_MS = 20 * 60 * 1000;
 const DEFAULT_ROOM_SETTINGS = {
   groupType: "family",
   youngestAge: 12,
   maxIntensity: 2,
 };
-const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
 
 function corsHeaders() {
   return {
@@ -21,6 +35,9 @@ function corsHeaders() {
     "access-control-allow-methods": "GET,POST,OPTIONS",
     "access-control-allow-headers": "content-type",
     "access-control-max-age": "86400",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "no-referrer",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
   };
 }
 
@@ -46,13 +63,6 @@ function withCors(response) {
     headers,
     webSocket: response.webSocket,
   });
-}
-
-function cleanPlayerName(value) {
-  return String(value ?? "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .slice(0, 24);
 }
 
 function normalizeRoomCode(value) {
@@ -125,42 +135,12 @@ function nextUnusedQuestionIndex(game) {
   return available[secureRandomIndex(available.length)];
 }
 
-function validateQuestionPool(value) {
-  if (!Array.isArray(value)) return null;
-
-  const unique = [
-    ...new Set(
-      value.filter(
-        (index) =>
-          Number.isInteger(index) &&
-          index >= 0 &&
-          index < QUESTION_COUNT,
-      ),
-    ),
-  ];
-
-  if (unique.length < 2 || unique.length > QUESTION_COUNT) return null;
-  return unique;
-}
-
-function normalizeRoomSettings(value, current) {
-  const next = { ...current };
-
-  if (GROUP_TYPES.includes(value?.groupType)) {
-    next.groupType = value.groupType;
-  }
-
-  const youngestAge = Number(value?.youngestAge);
-  if (AGE_BANDS.includes(youngestAge)) {
-    next.youngestAge = youngestAge;
-  }
-
-  const maxIntensity = Number(value?.maxIntensity);
-  if (INTENSITIES.includes(maxIntensity)) {
-    next.maxIntensity = maxIntensity;
-  }
-
-  return next;
+function normalizeRoomSettings(value) {
+  return {
+    groupType: value.groupType,
+    youngestAge: Number(value.youngestAge),
+    maxIntensity: Number(value.maxIntensity),
+  };
 }
 
 function emptyReactionCounts() {
@@ -253,11 +233,146 @@ function publicSnapshot(room) {
   };
 }
 
-async function readJson(request) {
-  try {
-    return await request.json();
-  } catch {
-    return null;
+function inputError(result) {
+  return json({ error: result.error }, result.status);
+}
+
+function socketError(ws, error, extra = {}) {
+  ws.send(JSON.stringify({ type: "error", error, ...extra }));
+}
+
+function consumeSocketEvent(ws, attachment) {
+  const result = consumeFixedWindow(
+    attachment?.rateState ?? null,
+    Date.now(),
+    SOCKET_EVENT_LIMIT,
+    SOCKET_EVENT_WINDOW_MS,
+  );
+
+  ws.serializeAttachment({
+    ...attachment,
+    rateState: result.state,
+  });
+
+  if (!result.allowed) {
+    socketError(ws, "RATE_LIMITED", {
+      retryAfterMs: result.retryAfterMs,
+    });
+    return false;
+  }
+
+  return true;
+}
+
+async function rateLimitIdentity(request) {
+  const ip =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 160);
+  const source =
+    ip === "unknown" ? "unknown\n" + userAgent : ip;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(source),
+  );
+  return [...new Uint8Array(digest)]
+    .slice(0, 16)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function enforceHttpRateLimit(
+  request,
+  env,
+  scope,
+  limit,
+  windowMs,
+) {
+  const identity = await rateLimitIdentity(request);
+  const stub = env.RATE_LIMITS.getByName(identity);
+  const response = await stub.fetch(
+    new Request("https://rate-limit/internal/consume", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scope, limit, windowMs }),
+    }),
+  );
+  const result = await response.json();
+
+  if (result.allowed) return null;
+
+  const retryAfterSeconds = Math.max(
+    1,
+    Math.ceil(result.retryAfterMs / 1000),
+  );
+  const response429 = json(
+    {
+      error: "RATE_LIMITED",
+      retryAfterMs: result.retryAfterMs,
+    },
+    429,
+  );
+  const headers = new Headers(response429.headers);
+  headers.set("retry-after", String(retryAfterSeconds));
+  return new Response(response429.body, {
+    status: 429,
+    headers,
+  });
+}
+
+export class RateLimiter extends DurableObject {
+  async fetch(request) {
+    const url = new URL(request.url);
+    if (
+      request.method !== "POST" ||
+      url.pathname !== "/internal/consume"
+    ) {
+      return new Response("Not found", { status: 404 });
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response("Bad request", { status: 400 });
+    }
+
+    const scope = String(body?.scope ?? "").slice(0, 64);
+    const limit = Number(body?.limit);
+    const windowMs = Number(body?.windowMs);
+
+    if (
+      !scope ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 1000 ||
+      !Number.isInteger(windowMs) ||
+      windowMs < 1000 ||
+      windowMs > 60 * 60 * 1000
+    ) {
+      return new Response("Bad request", { status: 400 });
+    }
+
+    const key = "bucket:" + scope;
+    const previous = (await this.ctx.storage.get(key)) ?? null;
+    const result = consumeFixedWindow(
+      previous,
+      Date.now(),
+      limit,
+      windowMs,
+    );
+
+    await this.ctx.storage.put(key, result.state);
+    await this.ctx.storage.setAlarm(Date.now() + RATE_LIMIT_STORAGE_TTL_MS);
+
+    return new Response(JSON.stringify(result), {
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  async alarm() {
+    await this.ctx.storage.deleteAll();
   }
 }
 
@@ -378,15 +493,24 @@ export class GameRoom extends DurableObject {
       return json({ error: "ROOM_EXISTS" }, 409);
     }
 
-    const body = await readJson(request);
-    const name = cleanPlayerName(body?.name);
-    const code = normalizeRoomCode(body?.code);
-    const playerId = String(body?.playerId ?? "");
-    const token = String(body?.token ?? "");
+    const parsed = await readJsonObject(request);
+    if (!parsed.ok) return inputError(parsed);
 
-    if (!name || code.length !== 6 || !playerId || !token) {
+    const nameResult = validatePlayerName(parsed.data?.name);
+    const code = normalizeRoomCode(parsed.data?.code);
+    const playerId = String(parsed.data?.playerId ?? "");
+    const token = String(parsed.data?.token ?? "");
+
+    if (
+      !nameResult.ok ||
+      code.length !== 6 ||
+      !isUuid(playerId) ||
+      !isOpaqueToken(token)
+    ) {
       return json({ error: "INVALID_ROOM_INIT" }, 400);
     }
+
+    const name = nameResult.value;
 
     const now = Date.now();
     this.room = {
@@ -429,14 +553,22 @@ export class GameRoom extends DurableObject {
       return json({ error: "ROOM_FULL" }, 409);
     }
 
-    const body = await readJson(request);
-    const name = cleanPlayerName(body?.name);
-    const playerId = String(body?.playerId ?? "");
-    const token = String(body?.token ?? "");
+    const parsed = await readJsonObject(request);
+    if (!parsed.ok) return inputError(parsed);
 
-    if (!name || !playerId || !token) {
+    const nameResult = validatePlayerName(parsed.data?.name);
+    const playerId = String(parsed.data?.playerId ?? "");
+    const token = String(parsed.data?.token ?? "");
+
+    if (
+      !nameResult.ok ||
+      !isUuid(playerId) ||
+      !isOpaqueToken(token)
+    ) {
       return json({ error: "INVALID_PLAYER" }, 400);
     }
+
+    const name = nameResult.value;
 
     const duplicate = this.room.players.some(
       (player) => player.name.toLocaleLowerCase() === name.toLocaleLowerCase(),
@@ -502,7 +634,11 @@ export class GameRoom extends DurableObject {
     const server = pair[1];
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ connectionType: "player", playerId });
+    server.serializeAttachment({
+      connectionType: "player",
+      playerId,
+      rateState: null,
+    });
 
     player.connected = true;
     player.lastSeenAt = Date.now();
@@ -540,7 +676,10 @@ export class GameRoom extends DurableObject {
     const server = pair[1];
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ connectionType: "display" });
+    server.serializeAttachment({
+      connectionType: "display",
+      rateState: null,
+    });
     server.send(
       JSON.stringify({
         type: "snapshot",
@@ -578,6 +717,21 @@ export class GameRoom extends DurableObject {
     const connectionType = attachment?.connectionType ?? "player";
     const playerId = attachment?.playerId ?? "";
 
+    if (!consumeSocketEvent(ws, attachment)) return;
+
+    if (typeof message !== "string") {
+      socketError(ws, "INVALID_MESSAGE");
+      return;
+    }
+
+    if (
+      new TextEncoder().encode(message).byteLength >
+      MAX_WS_MESSAGE_BYTES
+    ) {
+      socketError(ws, "MESSAGE_TOO_LARGE");
+      return;
+    }
+
     if (message === "ping") {
       ws.send("pong");
       return;
@@ -585,9 +739,9 @@ export class GameRoom extends DurableObject {
 
     let event = null;
     try {
-      event = JSON.parse(String(message));
+      event = JSON.parse(message);
     } catch {
-      ws.send(JSON.stringify({ type: "error", error: "INVALID_MESSAGE" }));
+      socketError(ws, "INVALID_MESSAGE");
       return;
     }
 
@@ -612,7 +766,13 @@ export class GameRoom extends DurableObject {
 
     const player = this.room.players.find((item) => item.id === playerId);
     if (!player) {
-      ws.send(JSON.stringify({ type: "error", error: "PLAYER_NOT_FOUND" }));
+      socketError(ws, "PLAYER_NOT_FOUND");
+      return;
+    }
+
+    const validation = validateClientEvent(event);
+    if (!validation.ok) {
+      socketError(ws, validation.error);
       return;
     }
 
@@ -665,10 +825,7 @@ export class GameRoom extends DurableObject {
         return;
       }
 
-      this.room.settings = normalizeRoomSettings(
-        event.settings,
-        this.room.settings,
-      );
+      this.room.settings = normalizeRoomSettings(event.settings);
       for (const member of this.room.players) {
         member.ready = false;
       }
@@ -804,7 +961,7 @@ export class GameRoom extends DurableObject {
       }
       if (!this.validateExpectedTurn(ws, event)) return;
 
-      const shouldSave = Boolean(event?.saved);
+      const shouldSave = event.saved;
       const turnNumber = this.room.game.turnNumber;
       let moment = this.room.game.savedMoments.find(
         (item) => item.turnNumber === turnNumber,
@@ -913,6 +1070,21 @@ export class GameRoom extends DurableObject {
         (item) => item.id !== player.id,
       );
 
+      for (const candidate of this.ctx.getWebSockets()) {
+        if (candidate === ws) continue;
+        const candidateAttachment = candidate.deserializeAttachment();
+        if (
+          candidateAttachment?.connectionType === "player" &&
+          candidateAttachment?.playerId === player.id
+        ) {
+          try {
+            candidate.close(1000, "session revoked");
+          } catch {
+            // Ignore sockets already closing.
+          }
+        }
+      }
+
       if (this.room.players.length === 0) {
         this.room = null;
         await this.ctx.storage.deleteAll();
@@ -963,6 +1135,19 @@ export class GameRoom extends DurableObject {
 
     if (!this.room) return;
 
+    const anotherPlayerSocket = this.ctx
+      .getWebSockets()
+      .some((candidate) => {
+        if (candidate === ws) return false;
+        const candidateAttachment = candidate.deserializeAttachment();
+        return (
+          candidateAttachment?.connectionType === "player" &&
+          candidateAttachment?.playerId === playerId
+        );
+      });
+
+    if (anotherPlayerSocket) return;
+
     const player = this.room.players.find((item) => item.id === playerId);
     if (!player) return;
 
@@ -1012,12 +1197,15 @@ async function proxyToRoom(env, code, request) {
 }
 
 async function createRoom(request, env) {
-  const body = await readJson(request);
-  const name = cleanPlayerName(body?.name);
+  const parsed = await readJsonObject(request);
+  if (!parsed.ok) return inputError(parsed);
 
-  if (!name) {
-    return json({ error: "NAME_REQUIRED" }, 400);
+  const nameResult = validatePlayerName(parsed.data?.name);
+  if (!nameResult.ok) {
+    return json({ error: nameResult.error }, 400);
   }
+
+  const name = nameResult.value;
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const code = randomRoomCode();
@@ -1052,12 +1240,15 @@ async function createRoom(request, env) {
 }
 
 async function joinRoom(request, env, code) {
-  const body = await readJson(request);
-  const name = cleanPlayerName(body?.name);
+  const parsed = await readJsonObject(request);
+  if (!parsed.ok) return inputError(parsed);
 
-  if (!name) {
-    return json({ error: "NAME_REQUIRED" }, 400);
+  const nameResult = validatePlayerName(parsed.data?.name);
+  if (!nameResult.ok) {
+    return json({ error: nameResult.error }, 400);
   }
+
+  const name = nameResult.value;
 
   const playerId = crypto.randomUUID();
   const token = randomToken();
@@ -1097,23 +1288,47 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "7-memories-reactions",
+        phase: "9-quality-security",
         durableObjects: true,
       });
     }
 
     if (request.method === "POST" && url.pathname === "/api/rooms") {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "create-room",
+        12,
+        60_000,
+      );
+      if (limited) return limited;
       return createRoom(request, env);
     }
 
     const joinMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/join$/i);
     if (request.method === "POST" && joinMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "join-room",
+        60,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(joinMatch[1]);
       return joinRoom(request, env, code);
     }
 
     const stateMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/state$/i);
     if (request.method === "GET" && stateMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "room-state",
+        180,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(stateMatch[1]);
       const target = new URL("https://room/internal/state");
       target.search = url.search;
@@ -1127,6 +1342,14 @@ export default {
 
     const wsMatch = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]{6})\/ws$/i);
     if (request.method === "GET" && wsMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "player-ws-upgrade",
+        120,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(wsMatch[1]);
       const target = new URL("https://room/internal/ws");
       target.search = url.search;
@@ -1142,6 +1365,14 @@ export default {
       /^\/api\/rooms\/([A-Z0-9]{6})\/display\/ws$/i,
     );
     if (request.method === "GET" && displayWsMatch) {
+      const limited = await enforceHttpRateLimit(
+        request,
+        env,
+        "display-ws-upgrade",
+        60,
+        60_000,
+      );
+      if (limited) return limited;
       const code = normalizeRoomCode(displayWsMatch[1]);
       const target = new URL("https://room/internal/display/ws");
       target.search = url.search;

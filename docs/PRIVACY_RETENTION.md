@@ -68,3 +68,17 @@ Las métricas futuras de producto deberán separar telemetría operacional de co
 ## Cambios de política
 
 Si una fase futura añade persistencia permanente, cuentas o multimedia, este documento debe actualizarse antes del despliegue de esa función.
+
+
+## Datos antiabuso de Fase 9
+
+Para limitar creación de salas, intentos de unión y reconexiones abusivas, el Worker deriva un identificador SHA-256 a partir de la dirección de red proporcionada por Cloudflare. La IP en texto claro no se escribe en el almacenamiento de la aplicación.
+
+El Durable Object de rate limiting:
+
+- solo guarda contadores de ventana y timestamps;
+- no se relaciona con nombres, preguntas, recuerdos ni respuestas;
+- se elimina tras 20 minutos de inactividad;
+- existe exclusivamente para seguridad y disponibilidad.
+
+Este identificador no debe reutilizarse para analítica, publicidad, perfilado o seguimiento entre productos.
