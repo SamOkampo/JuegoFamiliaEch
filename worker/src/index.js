@@ -1,19 +1,33 @@
 import { DurableObject } from "cloudflare:workers";
+import {
+  AGE_BANDS,
+  consumeFixedWindow,
+  DECK_VERSION,
+  GROUP_TYPES,
+  INTENSITIES,
+  isOpaqueToken,
+  isUuid,
+  MAX_WS_MESSAGE_BYTES,
+  QUESTION_COUNT,
+  REACTION_TYPES,
+  readJsonObject,
+  validateClientEvent,
+  validatePlayerName,
+  validateQuestionPool,
+  validateRoomSettings,
+} from "./security.mjs";
 
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_PLAYERS = 12;
 const ROOM_TTL_MS = 12 * 60 * 60 * 1000;
-const QUESTION_COUNT = 160;
-const DECK_VERSION = "core-v2-160";
-const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
-const AGE_BANDS = [8, 12, 16];
-const INTENSITIES = [1, 2, 3];
+const SOCKET_EVENT_LIMIT = 60;
+const SOCKET_EVENT_WINDOW_MS = 10_000;
+const RATE_LIMIT_STORAGE_TTL_MS = 20 * 60 * 1000;
 const DEFAULT_ROOM_SETTINGS = {
   groupType: "family",
   youngestAge: 12,
   maxIntensity: 2,
 };
-const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
 
 function corsHeaders() {
   return {
@@ -21,6 +35,9 @@ function corsHeaders() {
     "access-control-allow-methods": "GET,POST,OPTIONS",
     "access-control-allow-headers": "content-type",
     "access-control-max-age": "86400",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "no-referrer",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
   };
 }
 
@@ -46,13 +63,6 @@ function withCors(response) {
     headers,
     webSocket: response.webSocket,
   });
-}
-
-function cleanPlayerName(value) {
-  return String(value ?? "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .slice(0, 24);
 }
 
 function normalizeRoomCode(value) {
@@ -125,42 +135,12 @@ function nextUnusedQuestionIndex(game) {
   return available[secureRandomIndex(available.length)];
 }
 
-function validateQuestionPool(value) {
-  if (!Array.isArray(value)) return null;
-
-  const unique = [
-    ...new Set(
-      value.filter(
-        (index) =>
-          Number.isInteger(index) &&
-          index >= 0 &&
-          index < QUESTION_COUNT,
-      ),
-    ),
-  ];
-
-  if (unique.length < 2 || unique.length > QUESTION_COUNT) return null;
-  return unique;
-}
-
-function normalizeRoomSettings(value, current) {
-  const next = { ...current };
-
-  if (GROUP_TYPES.includes(value?.groupType)) {
-    next.groupType = value.groupType;
-  }
-
-  const youngestAge = Number(value?.youngestAge);
-  if (AGE_BANDS.includes(youngestAge)) {
-    next.youngestAge = youngestAge;
-  }
-
-  const maxIntensity = Number(value?.maxIntensity);
-  if (INTENSITIES.includes(maxIntensity)) {
-    next.maxIntensity = maxIntensity;
-  }
-
-  return next;
+function normalizeRoomSettings(value) {
+  return {
+    groupType: value.groupType,
+    youngestAge: Number(value.youngestAge),
+    maxIntensity: Number(value.maxIntensity),
+  };
 }
 
 function emptyReactionCounts() {
@@ -253,11 +233,145 @@ function publicSnapshot(room) {
   };
 }
 
-async function readJson(request) {
-  try {
-    return await request.json();
-  } catch {
-    return null;
+function inputError(result) {
+  return json({ error: result.error }, result.status);
+}
+
+function socketError(ws, error, extra = {}) {
+  ws.send(JSON.stringify({ type: "error", error, ...extra }));
+}
+
+function consumeSocketEvent(ws, attachment) {
+  const result = consumeFixedWindow(
+    attachment?.rateState ?? null,
+    Date.now(),
+    SOCKET_EVENT_LIMIT,
+    SOCKET_EVENT_WINDOW_MS,
+  );
+
+  ws.serializeAttachment({
+    ...attachment,
+    rateState: result.state,
+  });
+
+  if (!result.allowed) {
+    socketError(ws, "RATE_LIMITED", {
+      retryAfterMs: result.retryAfterMs,
+    });
+    return false;
+  }
+
+  return true;
+}
+
+async function rateLimitIdentity(request) {
+  const ip =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 160);
+  const source = ip + "\n" + userAgent;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(source),
+  );
+  return [...new Uint8Array(digest)]
+    .slice(0, 16)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function enforceHttpRateLimit(
+  request,
+  env,
+  scope,
+  limit,
+  windowMs,
+) {
+  const identity = await rateLimitIdentity(request);
+  const stub = env.RATE_LIMITS.getByName(identity);
+  const response = await stub.fetch(
+    new Request("https://rate-limit/internal/consume", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scope, limit, windowMs }),
+    }),
+  );
+  const result = await response.json();
+
+  if (result.allowed) return null;
+
+  const retryAfterSeconds = Math.max(
+    1,
+    Math.ceil(result.retryAfterMs / 1000),
+  );
+  const response429 = json(
+    {
+      error: "RATE_LIMITED",
+      retryAfterMs: result.retryAfterMs,
+    },
+    429,
+  );
+  const headers = new Headers(response429.headers);
+  headers.set("retry-after", String(retryAfterSeconds));
+  return new Response(response429.body, {
+    status: 429,
+    headers,
+  });
+}
+
+export class RateLimiter extends DurableObject {
+  async fetch(request) {
+    const url = new URL(request.url);
+    if (
+      request.method !== "POST" ||
+      url.pathname !== "/internal/consume"
+    ) {
+      return new Response("Not found", { status: 404 });
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response("Bad request", { status: 400 });
+    }
+
+    const scope = String(body?.scope ?? "").slice(0, 64);
+    const limit = Number(body?.limit);
+    const windowMs = Number(body?.windowMs);
+
+    if (
+      !scope ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 1000 ||
+      !Number.isInteger(windowMs) ||
+      windowMs < 1000 ||
+      windowMs > 60 * 60 * 1000
+    ) {
+      return new Response("Bad request", { status: 400 });
+    }
+
+    const key = "bucket:" + scope;
+    const previous = (await this.ctx.storage.get(key)) ?? null;
+    const result = consumeFixedWindow(
+      previous,
+      Date.now(),
+      limit,
+      windowMs,
+    );
+
+    await this.ctx.storage.put(key, result.state);
+    await this.ctx.storage.setAlarm(Date.now() + RATE_LIMIT_STORAGE_TTL_MS);
+
+    return new Response(JSON.stringify(result), {
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  async alarm() {
+    await this.ctx.storage.deleteAll();
   }
 }
 
