@@ -45,13 +45,13 @@ export function useResilientWebSocket({
   });
 
   useEffect(() => {
-    const socketUrl = url;
-    if (!socketUrl) {
+    if (!url) {
       socketRef.current = null;
       setConnection("offline");
       return;
     }
 
+    const connectUrl: string = url;
     let stopped = false;
     let retryDelay = INITIAL_RECONNECT_DELAY_MS;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -117,7 +117,7 @@ export function useResilientWebSocket({
       clearRetry();
       setConnection("connecting");
 
-      const socket = new WebSocket(socketUrl);
+      const socket = new WebSocket(connectUrl);
       socketRef.current = socket;
 
       socket.onopen = () => {
