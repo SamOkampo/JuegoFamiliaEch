@@ -153,7 +153,7 @@ See `docs/SECURITY_AUDIT.md` for the authorization matrix and abuse review.
 
 ## Phase 10 product analytics
 
-The production Worker can bind `PRODUCT_ANALYTICS` to the Workers Analytics Engine dataset `juego_familia_ech_product`.
+The production Worker always emits privacy-safe structured `product_metric` records to Workers Observability. It can additionally bind `PRODUCT_ANALYTICS` to the Analytics Engine dataset `juego_familia_ech_product` when Analytics Engine is enabled for the account.
 
 Server-side events:
 
@@ -162,6 +162,6 @@ Server-side events:
 - `game_started`;
 - `game_finished`.
 
-The data point schema deliberately excludes room codes, names, player IDs, tokens and response content.
+The log/data-point schema deliberately excludes room codes, names, player IDs, tokens and response content.
 
 The public `POST /api/telemetry` endpoint accepts only a closed allowlist of coarse client events/surfaces and uses the existing HTTP rate limiter. It does not accept arbitrary messages or stacks.
