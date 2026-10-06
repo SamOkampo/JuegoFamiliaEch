@@ -131,3 +131,21 @@ Rules:
 - all of this data is deleted with the room when its 12-hour Durable Object alarm expires.
 
 The central display receives aggregates in the normal public snapshot but remains read-only.
+
+
+## Phase 9 security boundary
+
+The Worker treats every browser as untrusted.
+
+Input limits:
+
+- HTTP bodies: JSON objects only, maximum 4 KiB.
+- WebSocket application frames: maximum 2 KiB.
+- Player names: normalized, 1–24 characters, invisible control/BiDi characters rejected.
+- Event types, booleans, settings, turn numbers, reactions and question pools are validated before game logic.
+
+Rate limits are enforced by a separate SQLite-backed Durable Object binding named `RATE_LIMITS`. Network identifiers are SHA-256 hashed before choosing the limiter object; plaintext IP addresses are not written to application storage. Limiter storage is deleted after 20 minutes of inactivity.
+
+Authenticated room state and player WebSockets require both `playerId` and the opaque player token. Room codes are locators, not credentials. Display tokens remain independent and read-only.
+
+See `docs/SECURITY_AUDIT.md` for the authorization matrix and abuse review.
