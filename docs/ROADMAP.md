@@ -112,7 +112,7 @@ Criterios:
 
 - [ ] Hosting.
 - [ ] Dominio.
-- [x] Analítica mínima y respetuosa implementada con Workers Analytics Engine y sin PII de sala.
+- [x] Analítica mínima y respetuosa con logs estructurados de Workers Observability y sin PII de sala.
 - [x] Observabilidad backend + conteo cliente sanitizado de clases de error.
 - [x] Aviso de privacidad y términos beta publicados en `/privacy` y `/terms`.
 - [ ] Beta con grupos reales.
