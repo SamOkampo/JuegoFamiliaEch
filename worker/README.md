@@ -149,3 +149,19 @@ Rate limits are enforced by a separate SQLite-backed Durable Object binding name
 Authenticated room state and player WebSockets require both `playerId` and the opaque player token. Room codes are locators, not credentials. Display tokens remain independent and read-only.
 
 See `docs/SECURITY_AUDIT.md` for the authorization matrix and abuse review.
+
+
+## Phase 10 product analytics
+
+The production Worker can bind `PRODUCT_ANALYTICS` to the Workers Analytics Engine dataset `juego_familia_ech_product`.
+
+Server-side events:
+
+- `room_created`;
+- `player_joined`;
+- `game_started`;
+- `game_finished`.
+
+The data point schema deliberately excludes room codes, names, player IDs, tokens and response content.
+
+The public `POST /api/telemetry` endpoint accepts only a closed allowlist of coarse client events/surfaces and uses the existing HTTP rate limiter. It does not accept arbitrary messages or stacks.
