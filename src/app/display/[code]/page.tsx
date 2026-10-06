@@ -236,6 +236,12 @@ export default function CentralDisplayPage() {
                 <p className="displayListen">
                   Dejen los teléfonos. Escuchen la historia.
                 </p>
+                <div className="displayReactionBar" aria-label="Reacciones">
+                  <span>❤️ {room.game.currentReactions.heart}</span>
+                  <span>😂 {room.game.currentReactions.laugh}</span>
+                  <span>👏 {room.game.currentReactions.clap}</span>
+                  <span>😮 {room.game.currentReactions.wow}</span>
+                </div>
               </>
             ) : (
               <>
@@ -262,10 +268,40 @@ export default function CentralDisplayPage() {
               <span>turnos</span>
             </div>
             <div>
-              <strong>{room.game.usedQuestionCount}</strong>
-              <span>preguntas</span>
+              <strong>{room.game.savedMoments.length}</strong>
+              <span>momentos guardados</span>
             </div>
           </div>
+
+          <div className="displayReactionBar displayReactionRecap">
+            <span>❤️ {room.game.reactionTotals.heart}</span>
+            <span>😂 {room.game.reactionTotals.laugh}</span>
+            <span>👏 {room.game.reactionTotals.clap}</span>
+            <span>😮 {room.game.reactionTotals.wow}</span>
+          </div>
+
+          {room.game.savedMoments.length > 0 ? (
+            <div className="displaySavedMoments">
+              {room.game.savedMoments.slice(0, 3).map((moment) => {
+                const question = QUESTIONS[moment.questionIndex];
+                const player = room.players.find(
+                  (item) => item.id === moment.playerId,
+                );
+
+                return (
+                  <article key={moment.turnNumber}>
+                    <span>
+                      Turno {moment.turnNumber} ·{" "}
+                      {player?.name ?? "Alguien del grupo"}
+                    </span>
+                    <strong>
+                      {question?.text ?? "Momento de la conversación"}
+                    </strong>
+                  </article>
+                );
+              })}
+            </div>
+          ) : null}
         </section>
       ) : null}
 
