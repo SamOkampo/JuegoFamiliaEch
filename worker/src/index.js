@@ -13,6 +13,7 @@ const DEFAULT_ROOM_SETTINGS = {
   youngestAge: 12,
   maxIntensity: 2,
 };
+const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
 
 function corsHeaders() {
   return {
@@ -162,6 +163,48 @@ function normalizeRoomSettings(value, current) {
   return next;
 }
 
+function emptyReactionCounts() {
+  return {
+    heart: 0,
+    laugh: 0,
+    clap: 0,
+    wow: 0,
+  };
+}
+
+function reactionCountsForTurn(game, turnNumber) {
+  const counts = emptyReactionCounts();
+  const reactions = game?.reactionsByTurn?.[String(turnNumber)] ?? {};
+
+  for (const reaction of Object.values(reactions)) {
+    if (REACTION_TYPES.includes(reaction)) counts[reaction] += 1;
+  }
+
+  return counts;
+}
+
+function reactionTotals(game) {
+  const totals = emptyReactionCounts();
+
+  for (const reactions of Object.values(game?.reactionsByTurn ?? {})) {
+    for (const reaction of Object.values(reactions)) {
+      if (REACTION_TYPES.includes(reaction)) totals[reaction] += 1;
+    }
+  }
+
+  return totals;
+}
+
+function publicSavedMoments(game) {
+  return (game?.savedMoments ?? []).map((moment) => ({
+    turnNumber: moment.turnNumber,
+    playerId: moment.playerId,
+    questionIndex: moment.questionIndex,
+    savedCount: moment.savedByPlayerIds.length,
+    createdAt: moment.createdAt,
+  }));
+}
+
 function finishGame(room, reason) {
   if (!room.game) return;
 
@@ -196,6 +239,12 @@ function publicSnapshot(room) {
           revealed: Boolean(room.game.revealed),
           usedQuestionCount: room.game.usedQuestionIndexes.length,
           questionPoolSize: room.game.questionPool.length,
+          currentReactions: reactionCountsForTurn(
+            room.game,
+            room.game.turnNumber,
+          ),
+          reactionTotals: reactionTotals(room.game),
+          savedMoments: publicSavedMoments(room.game),
           startedAt: room.game.startedAt,
           finishedAt: room.game.finishedAt ?? null,
           finishReason: room.game.finishReason ?? null,
@@ -235,6 +284,14 @@ export class GameRoom extends DurableObject {
           { length: legacyCount },
           (_, index) => index,
         );
+      }
+
+      if (this.room?.game && !this.room.game.reactionsByTurn) {
+        this.room.game.reactionsByTurn = {};
+      }
+
+      if (this.room?.game && !Array.isArray(this.room.game.savedMoments)) {
+        this.room.game.savedMoments = [];
       }
 
       if (this.room) {
@@ -655,6 +712,8 @@ export class GameRoom extends DurableObject {
         usedQuestionIndexes: [questionIndex],
         turnNumber: 1,
         revealed: false,
+        reactionsByTurn: {},
+        savedMoments: [],
         startedAt: new Date().toISOString(),
         finishedAt: null,
         finishReason: null,
@@ -690,6 +749,103 @@ export class GameRoom extends DurableObject {
         await this.persist();
         await this.broadcastSnapshot();
       }
+      return;
+    }
+
+    if (event?.type === "react") {
+      if (this.room.status !== "playing" || !this.room.game) {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
+        return;
+      }
+      if (!this.room.game.revealed) {
+        ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
+        return;
+      }
+      if (!this.validateExpectedTurn(ws, event)) return;
+
+      const reaction = event?.reaction ?? null;
+      if (reaction !== null && !REACTION_TYPES.includes(reaction)) {
+        ws.send(JSON.stringify({ type: "error", error: "INVALID_REACTION" }));
+        return;
+      }
+
+      const turnKey = String(this.room.game.turnNumber);
+      const reactions =
+        this.room.game.reactionsByTurn[turnKey] ??
+        (this.room.game.reactionsByTurn[turnKey] = {});
+
+      if (reaction === null) {
+        delete reactions[player.id];
+      } else {
+        reactions[player.id] = reaction;
+      }
+
+      this.room.version += 1;
+      await this.persist();
+      ws.send(
+        JSON.stringify({
+          type: "reaction-set",
+          turnNumber: this.room.game.turnNumber,
+          reaction,
+        }),
+      );
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "save-moment") {
+      if (this.room.status !== "playing" || !this.room.game) {
+        ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
+        return;
+      }
+      if (!this.room.game.revealed || this.room.game.questionIndex === null) {
+        ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
+        return;
+      }
+      if (!this.validateExpectedTurn(ws, event)) return;
+
+      const shouldSave = Boolean(event?.saved);
+      const turnNumber = this.room.game.turnNumber;
+      let moment = this.room.game.savedMoments.find(
+        (item) => item.turnNumber === turnNumber,
+      );
+
+      if (shouldSave) {
+        if (!moment) {
+          moment = {
+            turnNumber,
+            playerId: this.room.game.currentPlayerId,
+            questionIndex: this.room.game.questionIndex,
+            savedByPlayerIds: [],
+            createdAt: new Date().toISOString(),
+          };
+          this.room.game.savedMoments.push(moment);
+        }
+
+        if (!moment.savedByPlayerIds.includes(player.id)) {
+          moment.savedByPlayerIds.push(player.id);
+        }
+      } else if (moment) {
+        moment.savedByPlayerIds = moment.savedByPlayerIds.filter(
+          (id) => id !== player.id,
+        );
+        if (moment.savedByPlayerIds.length === 0) {
+          this.room.game.savedMoments = this.room.game.savedMoments.filter(
+            (item) => item.turnNumber !== turnNumber,
+          );
+        }
+      }
+
+      this.room.version += 1;
+      await this.persist();
+      ws.send(
+        JSON.stringify({
+          type: "moment-saved",
+          turnNumber,
+          saved: shouldSave,
+        }),
+      );
+      await this.broadcastSnapshot();
       return;
     }
 
@@ -941,7 +1097,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "6-central-display",
+        phase: "7-memories-reactions",
         durableObjects: true,
       });
     }

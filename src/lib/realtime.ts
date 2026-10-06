@@ -22,6 +22,18 @@ export type RoomSettings = {
   maxIntensity: QuestionIntensity;
 };
 
+export type ReactionType = "heart" | "laugh" | "clap" | "wow";
+
+export type ReactionCounts = Record<ReactionType, number>;
+
+export type SavedMoment = {
+  turnNumber: number;
+  playerId: string;
+  questionIndex: number;
+  savedCount: number;
+  createdAt: string;
+};
+
 export type RoomGameState = {
   deckVersion: string;
   currentPlayerId: string;
@@ -30,6 +42,9 @@ export type RoomGameState = {
   revealed: boolean;
   usedQuestionCount: number;
   questionPoolSize: number;
+  currentReactions: ReactionCounts;
+  reactionTotals: ReactionCounts;
+  savedMoments: SavedMoment[];
   startedAt: string;
   finishedAt: string | null;
   finishReason: "deck-complete" | "host-ended" | null;
@@ -70,6 +85,16 @@ export type ClientRoomEvent =
   | { type: "reveal"; expectedTurnNumber: number }
   | { type: "skip-question"; expectedTurnNumber: number }
   | { type: "next-turn"; expectedTurnNumber: number }
+  | {
+      type: "react";
+      reaction: ReactionType | null;
+      expectedTurnNumber: number;
+    }
+  | {
+      type: "save-moment";
+      saved: boolean;
+      expectedTurnNumber: number;
+    }
   | { type: "finish" }
   | { type: "leave" };
 
@@ -247,6 +272,8 @@ export function roomErrorMessage(code: string): string {
       "El enlace de pantalla central no es válido o ya expiró.",
     DISPLAY_READ_ONLY:
       "La pantalla central es de solo lectura.",
+    INVALID_REACTION:
+      "Esa reacción no está disponible.",
   };
   return messages[code] ?? code;
 }

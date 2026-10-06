@@ -230,6 +230,58 @@ try {
     "Display and players must receive the same revealed question",
   );
 
+  const reacted = waitForSnapshot(
+    displaySocket,
+    (room) => room.game?.currentReactions?.heart === 1,
+    "display reaction",
+  );
+  send(guestSocket, {
+    type: "react",
+    reaction: "heart",
+    expectedTurnNumber: revealedRoom.game.turnNumber,
+  });
+  const reactedRoom = await reacted;
+  assert(
+    reactedRoom.game.reactionTotals.heart === 1,
+    "Reaction total must be reflected in the authoritative snapshot",
+  );
+
+  const savedMoment = waitForSnapshot(
+    displaySocket,
+    (room) =>
+      room.game?.savedMoments?.some(
+        (moment) =>
+          moment.turnNumber === revealedRoom.game.turnNumber &&
+          moment.savedCount === 1,
+      ),
+    "display saved moment",
+  );
+  send(hostSocket, {
+    type: "save-moment",
+    saved: true,
+    expectedTurnNumber: revealedRoom.game.turnNumber,
+  });
+  const savedMomentRoom = await savedMoment;
+  assert(
+    savedMomentRoom.game.savedMoments[0]?.questionIndex ===
+      revealedRoom.game.questionIndex,
+    "Saved moment must reference the revealed question",
+  );
+
+  const displayCannotReact = waitForMessage(
+    displaySocket,
+    (payload) =>
+      payload.type === "error" &&
+      payload.error === "DISPLAY_READ_ONLY",
+    "display reaction read-only rejection",
+  );
+  send(displaySocket, {
+    type: "react",
+    reaction: "clap",
+    expectedTurnNumber: revealedRoom.game.turnNumber,
+  });
+  await displayCannotReact;
+
   const advanced = waitForSnapshot(
     hostSocket,
     (room) => room.game?.turnNumber === 2 || room.status === "finished",

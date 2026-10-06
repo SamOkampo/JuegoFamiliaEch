@@ -20,6 +20,7 @@ import {
   normalizeRoomCode,
   roomErrorMessage,
   sendRoomEvent,
+  type ReactionType,
   type RoomSession,
   type RoomSnapshot,
 } from "@/lib/realtime";
@@ -59,6 +60,8 @@ export default function RoomPage() {
   const [inviteFeedback, setInviteFeedback] = useState("");
   const [hapticsEnabled, setHapticsEnabled] = useState(false);
   const [listenMode, setListenMode] = useState(false);
+  const [myReaction, setMyReaction] = useState<ReactionType | null>(null);
+  const [momentSaved, setMomentSaved] = useState(false);
   const [displayUrl, setDisplayUrl] = useState("");
   const [displayFeedback, setDisplayFeedback] = useState("");
   const socketRef = useRef<WebSocket | null>(null);
@@ -104,11 +107,30 @@ export default function RoomPage() {
             room?: RoomSnapshot;
             error?: string;
             token?: string;
+            reaction?: ReactionType | null;
+            saved?: boolean;
+            turnNumber?: number;
           };
 
           if (payload.type === "snapshot" && payload.room) {
             setRoom(payload.room);
             setError("");
+            return;
+          }
+
+          if (
+            payload.type === "reaction-set" &&
+            typeof payload.turnNumber === "number"
+          ) {
+            setMyReaction(payload.reaction ?? null);
+            return;
+          }
+
+          if (
+            payload.type === "moment-saved" &&
+            typeof payload.turnNumber === "number"
+          ) {
+            setMomentSaved(Boolean(payload.saved));
             return;
           }
 
@@ -190,6 +212,8 @@ export default function RoomPage() {
 
     turnSignatureRef.current = signature;
     setListenMode(false);
+    setMyReaction(null);
+    setMomentSaved(false);
 
     if (
       hapticsEnabled &&
@@ -376,6 +400,31 @@ export default function RoomPage() {
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
+  function reactToMoment(reaction: ReactionType) {
+    if (!room?.game || !room.game.revealed) return;
+
+    const nextReaction = myReaction === reaction ? null : reaction;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "react",
+      reaction: nextReaction,
+      expectedTurnNumber: room.game.turnNumber,
+    });
+
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function toggleSavedMoment() {
+    if (!room?.game || !room.game.revealed) return;
+
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "save-moment",
+      saved: !momentSaved,
+      expectedTurnNumber: room.game.turnNumber,
+    });
+
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
   function finishGame() {
     const sent = sendRoomEvent(socketRef.current, { type: "finish" });
     if (!sent) setError("Todavía no estás conectado a la sala.");
@@ -471,10 +520,54 @@ export default function RoomPage() {
               <span>turnos</span>
             </div>
             <div>
-              <strong>{room.game.usedQuestionCount}</strong>
-              <span>preguntas usadas</span>
+              <strong>{room.game.savedMoments.length}</strong>
+              <span>momentos guardados</span>
             </div>
           </div>
+
+          <section className="reactionRecap" aria-label="Reacciones de la ronda">
+            <span>❤️ {room.game.reactionTotals.heart}</span>
+            <span>😂 {room.game.reactionTotals.laugh}</span>
+            <span>👏 {room.game.reactionTotals.clap}</span>
+            <span>😮 {room.game.reactionTotals.wow}</span>
+          </section>
+
+          {room.game.savedMoments.length > 0 ? (
+            <section className="savedMomentsRecap">
+              <p className="eyebrow">LA HUELLA DE ESTA RONDA</p>
+              <div className="savedMomentList">
+                {room.game.savedMoments.map((moment) => {
+                  const savedQuestion = QUESTIONS[moment.questionIndex];
+                  const savedPlayer = room.players.find(
+                    (player) => player.id === moment.playerId,
+                  );
+
+                  return (
+                    <article
+                      className="savedMomentCard"
+                      key={moment.turnNumber}
+                    >
+                      <span>
+                        Turno {moment.turnNumber} ·{" "}
+                        {savedPlayer?.name ?? "Alguien del grupo"}
+                      </span>
+                      <strong>
+                        {savedQuestion?.text ?? "Momento de la conversación"}
+                      </strong>
+                      <small>
+                        Guardado por {moment.savedCount}{" "}
+                        {moment.savedCount === 1 ? "persona" : "personas"}
+                      </small>
+                    </article>
+                  );
+                })}
+              </div>
+              <p className="retentionNote">
+                Estos recuerdos solo guardan la pregunta y el turno. No
+                grabamos audio, fotos ni lo que alguien respondió.
+              </p>
+            </section>
+          ) : null}
 
           <p className="muted syncedNote">
             {room.game.finishReason === "deck-complete"
@@ -552,6 +645,59 @@ export default function RoomPage() {
               </>
             )}
           </div>
+
+          {room.game.revealed ? (
+            <section className="momentActions" aria-label="Reacciones y recuerdos">
+              <div className="reactionBar">
+                <button
+                  type="button"
+                  className={"reactionButton " + (myReaction === "heart" ? "selected" : "")}
+                  aria-pressed={myReaction === "heart"}
+                  onClick={() => reactToMoment("heart")}
+                >
+                  ❤️ <span>{room.game.currentReactions.heart}</span>
+                </button>
+                <button
+                  type="button"
+                  className={"reactionButton " + (myReaction === "laugh" ? "selected" : "")}
+                  aria-pressed={myReaction === "laugh"}
+                  onClick={() => reactToMoment("laugh")}
+                >
+                  😂 <span>{room.game.currentReactions.laugh}</span>
+                </button>
+                <button
+                  type="button"
+                  className={"reactionButton " + (myReaction === "clap" ? "selected" : "")}
+                  aria-pressed={myReaction === "clap"}
+                  onClick={() => reactToMoment("clap")}
+                >
+                  👏 <span>{room.game.currentReactions.clap}</span>
+                </button>
+                <button
+                  type="button"
+                  className={"reactionButton " + (myReaction === "wow" ? "selected" : "")}
+                  aria-pressed={myReaction === "wow"}
+                  onClick={() => reactToMoment("wow")}
+                >
+                  😮 <span>{room.game.currentReactions.wow}</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className={"saveMomentButton " + (momentSaved ? "saved" : "")}
+                aria-pressed={momentSaved}
+                onClick={toggleSavedMoment}
+              >
+                {momentSaved ? "✓ Momento guardado" : "Guardar este momento"}
+              </button>
+
+              <p className="momentPrivacy">
+                Guardar solo conserva la pregunta, el turno y cuántas personas
+                quisieron recordarlo. No graba la conversación.
+              </p>
+            </section>
+          ) : null}
 
           {canControlTurn ? (
             <div className="gameActionGrid">
