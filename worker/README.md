@@ -109,3 +109,25 @@ Display sockets:
 - receive `DISPLAY_READ_ONLY` for game-mutating commands;
 - have no `playerId`;
 - never affect player presence, readiness, host transfer or turns.
+
+
+## Reactions and ephemeral memories
+
+Phase 7 keeps conversation memories inside the room Durable Object only.
+
+Player commands:
+
+- `react` with one of `heart`, `laugh`, `clap`, `wow`, or `null` to clear.
+- `save-moment` with an explicit boolean `saved`.
+
+Rules:
+
+- reactions and saves are accepted only after the current question is revealed;
+- both carry `expectedTurnNumber` to reject stale interactions;
+- one reaction per player per turn is stored;
+- saved moments keep only turn number, current player ID, question index, saver IDs and timestamp;
+- public snapshots expose aggregate reaction counts and only the number of people who saved a moment;
+- no answer text, audio, photo or video is captured;
+- all of this data is deleted with the room when its 12-hour Durable Object alarm expires.
+
+The central display receives aggregates in the normal public snapshot but remains read-only.
