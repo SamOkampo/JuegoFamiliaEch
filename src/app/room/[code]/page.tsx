@@ -4,6 +4,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
 import {
   getQuestionPoolIndexes,
   GROUP_TYPE_LABELS,
@@ -51,8 +52,6 @@ export default function RoomPage() {
   const code = normalizeRoomCode(params.code ?? "");
   const [session, setSession] = useState<RoomSession | null>(null);
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
-  const [connection, setConnection] =
-    useState<ConnectionState>("connecting");
   const [error, setError] = useState("");
   const [inviteUrl, setInviteUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -64,7 +63,6 @@ export default function RoomPage() {
   const [momentSaved, setMomentSaved] = useState(false);
   const [displayUrl, setDisplayUrl] = useState("");
   const [displayFeedback, setDisplayFeedback] = useState("");
-  const socketRef = useRef<WebSocket | null>(null);
   const turnSignatureRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -72,108 +70,72 @@ export default function RoomPage() {
     setSession(saved);
 
     if (!saved) {
-      setConnection("offline");
       setError(
         "Este navegador no tiene credenciales para la sala. Entra otra vez con el código.",
       );
-      return;
     }
-
-    let stopped = false;
-    let retryTimer: ReturnType<typeof setTimeout> | null = null;
-    let retryDelay = 1000;
-
-    const connect = () => {
-      if (stopped) return;
-      setConnection("connecting");
-
-      const ws = new WebSocket(buildRoomWebSocketUrl(saved));
-      socketRef.current = ws;
-
-      ws.onopen = () => {
-        if (stopped) return;
-        retryDelay = 1000;
-        setConnection("online");
-        setError("");
-        sendRoomEvent(ws, { type: "sync" });
-      };
-
-      ws.onmessage = (event) => {
-        if (event.data === "pong") return;
-
-        try {
-          const payload = JSON.parse(String(event.data)) as {
-            type?: string;
-            room?: RoomSnapshot;
-            error?: string;
-            token?: string;
-            reaction?: ReactionType | null;
-            saved?: boolean;
-            turnNumber?: number;
-          };
-
-          if (payload.type === "snapshot" && payload.room) {
-            setRoom(payload.room);
-            setError("");
-            return;
-          }
-
-          if (
-            payload.type === "reaction-set" &&
-            typeof payload.turnNumber === "number"
-          ) {
-            setMyReaction(payload.reaction ?? null);
-            return;
-          }
-
-          if (
-            payload.type === "moment-saved" &&
-            typeof payload.turnNumber === "number"
-          ) {
-            setMomentSaved(Boolean(payload.saved));
-            return;
-          }
-
-          if (payload.type === "display-token" && payload.token) {
-            setDisplayUrl(
-              buildCentralDisplayUrl(window.location.origin, code, payload.token),
-            );
-            setDisplayFeedback(
-              "Pantalla central preparada. Puedes abrirla o copiar su enlace.",
-            );
-            return;
-          }
-
-          if (payload.type === "error" && payload.error) {
-            setError(roomErrorMessage(payload.error));
-          }
-        } catch {
-          // Ignore malformed frames and wait for the next snapshot.
-        }
-      };
-
-      ws.onerror = () => {
-        if (!stopped) setConnection("offline");
-      };
-
-      ws.onclose = () => {
-        if (stopped) return;
-        socketRef.current = null;
-        setConnection("offline");
-        retryTimer = setTimeout(connect, retryDelay);
-        retryDelay = Math.min(retryDelay * 2, 8000);
-      };
-    };
-
-    connect();
-
-    return () => {
-      stopped = true;
-      if (retryTimer) clearTimeout(retryTimer);
-      socketRef.current?.close(1000, "page closed");
-      socketRef.current = null;
-    };
   }, [code]);
+
+  function handleRoomSocketMessage(event: MessageEvent) {
+    try {
+      const payload = JSON.parse(String(event.data)) as {
+        type?: string;
+        room?: RoomSnapshot;
+        error?: string;
+        token?: string;
+        reaction?: ReactionType | null;
+        saved?: boolean;
+        turnNumber?: number;
+      };
+
+      if (payload.type === "snapshot" && payload.room) {
+        setRoom(payload.room);
+        setError("");
+        return;
+      }
+
+      if (
+        payload.type === "reaction-set" &&
+        typeof payload.turnNumber === "number"
+      ) {
+        setMyReaction(payload.reaction ?? null);
+        return;
+      }
+
+      if (
+        payload.type === "moment-saved" &&
+        typeof payload.turnNumber === "number"
+      ) {
+        setMomentSaved(Boolean(payload.saved));
+        return;
+      }
+
+      if (payload.type === "display-token" && payload.token) {
+        setDisplayUrl(
+          buildCentralDisplayUrl(window.location.origin, code, payload.token),
+        );
+        setDisplayFeedback(
+          "Pantalla central preparada. Puedes abrirla o copiar su enlace.",
+        );
+        return;
+      }
+
+      if (payload.type === "error" && payload.error) {
+        setError(roomErrorMessage(payload.error));
+      }
+    } catch {
+      // Keep the last valid room snapshot if a frame is malformed.
+    }
+  }
+
+  const roomSocketUrl = session ? buildRoomWebSocketUrl(session) : null;
+  const { socketRef, connection } = useResilientWebSocket({
+    url: roomSocketUrl,
+    onReady: (socket) => {
+      sendRoomEvent(socket, { type: "sync" });
+    },
+    onMessage: handleRoomSocketMessage,
+  });
 
   useEffect(() => {
     setInviteUrl(buildRoomInviteUrl(window.location.origin, code));
