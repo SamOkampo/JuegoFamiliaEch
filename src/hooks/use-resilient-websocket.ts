@@ -45,7 +45,8 @@ export function useResilientWebSocket({
   });
 
   useEffect(() => {
-    if (!url) {
+    const socketUrl = url;
+    if (!socketUrl) {
       socketRef.current = null;
       setConnection("offline");
       return;
@@ -116,7 +117,7 @@ export function useResilientWebSocket({
       clearRetry();
       setConnection("connecting");
 
-      const socket = new WebSocket(url);
+      const socket = new WebSocket(socketUrl);
       socketRef.current = socket;
 
       socket.onopen = () => {
