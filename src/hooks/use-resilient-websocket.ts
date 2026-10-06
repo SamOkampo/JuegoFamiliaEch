@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
 
 export type ResilientConnectionState =
   | "connecting"
@@ -30,7 +30,7 @@ export function useResilientWebSocket({
   onMessage,
   onReady,
 }: Options): {
-  socketRef: React.MutableRefObject<WebSocket | null>;
+  socketRef: MutableRefObject<WebSocket | null>;
   connection: ResilientConnectionState;
 } {
   const socketRef = useRef<WebSocket | null>(null);
