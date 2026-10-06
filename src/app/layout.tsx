@@ -1,9 +1,38 @@
 import type { Metadata, Viewport } from "next";
+import { PwaRuntime } from "@/components/pwa-runtime";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "JuegoFamiliaEch",
-  description: "Juego grupal de conversación para compartir historias cara a cara.",
+  description:
+    "Juego grupal de conversación para compartir historias cara a cara.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "JuegoFamiliaEch",
+  },
+  icons: {
+    icon: [
+      {
+        url: "/api/pwa/icon/192",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/api/pwa/icon/512",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "/api/pwa/icon/180",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
@@ -20,7 +49,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <PwaRuntime />
+        {children}
+      </body>
     </html>
   );
 }
