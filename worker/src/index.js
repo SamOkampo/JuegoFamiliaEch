@@ -224,6 +224,10 @@ export class GameRoom extends DurableObject {
         this.room.settings = { ...DEFAULT_ROOM_SETTINGS };
       }
 
+      if (this.room && !this.room.displayToken) {
+        this.room.displayToken = randomToken();
+      }
+
       if (this.room?.game && !Array.isArray(this.room.game.questionPool)) {
         const legacyCount =
           this.room.game.deckVersion === "core-v1" ? 12 : QUESTION_COUNT;
@@ -335,6 +339,7 @@ export class GameRoom extends DurableObject {
       createdAt: new Date(now).toISOString(),
       expiresAt: now + ROOM_TTL_MS,
       version: 1,
+      displayToken: randomToken(),
       settings: { ...DEFAULT_ROOM_SETTINGS },
       game: null,
       players: [
@@ -440,7 +445,7 @@ export class GameRoom extends DurableObject {
     const server = pair[1];
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ playerId });
+    server.serializeAttachment({ connectionType: "player", playerId });
 
     player.connected = true;
     player.lastSeenAt = Date.now();
@@ -460,6 +465,35 @@ export class GameRoom extends DurableObject {
     return new Response(null, { status: 101, webSocket: client });
   }
 
+  async connectDisplayWebSocket(request, url) {
+    if (!this.room) {
+      return json({ error: "ROOM_NOT_FOUND" }, 404);
+    }
+    if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") {
+      return json({ error: "EXPECTED_WEBSOCKET" }, 426);
+    }
+
+    const token = url.searchParams.get("token") ?? "";
+    if (!token || token !== this.room.displayToken) {
+      return json({ error: "UNAUTHORIZED_DISPLAY" }, 401);
+    }
+
+    const pair = new WebSocketPair();
+    const client = pair[0];
+    const server = pair[1];
+
+    this.ctx.acceptWebSocket(server);
+    server.serializeAttachment({ connectionType: "display" });
+    server.send(
+      JSON.stringify({
+        type: "snapshot",
+        room: publicSnapshot(this.room),
+      }),
+    );
+
+    return new Response(null, { status: 101, webSocket: client });
+  }
+
   async fetch(request) {
     const url = new URL(request.url);
 
@@ -475,14 +509,17 @@ export class GameRoom extends DurableObject {
     if (request.method === "GET" && url.pathname === "/internal/ws") {
       return this.connectWebSocket(request, url);
     }
+    if (request.method === "GET" && url.pathname === "/internal/display/ws") {
+      return this.connectDisplayWebSocket(request, url);
+    }
 
     return json({ error: "NOT_FOUND" }, 404);
   }
 
   async webSocketMessage(ws, message) {
     const attachment = ws.deserializeAttachment();
+    const connectionType = attachment?.connectionType ?? "player";
     const playerId = attachment?.playerId ?? "";
-    const player = this.room?.players.find((item) => item.id === playerId);
 
     if (message === "ping") {
       ws.send("pong");
@@ -497,7 +534,27 @@ export class GameRoom extends DurableObject {
       return;
     }
 
-    if (!this.room || !player) {
+    if (!this.room) {
+      ws.send(JSON.stringify({ type: "error", error: "ROOM_NOT_FOUND" }));
+      return;
+    }
+
+    if (connectionType === "display") {
+      if (event?.type === "sync") {
+        ws.send(
+          JSON.stringify({
+            type: "snapshot",
+            room: publicSnapshot(this.room),
+          }),
+        );
+      } else {
+        ws.send(JSON.stringify({ type: "error", error: "DISPLAY_READ_ONLY" }));
+      }
+      return;
+    }
+
+    const player = this.room.players.find((item) => item.id === playerId);
+    if (!player) {
       ws.send(JSON.stringify({ type: "error", error: "PLAYER_NOT_FOUND" }));
       return;
     }
@@ -507,6 +564,21 @@ export class GameRoom extends DurableObject {
         JSON.stringify({
           type: "snapshot",
           room: publicSnapshot(this.room),
+        }),
+      );
+      return;
+    }
+
+    if (event?.type === "display-token") {
+      if (player.id !== this.room.hostId) {
+        ws.send(JSON.stringify({ type: "error", error: "HOST_ONLY" }));
+        return;
+      }
+
+      ws.send(
+        JSON.stringify({
+          type: "display-token",
+          token: this.room.displayToken,
         }),
       );
       return;
@@ -729,6 +801,8 @@ export class GameRoom extends DurableObject {
 
   async markDisconnected(ws) {
     const attachment = ws.deserializeAttachment();
+    if (attachment?.connectionType === "display") return;
+
     const playerId = attachment?.playerId ?? "";
 
     if (!this.room) return;
@@ -867,7 +941,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "5-original-content",
+        phase: "6-central-display",
         durableObjects: true,
       });
     }
@@ -908,6 +982,20 @@ export default {
       return response;
     }
 
+    const displayWsMatch = url.pathname.match(
+      /^\/api\/rooms\/([A-Z0-9]{6})\/display\/ws$/i,
+    );
+    if (request.method === "GET" && displayWsMatch) {
+      const code = normalizeRoomCode(displayWsMatch[1]);
+      const target = new URL("https://room/internal/display/ws");
+      target.search = url.search;
+      return proxyToRoom(
+        env,
+        code,
+        new Request(target.toString(), request),
+      );
+    }
+
     return json({
       service: "JuegoFamiliaEch",
       message: "Realtime backend online.",
@@ -916,6 +1004,7 @@ export default {
         "POST /api/rooms/:code/join",
         "GET /api/rooms/:code/state",
         "GET /api/rooms/:code/ws",
+        "GET /api/rooms/:code/display/ws",
       ],
     });
   },
