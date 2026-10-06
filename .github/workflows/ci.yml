@@ -51,6 +51,9 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Cloudflare frontend build
+        run: npm run build:cloudflare
+
       - name: Install mobile browser engines
         run: npx playwright install --with-deps chromium webkit
 
