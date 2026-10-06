@@ -8,7 +8,7 @@
 - CI valida tanto `next build` como `npm run build:cloudflare`.
 - Se añadieron rutas públicas `/privacy` y `/terms` para beta cerrada.
 - Se añadió telemetría cliente sanitizada sin mensajes, stacks, URLs completas ni códigos de sala.
-- El Worker registra métricas server-side de:
+- El Worker registra métricas server-side como logs estructurados de Workers Observability de:
   - sala creada;
   - jugador unido;
   - partida iniciada;
@@ -37,4 +37,4 @@
 
 ## Gate actual
 
-Pendiente desplegar el Worker backend con el binding de Analytics Engine, pasar CI del PR de Fase 10 y verificar el dataset con eventos reales.
+Pendiente desplegar el Worker backend de Fase 10, pasar CI del PR y verificar eventos reales. Analytics Engine queda como mejora opcional porque la cuenta aún no tiene esa capacidad habilitada.
