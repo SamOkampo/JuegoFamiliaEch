@@ -35,9 +35,9 @@ La observabilidad de Workers permanece habilitada y las query strings se redacta
 
 ## Analítica mínima
 
-Dataset: `juego_familia_ech_product`.
+Los eventos se emiten como logs estructurados de Cloudflare Workers Observability. No dependen de herramientas publicitarias de terceros.
 
-Los eventos se escriben desde el Worker, no desde herramientas publicitarias de terceros.
+Existe soporte opcional para el dataset `juego_familia_ech_product` de Workers Analytics Engine cuando esa capacidad se habilite en la cuenta.
 
 Eventos servidor:
 
@@ -72,6 +72,7 @@ La tasa de activación puede calcularse como partidas iniciadas / salas creadas.
 Backend:
 
 - Cloudflare Workers Observability habilitado;
+- métricas de producto y errores se emiten como logs estructurados;
 - logs/traces de ejecución disponibles desde Cloudflare;
 - query strings redactadas.
 
