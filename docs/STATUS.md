@@ -38,4 +38,4 @@
 
 ## Gate actual
 
-Backend de Fase 10 ya desplegado. Pendiente pasar CI del PR y verificar el build Cloudflare del frontend. Analytics Engine queda como mejora opcional porque la cuenta aún no tiene esa capacidad habilitada; las métricas funcionan desde Workers Observability.
+PR #9 abierto para Fase 10. Backend de Fase 10 ya desplegado. Pendiente pasar CI del PR y verificar el build Cloudflare del frontend. Analytics Engine queda como mejora opcional porque la cuenta aún no tiene esa capacidad habilitada; las métricas funcionan desde Workers Observability.
