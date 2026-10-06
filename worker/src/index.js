@@ -270,7 +270,8 @@ async function rateLimitIdentity(request) {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "unknown";
   const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 160);
-  const source = ip + "\n" + userAgent;
+  const source =
+    ip === "unknown" ? "unknown\n" + userAgent : ip;
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(source),
@@ -1069,6 +1070,21 @@ export class GameRoom extends DurableObject {
         (item) => item.id !== player.id,
       );
 
+      for (const candidate of this.ctx.getWebSockets()) {
+        if (candidate === ws) continue;
+        const candidateAttachment = candidate.deserializeAttachment();
+        if (
+          candidateAttachment?.connectionType === "player" &&
+          candidateAttachment?.playerId === player.id
+        ) {
+          try {
+            candidate.close(1000, "session revoked");
+          } catch {
+            // Ignore sockets already closing.
+          }
+        }
+      }
+
       if (this.room.players.length === 0) {
         this.room = null;
         await this.ctx.storage.deleteAll();
@@ -1118,6 +1134,19 @@ export class GameRoom extends DurableObject {
     const playerId = attachment?.playerId ?? "";
 
     if (!this.room) return;
+
+    const anotherPlayerSocket = this.ctx
+      .getWebSockets()
+      .some((candidate) => {
+        if (candidate === ws) return false;
+        const candidateAttachment = candidate.deserializeAttachment();
+        return (
+          candidateAttachment?.connectionType === "player" &&
+          candidateAttachment?.playerId === playerId
+        );
+      });
+
+    if (anotherPlayerSocket) return;
 
     const player = this.room.players.find((item) => item.id === playerId);
     if (!player) return;
