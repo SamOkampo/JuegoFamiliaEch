@@ -39,11 +39,14 @@ jobs:
       - name: Validate Worker syntax
         run: node --check worker/src/index.js
 
+      - name: Validate service worker syntax
+        run: node --check public/sw.js
+
       - name: Production build
         run: npm run build
 
       - name: Install mobile browser engines
         run: npx playwright install --with-deps chromium webkit
 
-      - name: Mobile E2E — iPhone WebKit + Android Chromium
+      - name: PWA + mobile E2E — iPhone WebKit + Android Chromium
         run: npm run test:e2e:mobile

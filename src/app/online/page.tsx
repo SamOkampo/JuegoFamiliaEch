@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PwaInstallCard } from "@/components/pwa-install-card";
 import {
   createOnlineRoom,
   joinOnlineRoom,
@@ -165,6 +166,8 @@ export default function OnlinePage() {
           </button>
         </form>
       </section>
+
+      <PwaInstallCard />
 
       <p className="backLink">
         <Link href="/">← Volver al prototipo local</Link>

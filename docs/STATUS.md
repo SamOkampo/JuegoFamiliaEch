@@ -2,48 +2,43 @@
 
 ## Checkpoint actual
 
-- Fases 1, 2, 3, 4, 5, 6 y 7 están integradas en `main`.
-- Fase 7 fue fusionada en `45f041a25b6cd3e66af0a3555a0442c463e0742b` después de CI completamente verde.
-- Cada jugador puede dejar una reacción ligera por turno: ❤️, 😂, 👏 o 😮.
-- Solo se mantiene una reacción por jugador y turno; puede cambiarse o quitarse.
-- “Guardar este momento” es una acción explícita y reversible durante el turno.
-- Un momento guardado conserva únicamente metadatos mínimos: turno, jugador del turno, pregunta, timestamp y cantidad de personas que lo guardaron.
-- No se almacena lo que la persona respondió.
-- El recap final muestra momentos guardados y totales de reacciones.
-- La pantalla central sincroniza esos agregados, pero sigue siendo de solo lectura.
-- El smoke Cloudflare verificó reacción, guardado de momento, sincronización al display y rechazo de mutaciones desde el display.
-- Typecheck, unit tests, smoke Cloudflare, sintaxis Worker, production build y E2E móvil/display pasaron en verde.
-- Worker Fase 7 desplegado al 100% en Cloudflare: `1fa05f93-f176-4804-9b02-5f36e49dc0f1`.
-
-## Retención y privacidad
-
-- Todo el estado de la sala permanece dentro del Durable Object.
-- La sala expira automáticamente a las 12 horas desde su creación.
-- Al expirar se eliminan nombres, tokens, preguntas usadas, reacciones, momentos guardados, recap y token de display.
-- No existe almacenamiento permanente, biblioteca de recuerdos ni cuentas en esta fase.
-- No se capturan audio, fotos, video ni texto libre de respuestas.
-- Política completa: `docs/PRIVACY_RETENTION.md`.
-- Una futura captura multimedia deberá estar desactivada por defecto y requerir consentimiento específico antes de empezar.
-
-## Infraestructura actual
-
-- Frontend: Next.js + TypeScript.
-- Realtime/backend: Cloudflare Worker.
-- Coordinación de salas: Durable Objects.
-- Persistencia por sala: SQLite del Durable Object.
-- Endpoint backend: `https://juego-familia-ech.socampoecheverry.workers.dev`.
-- Sin Supabase para este proyecto.
+- Fases 1 a 7 están integradas en `main`.
+- Fase 8 — PWA y resiliencia está implementada en `phase-8-pwa-resilience` y pendiente de CI/merge.
+- La app publica `/manifest.webmanifest`, metadata iOS y modo standalone.
+- Los iconos PNG de 180, 192 y 512 px se generan dentro del propio proyecto.
+- Existe instalación programática cuando el navegador ofrece `beforeinstallprompt` y guía manual cuando no.
+- `public/sw.js` mantiene un app shell mínimo y entrega `/offline` cuando falla una navegación.
+- El service worker no intercepta el backend realtime ni crea una partida offline paralela.
+- La sesión de sala persiste en `localStorage`; al recargar se reconecta y se pide un snapshot autoritativo.
+- El display conserva su token en el fragmento de URL y también recupera conexión tras refresh.
+- Jugadores y display usan un WebSocket resiliente compartido:
+  - backoff 1 → 2 → 4 → 8 s;
+  - heartbeat cada 20 s mientras la página está visible;
+  - cierre de sockets estancados tras 60 s;
+  - reconexión inmediata al evento `online`;
+  - pausa de reintentos mientras el navegador está offline;
+  - `visibilitychange` y `focus` fuerzan ping + sync.
+- Un aviso global informa estado offline y recuperación de conexión.
+- La estrategia completa está documentada en `docs/PWA_RESILIENCE.md`.
 
 ## Gate actual
 
-Fase 7 está cerrada a nivel de código, privacidad, CI, despliegue y merge.
+1. Typecheck y unit tests, incluido backoff.
+2. Smoke realtime Cloudflare.
+3. Validación sintáctica Worker + service worker.
+4. Production build.
+5. E2E iPhone/WebKit + Android/Chromium:
+   - manifest e iconos;
+   - refresh con sesión;
+   - pérdida/recuperación de red;
+   - fallback de navegación offline en Chromium.
+6. Fusionar Fase 8 a `main`.
 
 ## Próxima fase
 
-Fase 8 — PWA y resiliencia:
-- manifest e instalación;
-- iconos/splash propios;
-- recuperación tras refresh;
-- recuperación tras suspensión móvil;
-- estado offline/degradado;
-- estrategia de reconexión.
+Fase 9 — Calidad, CI y seguridad:
+- ampliar unit/integration/E2E;
+- rate limiting;
+- validación de inputs;
+- auditoría de autorización;
+- privacidad y abuso.

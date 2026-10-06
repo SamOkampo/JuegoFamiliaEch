@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
 import {
   GROUP_TYPE_LABELS,
   QUESTION_CATEGORY_LABELS,
@@ -14,94 +15,60 @@ import {
   type RoomSnapshot,
 } from "@/lib/realtime";
 
-type DisplayConnection = "connecting" | "online" | "offline";
 
 export default function CentralDisplayPage() {
   const params = useParams<{ code: string }>();
   const code = normalizeRoomCode(params.code ?? "");
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
-  const [connection, setConnection] =
-    useState<DisplayConnection>("connecting");
   const [error, setError] = useState("");
-  const socketRef = useRef<WebSocket | null>(null);
+  const [displayToken, setDisplayToken] = useState("");
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1));
     const token = hash.get("token") ?? "";
 
     if (!token) {
-      setConnection("offline");
       setError(
         "Esta pantalla necesita un enlace generado por el anfitrión de la sala.",
       );
       return;
     }
 
-    let stopped = false;
-    let retryTimer: ReturnType<typeof setTimeout> | null = null;
-    let retryDelay = 1000;
+    setDisplayToken(token);
+  }, []);
 
-    const connect = () => {
-      if (stopped) return;
-      setConnection("connecting");
+  function handleDisplaySocketMessage(event: MessageEvent) {
+    try {
+      const payload = JSON.parse(String(event.data)) as {
+        type?: string;
+        room?: RoomSnapshot;
+        error?: string;
+      };
 
-      const ws = new WebSocket(buildDisplayWebSocketUrl(code, token));
-      socketRef.current = ws;
-
-      ws.onopen = () => {
-        if (stopped) return;
-        retryDelay = 1000;
-        setConnection("online");
+      if (payload.type === "snapshot" && payload.room) {
+        setRoom(payload.room);
         setError("");
-        ws.send(JSON.stringify({ type: "sync" }));
-      };
+        return;
+      }
 
-      ws.onmessage = (event) => {
-        if (event.data === "pong") return;
+      if (payload.type === "error" && payload.error) {
+        setError(roomErrorMessage(payload.error));
+      }
+    } catch {
+      // Keep the last valid snapshot visible.
+    }
+  }
 
-        try {
-          const payload = JSON.parse(String(event.data)) as {
-            type?: string;
-            room?: RoomSnapshot;
-            error?: string;
-          };
-
-          if (payload.type === "snapshot" && payload.room) {
-            setRoom(payload.room);
-            setError("");
-            return;
-          }
-
-          if (payload.type === "error" && payload.error) {
-            setError(roomErrorMessage(payload.error));
-          }
-        } catch {
-          // Keep the last valid snapshot visible.
-        }
-      };
-
-      ws.onerror = () => {
-        if (!stopped) setConnection("offline");
-      };
-
-      ws.onclose = () => {
-        if (stopped) return;
-        socketRef.current = null;
-        setConnection("offline");
-        retryTimer = setTimeout(connect, retryDelay);
-        retryDelay = Math.min(retryDelay * 2, 8000);
-      };
-    };
-
-    connect();
-
-    return () => {
-      stopped = true;
-      if (retryTimer) clearTimeout(retryTimer);
-      socketRef.current?.close(1000, "display closed");
-      socketRef.current = null;
-    };
-  }, [code]);
+  const displaySocketUrl = displayToken
+    ? buildDisplayWebSocketUrl(code, displayToken)
+    : null;
+  const { connection } = useResilientWebSocket({
+    url: displaySocketUrl,
+    onReady: (socket) => {
+      socket.send(JSON.stringify({ type: "sync" }));
+    },
+    onMessage: handleDisplaySocketMessage,
+  });
 
   const currentPlayer = useMemo(
     () =>
