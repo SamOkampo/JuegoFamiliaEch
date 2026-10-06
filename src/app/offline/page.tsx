@@ -12,19 +12,13 @@ export default function OfflinePage() {
           servidor el estado actual.
         </p>
         <div className="offlineActions">
-          <button
-            type="button"
-            className="button primary"
-            onClick={undefined}
-            hidden
-          />
           <Link className="button secondary linkButton" href="/online">
             Volver al inicio
           </Link>
         </div>
         <p className="offlineFinePrint">
-          No intentamos inventar turnos ni preguntas mientras estás offline:
-          Cloudflare sigue siendo la fuente autoritativa de la partida.
+          No inventamos turnos ni preguntas mientras estás offline: Cloudflare
+          sigue siendo la fuente autoritativa de la partida.
         </p>
       </section>
     </main>
