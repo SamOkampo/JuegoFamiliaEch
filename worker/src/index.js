@@ -492,15 +492,24 @@ export class GameRoom extends DurableObject {
       return json({ error: "ROOM_EXISTS" }, 409);
     }
 
-    const body = await readJson(request);
-    const name = cleanPlayerName(body?.name);
-    const code = normalizeRoomCode(body?.code);
-    const playerId = String(body?.playerId ?? "");
-    const token = String(body?.token ?? "");
+    const parsed = await readJsonObject(request);
+    if (!parsed.ok) return inputError(parsed);
 
-    if (!name || code.length !== 6 || !playerId || !token) {
+    const nameResult = validatePlayerName(parsed.data?.name);
+    const code = normalizeRoomCode(parsed.data?.code);
+    const playerId = String(parsed.data?.playerId ?? "");
+    const token = String(parsed.data?.token ?? "");
+
+    if (
+      !nameResult.ok ||
+      code.length !== 6 ||
+      !isUuid(playerId) ||
+      !isOpaqueToken(token)
+    ) {
       return json({ error: "INVALID_ROOM_INIT" }, 400);
     }
+
+    const name = nameResult.value;
 
     const now = Date.now();
     this.room = {
@@ -543,14 +552,22 @@ export class GameRoom extends DurableObject {
       return json({ error: "ROOM_FULL" }, 409);
     }
 
-    const body = await readJson(request);
-    const name = cleanPlayerName(body?.name);
-    const playerId = String(body?.playerId ?? "");
-    const token = String(body?.token ?? "");
+    const parsed = await readJsonObject(request);
+    if (!parsed.ok) return inputError(parsed);
 
-    if (!name || !playerId || !token) {
+    const nameResult = validatePlayerName(parsed.data?.name);
+    const playerId = String(parsed.data?.playerId ?? "");
+    const token = String(parsed.data?.token ?? "");
+
+    if (
+      !nameResult.ok ||
+      !isUuid(playerId) ||
+      !isOpaqueToken(token)
+    ) {
       return json({ error: "INVALID_PLAYER" }, 400);
     }
+
+    const name = nameResult.value;
 
     const duplicate = this.room.players.some(
       (player) => player.name.toLocaleLowerCase() === name.toLocaleLowerCase(),
@@ -616,7 +633,11 @@ export class GameRoom extends DurableObject {
     const server = pair[1];
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ connectionType: "player", playerId });
+    server.serializeAttachment({
+      connectionType: "player",
+      playerId,
+      rateState: null,
+    });
 
     player.connected = true;
     player.lastSeenAt = Date.now();
@@ -654,7 +675,10 @@ export class GameRoom extends DurableObject {
     const server = pair[1];
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ connectionType: "display" });
+    server.serializeAttachment({
+      connectionType: "display",
+      rateState: null,
+    });
     server.send(
       JSON.stringify({
         type: "snapshot",
@@ -692,6 +716,21 @@ export class GameRoom extends DurableObject {
     const connectionType = attachment?.connectionType ?? "player";
     const playerId = attachment?.playerId ?? "";
 
+    if (!consumeSocketEvent(ws, attachment)) return;
+
+    if (typeof message !== "string") {
+      socketError(ws, "INVALID_MESSAGE");
+      return;
+    }
+
+    if (
+      new TextEncoder().encode(message).byteLength >
+      MAX_WS_MESSAGE_BYTES
+    ) {
+      socketError(ws, "MESSAGE_TOO_LARGE");
+      return;
+    }
+
     if (message === "ping") {
       ws.send("pong");
       return;
@@ -699,9 +738,9 @@ export class GameRoom extends DurableObject {
 
     let event = null;
     try {
-      event = JSON.parse(String(message));
+      event = JSON.parse(message);
     } catch {
-      ws.send(JSON.stringify({ type: "error", error: "INVALID_MESSAGE" }));
+      socketError(ws, "INVALID_MESSAGE");
       return;
     }
 
@@ -726,7 +765,13 @@ export class GameRoom extends DurableObject {
 
     const player = this.room.players.find((item) => item.id === playerId);
     if (!player) {
-      ws.send(JSON.stringify({ type: "error", error: "PLAYER_NOT_FOUND" }));
+      socketError(ws, "PLAYER_NOT_FOUND");
+      return;
+    }
+
+    const validation = validateClientEvent(event);
+    if (!validation.ok) {
+      socketError(ws, validation.error);
       return;
     }
 
@@ -779,10 +824,7 @@ export class GameRoom extends DurableObject {
         return;
       }
 
-      this.room.settings = normalizeRoomSettings(
-        event.settings,
-        this.room.settings,
-      );
+      this.room.settings = normalizeRoomSettings(event.settings);
       for (const member of this.room.players) {
         member.ready = false;
       }
@@ -918,7 +960,7 @@ export class GameRoom extends DurableObject {
       }
       if (!this.validateExpectedTurn(ws, event)) return;
 
-      const shouldSave = Boolean(event?.saved);
+      const shouldSave = event.saved;
       const turnNumber = this.room.game.turnNumber;
       let moment = this.room.game.savedMoments.find(
         (item) => item.turnNumber === turnNumber,
@@ -1126,12 +1168,15 @@ async function proxyToRoom(env, code, request) {
 }
 
 async function createRoom(request, env) {
-  const body = await readJson(request);
-  const name = cleanPlayerName(body?.name);
+  const parsed = await readJsonObject(request);
+  if (!parsed.ok) return inputError(parsed);
 
-  if (!name) {
-    return json({ error: "NAME_REQUIRED" }, 400);
+  const nameResult = validatePlayerName(parsed.data?.name);
+  if (!nameResult.ok) {
+    return json({ error: nameResult.error }, 400);
   }
+
+  const name = nameResult.value;
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const code = randomRoomCode();
@@ -1166,12 +1211,15 @@ async function createRoom(request, env) {
 }
 
 async function joinRoom(request, env, code) {
-  const body = await readJson(request);
-  const name = cleanPlayerName(body?.name);
+  const parsed = await readJsonObject(request);
+  if (!parsed.ok) return inputError(parsed);
 
-  if (!name) {
-    return json({ error: "NAME_REQUIRED" }, 400);
+  const nameResult = validatePlayerName(parsed.data?.name);
+  if (!nameResult.ok) {
+    return json({ error: nameResult.error }, 400);
   }
+
+  const name = nameResult.value;
 
   const playerId = crypto.randomUUID();
   const token = randomToken();
@@ -1211,7 +1259,7 @@ export default {
       return json({
         ok: true,
         service: "juego-familia-ech",
-        phase: "7-memories-reactions",
+        phase: "9-quality-security",
         durableObjects: true,
       });
     }
