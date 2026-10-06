@@ -32,7 +32,6 @@ import {
   HAPTICS_STORAGE_KEY,
 } from "@/lib/presential";
 
-type ConnectionState = "connecting" | "online" | "offline";
 
 const AGE_LABELS: Record<AgeBand, string> = {
   8: "8–11 años",
