@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildDisplayWebSocketUrl,
   buildRoomWebSocketUrl,
   normalizeRoomCode,
   type RoomSession,
@@ -27,4 +28,20 @@ test("buildRoomWebSocketUrl upgrades https to wss and includes credentials", () 
   assert.equal(url.pathname, "/api/rooms/ABC123/ws");
   assert.equal(url.searchParams.get("playerId"), "player-1");
   assert.equal(url.searchParams.get("token"), "secret-token");
+});
+
+
+test("buildDisplayWebSocketUrl uses a dedicated read-only display endpoint", () => {
+  const url = new URL(
+    buildDisplayWebSocketUrl(
+      "abc123",
+      "display-secret",
+      "https://example.workers.dev",
+    ),
+  );
+
+  assert.equal(url.protocol, "wss:");
+  assert.equal(url.pathname, "/api/rooms/ABC123/display/ws");
+  assert.equal(url.searchParams.get("token"), "display-secret");
+  assert.equal(url.searchParams.has("playerId"), false);
 });
