@@ -66,6 +66,19 @@ function withCors(response) {
 }
 
 function writeProductMetric(env, event, { blobs = [], doubles = [] } = {}) {
+  const record = {
+    kind: "product_metric",
+    event,
+    blobs,
+    doubles,
+  };
+
+  try {
+    console.log(JSON.stringify(record));
+  } catch {
+    // Observability must never break gameplay.
+  }
+
   try {
     env.PRODUCT_ANALYTICS?.writeDataPoint({
       indexes: [event],
@@ -73,7 +86,7 @@ function writeProductMetric(env, event, { blobs = [], doubles = [] } = {}) {
       doubles,
     });
   } catch {
-    // Analytics must never break gameplay.
+    // Optional Analytics Engine binding must never break gameplay.
   }
 }
 
