@@ -205,10 +205,10 @@ export default function CentralDisplayPage() {
                   Dejen los teléfonos. Escuchen la historia.
                 </p>
                 <div className="displayReactionBar" aria-label="Reacciones">
-                  <span>❤️ {room.game.currentReactions.heart}</span>
-                  <span>😂 {room.game.currentReactions.laugh}</span>
-                  <span>👏 {room.game.currentReactions.clap}</span>
-                  <span>😮 {room.game.currentReactions.wow}</span>
+                  <span className="reactionCount" key={"heart-"+room.game.currentReactions.heart}>❤️ {room.game.currentReactions.heart}</span>
+                  <span className="reactionCount" key={"laugh-"+room.game.currentReactions.laugh}>😂 {room.game.currentReactions.laugh}</span>
+                  <span className="reactionCount" key={"clap-"+room.game.currentReactions.clap}>👏 {room.game.currentReactions.clap}</span>
+                  <span className="reactionCount" key={"wow-"+room.game.currentReactions.wow}>😮 {room.game.currentReactions.wow}</span>
                 </div>
               </>
             ) : (
