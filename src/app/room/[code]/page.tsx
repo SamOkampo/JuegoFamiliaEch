@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import QRCode from "qrcode";
+import { SpecialRoundCard } from "@/components/special-round-card";
+import { SPECIAL_KINDS, SPECIAL_LABELS, type SpecialKind } from "@/lib/special-rounds";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
@@ -24,6 +26,7 @@ import {
   type ReactionType,
   type RoomSession,
   type RoomSnapshot,
+  type RoomSettings,
 } from "@/lib/realtime";
 import {
   buildCentralDisplayUrl,
@@ -60,6 +63,9 @@ export default function RoomPage() {
   const [listenMode, setListenMode] = useState(false);
   const [myReaction, setMyReaction] = useState<ReactionType | null>(null);
   const [momentSaved, setMomentSaved] = useState(false);
+  const [mySpecialChoice, setMySpecialChoice] = useState<string | null>(null);
+  const [specialContributed, setSpecialContributed] = useState(false);
+  const [chosenSpecial, setChosenSpecial] = useState<SpecialKind>("likely");
   const [displayUrl, setDisplayUrl] = useState("");
   const [displayFeedback, setDisplayFeedback] = useState("");
   const turnSignatureRef = useRef<string | null>(null);
@@ -85,6 +91,7 @@ export default function RoomPage() {
         reaction?: ReactionType | null;
         saved?: boolean;
         turnNumber?: number;
+        choice?: string;
       };
 
       if (payload.type === "snapshot" && payload.room) {
@@ -106,6 +113,15 @@ export default function RoomPage() {
         typeof payload.turnNumber === "number"
       ) {
         setMomentSaved(Boolean(payload.saved));
+        return;
+      }
+
+      if (payload.type === "special-vote-set" && payload.choice) {
+        setMySpecialChoice(payload.choice);
+        return;
+      }
+      if (payload.type === "special-contributed") {
+        setSpecialContributed(true);
         return;
       }
 
@@ -175,6 +191,8 @@ export default function RoomPage() {
     setListenMode(false);
     setMyReaction(null);
     setMomentSaved(false);
+    setMySpecialChoice(null);
+    setSpecialContributed(false);
 
     if (
       hapticsEnabled &&
@@ -297,13 +315,7 @@ export default function RoomPage() {
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
-  function updateRoomSettings(
-    patch: Partial<{
-      groupType: GroupType;
-      youngestAge: AgeBand;
-      maxIntensity: QuestionIntensity;
-    }>,
-  ) {
+  function updateRoomSettings(patch: Partial<RoomSettings>) {
     if (!room || !isHost) return;
 
     const sent = sendRoomEvent(socketRef.current, {
@@ -330,6 +342,44 @@ export default function RoomPage() {
       type: "start",
       deckVersion: QUESTION_DECK_VERSION,
       questionPool: pool,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function launchSpecial(kind: SpecialKind) {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "special-now",
+      kind,
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function voteSpecial(choice: string) {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "special-vote",
+      choice,
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function revealSpecial() {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "special-reveal",
+      expectedTurnNumber: room.game.turnNumber,
+    });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
+  function contributeSpecial() {
+    if (!room?.game) return;
+    const sent = sendRoomEvent(socketRef.current, {
+      type: "special-contribute",
+      expectedTurnNumber: room.game.turnNumber,
     });
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
@@ -486,6 +536,10 @@ export default function RoomPage() {
             </div>
           </div>
 
+          {room.game.specialHistory.length > 0 ? (
+            <p className="specialRecapCount">🎲 {room.game.specialHistory.length} rondas sorpresa compartidas</p>
+          ) : null}
+
           <section className="reactionRecap" aria-label="Reacciones de la ronda">
             <span>❤️ {room.game.reactionTotals.heart}</span>
             <span>😂 {room.game.reactionTotals.laugh}</span>
@@ -556,6 +610,19 @@ export default function RoomPage() {
             <span className="syncPill">En vivo</span>
           </div>
 
+          {room.game.special ? (
+            <SpecialRoundCard
+              key={room.game.turnNumber}
+              special={room.game.special}
+              players={room.players}
+              isHost={isHost}
+              myChoice={mySpecialChoice}
+              contributed={specialContributed}
+              onVote={voteSpecial}
+              onReveal={revealSpecial}
+              onContribute={contributeSpecial}
+            />
+          ) : (
           <div
             key={`${room.game.turnNumber}-${room.game.revealed ? room.game.questionIndex : "hidden"}`}
             className={
@@ -607,8 +674,9 @@ export default function RoomPage() {
               </>
             )}
           </div>
+          )}
 
-          {room.game.revealed ? (
+          {room.game.revealed && !room.game.special ? (
             <section className="momentActions" aria-label="Reacciones y recuerdos">
               <div className="reactionBar">
                 <button
@@ -663,6 +731,7 @@ export default function RoomPage() {
 
           {canControlTurn ? (
             <div className="gameActionGrid">
+              {!room.game.special ? (
               <button
                 type="button"
                 className="button secondary"
@@ -670,13 +739,14 @@ export default function RoomPage() {
               >
                 Cambiar pregunta
               </button>
+              ) : null}
               <button
                 type="button"
                 className="button primary"
-                disabled={!room.game.revealed}
+                disabled={!room.game.revealed && !room.game.special}
                 onClick={nextTurn}
               >
-                Siguiente persona
+                {room.game.special ? "Continuar · siguiente persona" : "Siguiente persona"}
               </button>
             </div>
           ) : (
@@ -685,6 +755,28 @@ export default function RoomPage() {
               teléfono de la persona que está jugando.
             </p>
           )}
+
+          {isHost && !room.game.revealed && !room.game.special && room.settings.specialModes.length > 0 ? (
+            <div className="specialManual">
+              <label htmlFor="special-mode-select">Sorpresa adicional</label>
+              <select
+                id="special-mode-select"
+                value={room.settings.specialModes.includes(chosenSpecial) ? chosenSpecial : room.settings.specialModes[0]}
+                onChange={(event) => setChosenSpecial(event.target.value as SpecialKind)}
+              >
+                {room.settings.specialModes.map((kind) => (
+                  <option key={kind} value={kind}>{SPECIAL_LABELS[kind]}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => launchSpecial(room.settings.specialModes.includes(chosenSpecial) ? chosenSpecial : room.settings.specialModes[0])}
+              >
+                🎲 Lanzar sorpresa ahora
+              </button>
+            </div>
+          ) : null}
 
           {isHost ? (
             <button
@@ -802,6 +894,60 @@ export default function RoomPage() {
               estos filtros.
             </p>
           </section>
+
+          {room ? (
+            <section className="contentSettings specialSettings" aria-label="Rondas especiales">
+              <div>
+                <p className="eyebrow">RONDA SORPRESA</p>
+                <strong>Cinco maneras de romper la rutina.</strong>
+                <p className="muted">
+                  Votaciones secretas, decisiones de todo el grupo, retos opcionales, recuerdos en cadena y cartas doradas.
+                </p>
+              </div>
+              {isHost ? (
+                <>
+                  <label className="specialSchedule">
+                    Frecuencia
+                    <select
+                      value={room.settings.specialEvery}
+                      onChange={(event) => updateRoomSettings({ specialEvery: Number(event.target.value) as 0 | 3 })}
+                    >
+                      <option value={3}>Sorpresa automática cada 3 turnos</option>
+                      <option value={0}>Solo sorpresas manuales</option>
+                    </select>
+                  </label>
+                  <div className="specialModeGrid">
+                    {SPECIAL_KINDS.map((kind) => (
+                      <label className="specialToggle" key={kind}>
+                        <input
+                          type="checkbox"
+                          checked={room.settings.specialModes.includes(kind)}
+                          onChange={(event) => {
+                            const modes = event.target.checked
+                              ? SPECIAL_KINDS.filter((item) => room.settings.specialModes.includes(item) || item === kind)
+                              : room.settings.specialModes.filter((item) => item !== kind);
+                            updateRoomSettings({ specialModes: [...modes] });
+                          }}
+                        />
+                        <span>{SPECIAL_LABELS[kind]}</span>
+                      </label>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="filterSummary">
+                  {room.settings.specialModes.length === 0
+                    ? "Sin rondas especiales"
+                    : room.settings.specialModes.map((kind) => SPECIAL_LABELS[kind]).join(" · ")}
+                  {" · "}
+                  {room.settings.specialEvery === 3 ? "Cada 3 turnos" : "Manual"}
+                </p>
+              )}
+              <p className="momentPrivacy">
+                Todas las rondas se pueden omitir. Los votos solo se muestran cuando el anfitrión revela los resultados.
+              </p>
+            </section>
+          ) : null}
 
           <section className="invitePanel" aria-label="Invitar personas">
             <div>
