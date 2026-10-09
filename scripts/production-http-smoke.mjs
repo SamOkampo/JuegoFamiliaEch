@@ -54,14 +54,14 @@ await check("/online", { expectedType: "text/html", contains: "Cada persona" });
 await check("/privacy", { expectedType: "text/html", contains: "PRIVACIDAD" });
 await check("/terms", { expectedType: "text/html", contains: "TÉRMINOS" });
 await check("/offline", { expectedType: "text/html", contains: "MODO SIN CONEXIÓN" });
-await check("/sw.js", { expectedType: "javascript", contains: "jfe-shell-v1" });
+await check("/sw.js", { expectedType: "javascript", contains: "jfe-shell-v2" });
 
 const manifestBytes = await check("/manifest.webmanifest");
 const manifest = JSON.parse(manifestBytes.toString("utf8"));
 assert.equal(manifest.name, "JuegoFamiliaEch");
 assert.equal(manifest.start_url, "/online");
 
-const icon = await check("/api/pwa/icon/192", { expectedType: "image/png" });
+const icon = await check("/pwa/icon-192.png", { expectedType: "image/png" });
 assert.equal(icon.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
 
 console.log("All production HTTP/PWA smoke checks passed:", base);
