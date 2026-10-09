@@ -10,6 +10,7 @@ import {
   MAX_WS_MESSAGE_BYTES,
   QUESTION_COUNT,
   REACTION_TYPES,
+  SPECIAL_KINDS,
   readJsonObject,
   validateClientEvent,
   validatePlayerName,
@@ -27,6 +28,8 @@ const DEFAULT_ROOM_SETTINGS = {
   groupType: "family",
   youngestAge: 12,
   maxIntensity: 2,
+  specialEvery: 3,
+  specialModes: [...SPECIAL_KINDS],
 };
 
 function corsHeaders() {
@@ -201,6 +204,52 @@ function normalizeRoomSettings(value) {
     groupType: value.groupType,
     youngestAge: Number(value.youngestAge),
     maxIntensity: Number(value.maxIntensity),
+    specialEvery: value.specialEvery === undefined ? 0 : value.specialEvery,
+    specialModes: value.specialModes === undefined ? [] : [...value.specialModes],
+  };
+}
+
+function startSpecial(room, kind) {
+  const game = room.game;
+  if (!game || !SPECIAL_KINDS.includes(kind)) return;
+  game.special = {
+    kind,
+    cardIndex: secureRandomIndex(4),
+    turnNumber: game.turnNumber,
+    startedAt: new Date().toISOString(),
+    revealed: false,
+    votes: {},
+    contributors: [],
+  };
+  game.specialHistory ??= [];
+  game.specialHistory.push({ kind, turnNumber: game.turnNumber });
+}
+
+function safeSpecialSnapshot(room) {
+  const special = room.game?.special;
+  if (!special) return null;
+  const voting = special.kind === "likely" || special.kind === "everyone";
+  const tally = {};
+  if (voting && special.revealed) {
+    const players = new Set(room.players.map((player) => player.id));
+    for (const [id, choice] of Object.entries(special.votes)) {
+      if (!players.has(id)) continue;
+      tally[choice] = (tally[choice] ?? 0) + 1;
+    }
+  }
+  return {
+    kind: special.kind,
+    cardIndex: special.cardIndex,
+    turnNumber: special.turnNumber,
+    startedAt: special.startedAt,
+    revealed: Boolean(special.revealed),
+    voteCount: Object.keys(special.votes).filter((id) =>
+      room.players.some((player) => player.id === id),
+    ).length,
+    contributorCount: special.contributors.filter((id) =>
+      room.players.some((player) => player.id === id),
+    ).length,
+    tally: special.revealed ? tally : null,
   };
 }
 
@@ -275,7 +324,9 @@ function publicSnapshot(room) {
       ? {
           deckVersion: room.game.deckVersion,
           currentPlayerId: room.game.currentPlayerId,
-          questionIndex: room.game.revealed ? room.game.questionIndex : null,
+          questionIndex: room.game.revealed && !room.game.special ? room.game.questionIndex : null,
+          special: safeSpecialSnapshot(room),
+          specialHistory: room.game.specialHistory ?? [],
           turnNumber: room.game.turnNumber,
           revealed: Boolean(room.game.revealed),
           usedQuestionCount: room.game.usedQuestionIndexes.length,
@@ -452,6 +503,14 @@ export class GameRoom extends DurableObject {
 
       if (this.room && !this.room.displayToken) {
         this.room.displayToken = randomToken();
+      }
+      if (this.room && this.room.settings) {
+        this.room.settings.specialEvery ??= 0;
+        this.room.settings.specialModes ??= [];
+      }
+      if (this.room?.game) {
+        this.room.game.special ??= null;
+        this.room.game.specialHistory ??= [];
       }
 
       if (this.room?.game && !Array.isArray(this.room.game.questionPool)) {
@@ -933,6 +992,8 @@ export class GameRoom extends DurableObject {
         revealed: false,
         reactionsByTurn: {},
         savedMoments: [],
+        special: null,
+        specialHistory: [],
         startedAt: new Date().toISOString(),
         finishedAt: null,
         finishReason: null,
@@ -949,6 +1010,94 @@ export class GameRoom extends DurableObject {
           questionPool.length,
         ],
       });
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "special-now") {
+      if (player.id !== this.room.hostId) {
+        socketError(ws, "HOST_ONLY");
+        return;
+      }
+      if (!this.room.game || this.room.status !== "playing") {
+        socketError(ws, "GAME_NOT_PLAYING");
+        return;
+      }
+      if (!this.validateExpectedTurn(ws, event)) return;
+      if (this.room.game.revealed || this.room.game.special) {
+        socketError(ws, "SPECIAL_NOT_AVAILABLE");
+        return;
+      }
+      if (!this.room.settings.specialModes.includes(event.kind)) {
+        socketError(ws, "SPECIAL_DISABLED");
+        return;
+      }
+      startSpecial(this.room, event.kind);
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
+      return;
+    }
+
+    if (event?.type === "special-vote" ||
+        event?.type === "special-reveal" ||
+        event?.type === "special-contribute") {
+      const game = this.room.game;
+      const special = game?.special;
+      if (this.room.status !== "playing" || !game || !special) {
+        socketError(ws, "SPECIAL_NOT_AVAILABLE");
+        return;
+      }
+      if (!this.validateExpectedTurn(ws, event)) return;
+
+      if (event.type === "special-vote") {
+        if (!["likely", "everyone"].includes(special.kind) || special.revealed) {
+          socketError(ws, "SPECIAL_NOT_AVAILABLE");
+          return;
+        }
+        const valid = special.kind === "likely"
+          ? this.room.players.some((member) => member.id === event.choice)
+          : ["0", "1"].includes(event.choice);
+        if (!valid) {
+          socketError(ws, "INVALID_SPECIAL_VOTE");
+          return;
+        }
+        special.votes[player.id] = event.choice;
+        ws.send(JSON.stringify({
+          type: "special-vote-set",
+          turnNumber: game.turnNumber,
+          choice: event.choice,
+        }));
+      }
+
+      if (event.type === "special-reveal") {
+        if (player.id !== this.room.hostId) {
+          socketError(ws, "HOST_ONLY");
+          return;
+        }
+        if (!["likely", "everyone"].includes(special.kind)) {
+          socketError(ws, "SPECIAL_NOT_AVAILABLE");
+          return;
+        }
+        special.revealed = true;
+      }
+
+      if (event.type === "special-contribute") {
+        if (special.kind !== "chain") {
+          socketError(ws, "SPECIAL_NOT_AVAILABLE");
+          return;
+        }
+        if (!special.contributors.includes(player.id)) {
+          special.contributors.push(player.id);
+        }
+        ws.send(JSON.stringify({
+          type: "special-contributed",
+          turnNumber: game.turnNumber,
+        }));
+      }
+
+      this.room.version += 1;
       await this.persist();
       await this.broadcastSnapshot();
       return;
@@ -973,6 +1122,10 @@ export class GameRoom extends DurableObject {
     }
 
     if (event?.type === "reveal") {
+      if (this.room.game.special) {
+        socketError(ws, "SPECIAL_ACTIVE");
+        return;
+      }
       if (!this.room.game.revealed) {
         this.room.game.revealed = true;
         this.room.version += 1;
@@ -987,7 +1140,7 @@ export class GameRoom extends DurableObject {
         ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
         return;
       }
-      if (!this.room.game.revealed) {
+      if (!this.room.game.revealed || this.room.game.special) {
         ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
         return;
       }
@@ -1028,7 +1181,7 @@ export class GameRoom extends DurableObject {
         ws.send(JSON.stringify({ type: "error", error: "GAME_NOT_PLAYING" }));
         return;
       }
-      if (!this.room.game.revealed || this.room.game.questionIndex === null) {
+      if (!this.room.game.revealed || this.room.game.special || this.room.game.questionIndex === null) {
         ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
         return;
       }
@@ -1080,6 +1233,10 @@ export class GameRoom extends DurableObject {
     }
 
     if (event?.type === "skip-question") {
+      if (this.room.game.special) {
+        socketError(ws, "SPECIAL_ACTIVE");
+        return;
+      }
       const nextQuestion = nextUnusedQuestionIndex(this.room.game);
       if (nextQuestion === null) {
         finishGame(this.room, "deck-complete");
@@ -1104,12 +1261,15 @@ export class GameRoom extends DurableObject {
     }
 
     if (event?.type === "next-turn") {
-      if (!this.room.game.revealed) {
+      if (!this.room.game.revealed && !this.room.game.special) {
         ws.send(JSON.stringify({ type: "error", error: "REVEAL_FIRST" }));
         return;
       }
 
-      const nextQuestion = nextUnusedQuestionIndex(this.room.game);
+      const wasSpecial = Boolean(this.room.game.special);
+      const nextQuestion = wasSpecial
+        ? this.room.game.questionIndex
+        : nextUnusedQuestionIndex(this.room.game);
       const nextPlayer = nextPlayerId(this.room);
 
       if (nextQuestion === null || !nextPlayer) {
@@ -1125,9 +1285,22 @@ export class GameRoom extends DurableObject {
       } else {
         this.room.game.currentPlayerId = nextPlayer;
         this.room.game.questionIndex = nextQuestion;
-        this.room.game.usedQuestionIndexes.push(nextQuestion);
+        if (!wasSpecial) {
+          this.room.game.usedQuestionIndexes.push(nextQuestion);
+        }
         this.room.game.turnNumber += 1;
         this.room.game.revealed = false;
+        this.room.game.special = null;
+        const modes = this.room.settings.specialModes ?? [];
+        if (
+          this.room.settings.specialEvery === 3 &&
+          modes.length > 0 &&
+          this.room.game.turnNumber % 3 === 0
+        ) {
+          const kindIndex =
+            (Math.floor(this.room.game.turnNumber / 3) - 1) % modes.length;
+          startSpecial(this.room, modes[kindIndex]);
+        }
       }
 
       this.room.version += 1;
