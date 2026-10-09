@@ -617,7 +617,7 @@ export default function RoomPage() {
                   aria-pressed={myReaction === "heart"}
                   onClick={() => reactToMoment("heart")}
                 >
-                  ❤️ <span>{room.game.currentReactions.heart}</span>
+                  ❤️ <span className="reactionCount" key={room.game.currentReactions.heart}>{room.game.currentReactions.heart}</span>
                 </button>
                 <button
                   type="button"
@@ -625,7 +625,7 @@ export default function RoomPage() {
                   aria-pressed={myReaction === "laugh"}
                   onClick={() => reactToMoment("laugh")}
                 >
-                  😂 <span>{room.game.currentReactions.laugh}</span>
+                  😂 <span className="reactionCount" key={room.game.currentReactions.laugh}>{room.game.currentReactions.laugh}</span>
                 </button>
                 <button
                   type="button"
@@ -633,7 +633,7 @@ export default function RoomPage() {
                   aria-pressed={myReaction === "clap"}
                   onClick={() => reactToMoment("clap")}
                 >
-                  👏 <span>{room.game.currentReactions.clap}</span>
+                  👏 <span className="reactionCount" key={room.game.currentReactions.clap}>{room.game.currentReactions.clap}</span>
                 </button>
                 <button
                   type="button"
@@ -641,7 +641,7 @@ export default function RoomPage() {
                   aria-pressed={myReaction === "wow"}
                   onClick={() => reactToMoment("wow")}
                 >
-                  😮 <span>{room.game.currentReactions.wow}</span>
+                  😮 <span className="reactionCount" key={room.game.currentReactions.wow}>{room.game.currentReactions.wow}</span>
                 </button>
               </div>
 
