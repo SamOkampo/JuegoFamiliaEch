@@ -158,7 +158,10 @@ export default function HomePage() {
         </button>
       </header>
 
-      <section className={`questionCard ${revealed ? "revealed" : ""}`}>
+      <section
+        key={`${currentPlayerIndex}-${questionIndex}-${revealed ? "revealed" : "hidden"}`}
+        className={`questionCard ${revealed ? "revealed" : ""}`}
+      >
         <div className="cardMeta">
           <span>{question?.category}</span>
           <span>nivel {question?.intensity}</span>
