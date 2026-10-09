@@ -103,6 +103,11 @@ export function validateClientEvent(event) {
     case "leave":
       return { ok: true };
 
+    case "special-now":
+      return SPECIAL_KINDS.includes(event.kind) && validTurn(event.expectedTurnNumber)
+        ? { ok: true }
+        : { ok: false, error: "INVALID_SPECIAL" };
+
     case "ready":
       return typeof event.ready === "boolean"
         ? { ok: true }
