@@ -14,25 +14,25 @@ test("PWA manifest exposes install metadata and generated icons", async ({
   expect(manifest.icons).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
-        src: "/api/pwa/icon/192",
+        src: "/pwa/icon-192.png",
         sizes: "192x192",
         type: "image/png",
       }),
       expect.objectContaining({
-        src: "/api/pwa/icon/512",
+        src: "/pwa/icon-512.png",
         sizes: "512x512",
         type: "image/png",
       }),
     ]),
   );
 
-  const iconResponse = await request.get("/api/pwa/icon/192");
+  const iconResponse = await request.get("/pwa/icon-192.png");
   expect(iconResponse.ok()).toBe(true);
   expect(iconResponse.headers()["content-type"]).toContain("image/png");
 
   const swResponse = await request.get("/sw.js");
   expect(swResponse.ok()).toBe(true);
-  expect(await swResponse.text()).toContain('const CACHE_NAME = "jfe-shell-v1"');
+  expect(await swResponse.text()).toContain('const CACHE_NAME = "jfe-shell-v2"');
 });
 
 test("room session survives refresh and reconnects after network loss", async ({
