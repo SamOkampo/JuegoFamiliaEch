@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
+import { SpecialRoundCard } from "@/components/special-round-card";
 import {
   GROUP_TYPE_LABELS,
   QUESTION_CATEGORY_LABELS,
@@ -188,6 +189,14 @@ export default function CentralDisplayPage() {
             <h1>{currentPlayer?.name ?? "Siguiente persona"}</h1>
           </div>
 
+          {room.game.special ? (
+            <SpecialRoundCard
+              key={room.game.turnNumber}
+              special={room.game.special}
+              players={room.players}
+              readonly
+            />
+          ) : (
           <div
             key={`${room.game.turnNumber}-${room.game.revealed ? room.game.questionIndex : "hidden"}`}
             className={
@@ -221,6 +230,7 @@ export default function CentralDisplayPage() {
               </>
             )}
           </div>
+          )}
         </section>
       ) : room.status === "finished" && room.game ? (
         <section className="displayCenter displayFinished">
@@ -241,6 +251,9 @@ export default function CentralDisplayPage() {
             </div>
           </div>
 
+          {room.game.specialHistory.length > 0 ? (
+            <p className="specialRecapCount">🎲 {room.game.specialHistory.length} rondas sorpresa</p>
+          ) : null}
           <div className="displayReactionBar displayReactionRecap">
             <span>❤️ {room.game.reactionTotals.heart}</span>
             <span>😂 {room.game.reactionTotals.laugh}</span>
