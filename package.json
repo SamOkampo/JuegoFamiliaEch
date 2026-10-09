@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/generate-pwa-icons.mjs && next dev",
+    "build": "node scripts/generate-pwa-icons.mjs && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/lib/*.test.ts src/hooks/*.test.ts",
@@ -12,9 +12,9 @@
     "test:smoke:cloudflare": "node scripts/cloudflare-smoke.mjs",
     "test:worker-security": "node --test worker/test/*.test.mjs",
     "test:integration:security": "node scripts/security-smoke.mjs",
-    "build:cloudflare": "opennextjs-cloudflare build",
-    "preview:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "build:cloudflare": "node scripts/generate-pwa-icons.mjs && opennextjs-cloudflare build",
+    "preview:cloudflare": "npm run build:cloudflare && opennextjs-cloudflare preview",
+    "deploy:web": "npm run build:cloudflare && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "next": "16.3.8",
