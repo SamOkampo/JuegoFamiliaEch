@@ -73,3 +73,15 @@ CI #46 pasó completamente en verde:
 ## Gate actual
 
 Fase 10 no se declara cerrada todavía. El siguiente paso técnico de mayor impacto es desplegar el frontend preparado en Cloudflare Workers; después corresponde dominio y QA físico.
+
+
+## Fase 11 — Rondas especiales en desarrollo
+
+- Rama: `phase-11-special-rounds`.
+- Cinco mecánicas y 20 cartas originales.
+- Opciones del anfitrión y frecuencia de sorpresa manual/cada tres turnos.
+- Backend Durable Object controla votaciones privadas, revelación y conteos agregados.
+- Pantalla central recibe las sorpresas sin permisos de voto/control.
+- Las acciones son voluntarias y no se guarda contenido hablado.
+- Documento completo: `docs/SPECIAL_ROUNDS.md`.
+- Pendiente comprobar CI, desplegar Worker, pasar smoke especial y fusionar frontend.
