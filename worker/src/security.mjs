@@ -7,6 +7,7 @@ export const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
 export const AGE_BANDS = [8, 12, 16];
 export const INTENSITIES = [1, 2, 3];
 export const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
+export const SPECIAL_KINDS = ["likely", "everyone", "challenge", "chain", "gold"];
 
 const FORBIDDEN_NAME_CHARS =
   /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/u;
@@ -76,7 +77,13 @@ export function validateRoomSettings(value) {
   return (
     GROUP_TYPES.includes(value.groupType) &&
     AGE_BANDS.includes(Number(value.youngestAge)) &&
-    INTENSITIES.includes(Number(value.maxIntensity))
+    INTENSITIES.includes(Number(value.maxIntensity)) &&
+    (value.specialEvery === undefined || [0, 3].includes(value.specialEvery)) &&
+    (value.specialModes === undefined ||
+      (Array.isArray(value.specialModes) &&
+        value.specialModes.length <= 5 &&
+        new Set(value.specialModes).size === value.specialModes.length &&
+        value.specialModes.every((kind) => SPECIAL_KINDS.includes(kind))))
   );
 }
 
@@ -95,6 +102,11 @@ export function validateClientEvent(event) {
     case "finish":
     case "leave":
       return { ok: true };
+
+    case "special-now":
+      return SPECIAL_KINDS.includes(event.kind) && validTurn(event.expectedTurnNumber)
+        ? { ok: true }
+        : { ok: false, error: "INVALID_SPECIAL" };
 
     case "ready":
       return typeof event.ready === "boolean"
@@ -117,9 +129,21 @@ export function validateClientEvent(event) {
     case "reveal":
     case "skip-question":
     case "next-turn":
+    case "special-now":
+    case "special-reveal":
+    case "special-contribute":
       return validTurn(event.expectedTurnNumber)
         ? { ok: true }
         : { ok: false, error: "STALE_TURN" };
+
+    case "special-vote":
+      if (!validTurn(event.expectedTurnNumber)) {
+        return { ok: false, error: "STALE_TURN" };
+      }
+      return typeof event.choice === "string" &&
+        /^[A-Za-z0-9_-]{1,40}$/.test(event.choice)
+        ? { ok: true }
+        : { ok: false, error: "INVALID_SPECIAL_VOTE" };
 
     case "react":
       if (!validTurn(event.expectedTurnNumber)) {

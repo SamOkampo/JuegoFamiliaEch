@@ -14,7 +14,8 @@
     "test:integration:security": "node scripts/security-smoke.mjs",
     "build:cloudflare": "node scripts/generate-pwa-icons.mjs && opennextjs-cloudflare build",
     "preview:cloudflare": "npm run build:cloudflare && opennextjs-cloudflare preview",
-    "deploy:web": "npm run build:cloudflare && opennextjs-cloudflare deploy"
+    "deploy:web": "npm run build:cloudflare && opennextjs-cloudflare deploy",
+    "test:special:cloudflare": "node scripts/special-rounds-smoke.mjs"
   },
   "dependencies": {
     "next": "16.3.8",

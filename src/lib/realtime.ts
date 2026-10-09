@@ -1,3 +1,4 @@
+import type { SpecialKind } from "./special-rounds";
 import type {
   AgeBand,
   GroupType,
@@ -20,6 +21,19 @@ export type RoomSettings = {
   groupType: GroupType;
   youngestAge: AgeBand;
   maxIntensity: QuestionIntensity;
+  specialEvery: 0 | 3;
+  specialModes: SpecialKind[];
+};
+
+export type SpecialSnapshot = {
+  kind: SpecialKind;
+  cardIndex: number;
+  turnNumber: number;
+  startedAt: string;
+  revealed: boolean;
+  voteCount: number;
+  contributorCount: number;
+  tally: Record<string, number> | null;
 };
 
 export type ReactionType = "heart" | "laugh" | "clap" | "wow";
@@ -42,6 +56,8 @@ export type RoomGameState = {
   revealed: boolean;
   usedQuestionCount: number;
   questionPoolSize: number;
+  special: SpecialSnapshot | null;
+  specialHistory: { kind: SpecialKind; turnNumber: number }[];
   currentReactions: ReactionCounts;
   reactionTotals: ReactionCounts;
   savedMoments: SavedMoment[];
@@ -85,6 +101,10 @@ export type ClientRoomEvent =
   | { type: "reveal"; expectedTurnNumber: number }
   | { type: "skip-question"; expectedTurnNumber: number }
   | { type: "next-turn"; expectedTurnNumber: number }
+  | { type: "special-now"; kind: SpecialKind; expectedTurnNumber: number }
+  | { type: "special-vote"; choice: string; expectedTurnNumber: number }
+  | { type: "special-reveal"; expectedTurnNumber: number }
+  | { type: "special-contribute"; expectedTurnNumber: number }
   | {
       type: "react";
       reaction: ReactionType | null;
@@ -288,6 +308,11 @@ export function roomErrorMessage(code: string): string {
       "Ese mensaje es demasiado grande.",
     RATE_LIMITED:
       "Demasiadas acciones seguidas. Espera unos segundos e inténtalo otra vez.",
+    SPECIAL_DISABLED: "Esta ronda especial está desactivada por el anfitrión.",
+    SPECIAL_NOT_AVAILABLE: "Esta ronda ya terminó o todavía no está disponible.",
+    SPECIAL_ACTIVE: "Termina u omite primero la ronda sorpresa.",
+    INVALID_SPECIAL: "La ronda sorpresa elegida no es válida.",
+    INVALID_SPECIAL_VOTE: "Esta opción de votación no es válida.",
   };
   return messages[code] ?? code;
 }

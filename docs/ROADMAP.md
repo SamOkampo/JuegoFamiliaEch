@@ -119,7 +119,18 @@ Criterios:
 - [ ] Smoke físico iPhone Safari + Android Chrome según `docs/MOBILE_QA.md`.
 - [x] Eventos server-side para salas creadas, juegos iniciados y juegos finalizados.
 
-## Fase 11 — Expansión
+## Fase 11 — Rondas especiales
+
+- [x] Cinco tipos: ¿Quién es más probable?, Todos responden, Reto sorpresa, Recuerdo en cadena y Carta dorada.
+- [x] Veinte cartas originales, cuatro por tipo.
+- [x] Activación individual por anfitrión y frecuencia automática cada tres turnos o manual.
+- [x] Votaciones secretas, resultados revelados únicamente por el host y sincronizados en la pantalla central.
+- [x] Retos voluntarios con temporizador orientativo y avance sin penalización.
+- [x] Participación grupal sin almacenar respuestas.
+- [x] Animaciones distintas con soporte de movimiento reducido.
+- [ ] Cerrar tras CI integrado, smoke realtime de sorpresas, merge y despliegue verificado.
+
+## Fase 12 — Expansión
 
 Solo después de validar el juego base:
 - [ ] Seguimientos opcionales con IA.

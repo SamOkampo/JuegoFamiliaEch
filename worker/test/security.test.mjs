@@ -111,3 +111,62 @@ test("JSON reader enforces media type, object shape and payload size", async () 
   );
   assert.equal(tooLarge.status, 413);
 });
+
+test("special-round controls validate mode, timing and vote choices", () => {
+  assert.equal(
+    validateRoomSettings({
+      groupType: "family", youngestAge: 12, maxIntensity: 2,
+      specialEvery: 3,
+      specialModes: ["likely", "everyone", "challenge", "chain", "gold"],
+    }),
+    true,
+  );
+  assert.equal(
+    validateRoomSettings({
+      groupType: "family", youngestAge: 12, maxIntensity: 2,
+      specialEvery: 1,
+      specialModes: ["gold"],
+    }),
+    false,
+  );
+  assert.equal(
+    validateRoomSettings({
+      groupType: "family", youngestAge: 12, maxIntensity: 2,
+      specialEvery: 3,
+      specialModes: ["gold", "gold"],
+    }),
+    false,
+  );
+  assert.equal(
+    validateClientEvent({
+      type: "special-now",
+      kind: "gold",
+      expectedTurnNumber: 2,
+    }).ok,
+    true,
+  );
+  assert.equal(
+    validateClientEvent({
+      type: "special-now",
+      kind: "untrusted",
+      expectedTurnNumber: 2,
+    }).ok,
+    false,
+  );
+  assert.equal(
+    validateClientEvent({
+      type: "special-vote",
+      choice: "../sensitive",
+      expectedTurnNumber: 2,
+    }).ok,
+    false,
+  );
+  assert.equal(
+    validateClientEvent({
+      type: "special-vote",
+      choice: "1",
+      expectedTurnNumber: 2,
+    }).ok,
+    true,
+  );
+});
