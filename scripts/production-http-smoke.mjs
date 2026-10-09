@@ -5,11 +5,11 @@ const base = (
   "https://juego-familia-ech-web.socampoecheverry.workers.dev"
 ).replace(/\/$/, "");
 
-async function check(path, { expectedType, contains } = {}) {
+async function check(path, { expectedType, contains, maxAttempts = 4 } = {}) {
   let response;
   let lastError;
 
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     try {
       response = await fetch(base + path, {
         signal: AbortSignal.timeout(15000),
@@ -21,8 +21,9 @@ async function check(path, { expectedType, contains } = {}) {
       lastError = error;
     }
 
-    if (attempt < 3) {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+    if (attempt < maxAttempts - 1) {
+      console.log("Waiting for production rollout:", path, lastError?.message);
+      await new Promise((resolve) => setTimeout(resolve, 6000));
     }
   }
 
@@ -48,7 +49,7 @@ async function check(path, { expectedType, contains } = {}) {
   return buffer;
 }
 
-await check("/", { expectedType: "text/html", contains: "JuegoFamiliaEch" });
+await check("/", { expectedType: "text/html", contains: "JuegoFamiliaEch", maxAttempts: 25 });
 await check("/online", { expectedType: "text/html", contains: "Cada persona" });
 await check("/privacy", { expectedType: "text/html", contains: "PRIVACIDAD" });
 await check("/terms", { expectedType: "text/html", contains: "TÉRMINOS" });
