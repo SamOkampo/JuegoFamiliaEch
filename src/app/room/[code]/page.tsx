@@ -54,6 +54,8 @@ export default function RoomPage() {
   const code = normalizeRoomCode(params.code ?? "");
   const [session, setSession] = useState<RoomSession | null>(null);
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
+  const [settingsDraft, setSettingsDraft] = useState<RoomSettings | null>(null);
+  const settingsDraftRef = useRef<RoomSettings | null>(null);
   const [error, setError] = useState("");
   const [inviteUrl, setInviteUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -96,6 +98,14 @@ export default function RoomPage() {
 
       if (payload.type === "snapshot" && payload.room) {
         setRoom(payload.room);
+        if (
+          settingsDraftRef.current &&
+          JSON.stringify(payload.room.settings) ===
+            JSON.stringify(settingsDraftRef.current)
+        ) {
+          settingsDraftRef.current = null;
+          setSettingsDraft(null);
+        }
         setError("");
         return;
       }
@@ -136,6 +146,8 @@ export default function RoomPage() {
       }
 
       if (payload.type === "error" && payload.error) {
+        settingsDraftRef.current = null;
+        setSettingsDraft(null);
         setError(roomErrorMessage(payload.error));
       }
     } catch {
@@ -318,15 +330,23 @@ export default function RoomPage() {
   function updateRoomSettings(patch: Partial<RoomSettings>) {
     if (!room || !isHost) return;
 
+    const settings = {
+      ...(settingsDraftRef.current ?? room.settings),
+      ...patch,
+    };
     const sent = sendRoomEvent(socketRef.current, {
       type: "settings",
-      settings: {
-        ...room.settings,
-        ...patch,
-      },
+      settings,
     });
 
-    if (!sent) setError("Todavía no estás conectado a la sala.");
+    if (sent) {
+      settingsDraftRef.current = settings;
+      setSettingsDraft(settings);
+    } else {
+      settingsDraftRef.current = null;
+      setSettingsDraft(null);
+      setError("Todavía no estás conectado a la sala.");
+    }
   }
 
   function startGame() {
@@ -909,7 +929,7 @@ export default function RoomPage() {
                   <label className="specialSchedule">
                     Frecuencia
                     <select
-                      value={room.settings.specialEvery}
+                      value={settingsDraft?.specialEvery ?? room.settings.specialEvery}
                       onChange={(event) => updateRoomSettings({ specialEvery: Number(event.target.value) as 0 | 3 })}
                     >
                       <option value={3}>Sorpresa automática cada 3 turnos</option>
@@ -921,11 +941,12 @@ export default function RoomPage() {
                       <label className="specialToggle" key={kind}>
                         <input
                           type="checkbox"
-                          checked={room.settings.specialModes.includes(kind)}
+                          checked={(settingsDraft?.specialModes ?? room.settings.specialModes).includes(kind)}
                           onChange={(event) => {
+                            const selectedModes = settingsDraftRef.current?.specialModes ?? room.settings.specialModes;
                             const modes = event.target.checked
-                              ? SPECIAL_KINDS.filter((item) => room.settings.specialModes.includes(item) || item === kind)
-                              : room.settings.specialModes.filter((item) => item !== kind);
+                              ? SPECIAL_KINDS.filter((item) => selectedModes.includes(item) || item === kind)
+                              : selectedModes.filter((item) => item !== kind);
                             updateRoomSettings({ specialModes: [...modes] });
                           }}
                         />
