@@ -189,6 +189,7 @@ export default function CentralDisplayPage() {
           </div>
 
           <div
+            key={`${room.game.turnNumber}-${room.game.revealed ? room.game.questionIndex : "hidden"}`}
             className={
               "displayQuestion " + (room.game.revealed ? "revealed" : "hidden")
             }
