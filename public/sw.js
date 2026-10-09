@@ -1,11 +1,11 @@
-const CACHE_NAME = "jfe-shell-v1";
+const CACHE_NAME = "jfe-shell-v2";
 const APP_SHELL = [
   "/",
   "/online",
   "/offline",
   "/manifest.webmanifest",
-  "/api/pwa/icon/192",
-  "/api/pwa/icon/512",
+  "/pwa/icon-192.png",
+  "/pwa/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -73,7 +73,7 @@ self.addEventListener("fetch", (event) => {
 
   if (
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/api/pwa/icon/")
+    url.pathname.startsWith("/pwa/")
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
