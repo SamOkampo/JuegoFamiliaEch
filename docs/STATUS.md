@@ -1,96 +1,38 @@
-# Estado del proyecto
+# Estado verificable — JuegoFamiliaEch
 
-## Checkpoint actual
+## Fases cerradas
 
-- Fases 1 a 9 están cerradas e integradas en `main`.
-- Fase 10 — Producción sigue abierta porque conserva gates externos/humanos.
-- El bloque de producción que sí podía resolverse desde código/GitHub quedó fusionado en `6f08f6982398545e299c7d5610a34c887d43049b` después de CI verde.
-- PR #9 quedó fusionado.
-- Worker backend de Fase 10 desplegado al 100% en Cloudflare: `372fa9f9-6abf-4dbc-af3c-46b6fdcd46a4`.
+- **Fases 1–9 y 11–13:** código fusionado en `main` y validación automatizada finalizada.
+- **Fase 10:** web y API en producción técnica; quedan tareas externas de beta pública (nombre/dominio comercial, pruebas físicas, revisión legal y pruebas humanas).
+- **Fase 13 — Contenido y variedad:** CERRADA técnicamente.
 
-## Producción ya preparada
+## Versión actual — edición colombiana
 
-- Frontend Next.js preparado para Cloudflare Workers mediante OpenNext.
-- `wrangler.jsonc` y `open-next.config.ts` integrados.
-- Scripts disponibles:
-  - `npm run build:cloudflare`;
-  - `npm run preview:cloudflare`;
-  - `npm run deploy:web`.
-- CI pasa tanto `next build` como el build Cloudflare.
-- Rutas públicas de beta:
-  - `/privacy`;
-  - `/terms`.
-- Enlaces legales visibles desde landing y entrada multijugador.
-- Workers Observability continúa habilitado con query strings redactadas.
-- Métricas server-side estructuradas:
-  - `room_created`;
-  - `player_joined`;
-  - `game_started`;
-  - `game_finished`.
-- Métrica agregada de instalación PWA.
-- Error monitoring cliente sanitizado:
-  - runtime;
-  - promise;
-  - resource.
-- No se envían mensajes de error, stack traces, códigos de sala, nombres, tokens ni respuestas.
-- Telemetría protegida por allowlist y rate limiting.
-- Definiciones de activación/finalización documentadas en `docs/PRODUCTION.md`.
-- Analytics Engine queda como mejora opcional: la cuenta Cloudflare todavía no lo tiene habilitado, pero las métricas actuales funcionan mediante logs estructurados de Workers Observability.
+- **210 preguntas principales** (`core-v3-210-co`) con recuerdos de infancia, fe y espiritualidad, chismes sanos, primeros amores y fiestas. Los temas sobre embriaguez están restringidos a **18+** y máxima intensidad.
+- **100 cartas especiales**, 20 por modalidad, en los packs **Clásicos**, **Fiesta** y **Conexiones**.
+- Catálogo de especiales `special-v4-100-co`: tratamiento editorial colombiano.
+- Filtros por tipo de grupo, edad, intensidad y packs aplicados por Cloudflare Durable Objects.
+- Votaciones privadas, resultados y abstenciones; rondas manuales o cada tres turnos.
+- Reparto de especiales sin repetir hasta agotar las cartas compatibles, evitando duplicados consecutivos cuando haya alternativas.
+- Tutorial breve, animaciones accesibles, reconexión personal, pantalla central de solo lectura y repetir partida en la misma sala.
+- Las respuestas habladas no se almacenan; las salas caducan a las 12 horas.
 
-## Validación del bloque Fase 10
+## Despliegue confirmado — 10 de octubre de 2026
 
-CI #46 pasó completamente en verde:
+- Código de Fase 13: [PR #16](https://github.com/SamOkampo/JuegoFamiliaEch/pull/16) y edición colombiana [PR #19](https://github.com/SamOkampo/JuegoFamiliaEch/pull/19).
+- Commit de `main` validado: `ead2e3addb43c250f994d36d259da1a1f2f3ef1f`.
+- GitHub Actions `main`: [CI 38022001169](https://github.com/SamOkampo/JuegoFamiliaEch/actions/runs/38022001169) **verde**, incluidas pruebas móviles WebKit/iPhone y Chromium/Android, seguridad, filtros, smoke multijugador y compilación Cloudflare.
+- Smoke HTTP de producción: [38022001159](https://github.com/SamOkampo/JuegoFamiliaEch/actions/runs/38022001159) **verde**.
+- Cloudflare frontend `juego-familia-ech-web`: versión `20a128f8-d020-4106-abd6-d25a29393d07`, despliegue al 100%.
+- Cloudflare backend `juego-familia-ech`: versión `8600dced-d5e4-436e-974a-b0f790631f57`, despliegue al 100%.
+- Web: https://juego-familia-ech-web.socampoecheverry.workers.dev/online
+- API: https://juego-familia-ech.socampoecheverry.workers.dev
 
-- Typecheck.
-- Unit tests.
-- Worker security unit tests.
-- Smoke realtime contra Cloudflare.
-- Security integration smoke.
-- Sintaxis Worker/service worker.
-- Next.js production build.
-- OpenNext/Cloudflare frontend build.
-- E2E WebKit/iPhone.
-- E2E Chromium/Android.
+## Qué falta antes de lanzar comercialmente
 
-## Fase 10 — pendientes externos/humanos
+1. Probar con iPhone Safari y Android Chrome **físicos**, incluyendo QR, reconexión y dos partidas consecutivas.
+2. Beta presencial con 4–6 personas reales, de distintas edades; medir diversión, comprensión de reglas, repeticiones y preguntas incómodas.
+3. Elegir marca y dominio comercial definitivo.
+4. Revisar términos y política de privacidad jurídicamente, y publicar canal formal de contacto.
 
-- [ ] Ejecutar el deploy real del frontend `juego-familia-ech-web` con credenciales de Cloudflare o Workers Builds.
-- [ ] Elegir el nombre comercial definitivo.
-- [ ] Elegir/comprar o indicar el dominio definitivo y conectarlo.
-- [ ] Hacer smoke físico con iPhone Safari real + Android Chrome real.
-- [ ] Probar una beta con grupos humanos reales y registrar feedback.
-- [ ] Revisión jurídica final y canal formal de contacto antes de lanzamiento comercial abierto.
-
-## Infraestructura actual
-
-- Frontend: Next.js + TypeScript + PWA, build Cloudflare validado.
-- Realtime/backend: Cloudflare Worker.
-- Coordinación de salas: Durable Objects.
-- Persistencia por sala: SQLite del Durable Object.
-- Rate limiting: Durable Object SQLite independiente.
-- Backend: `https://juego-familia-ech.socampoecheverry.workers.dev`.
-
-## Gate actual
-
-Fase 10 no se declara cerrada todavía. El siguiente paso técnico de mayor impacto es desplegar el frontend preparado en Cloudflare Workers; después corresponde dominio y QA físico.
-
-
-## Fase 11 — Rondas especiales en desarrollo
-
-- Rama: `phase-11-special-rounds`.
-- Cinco mecánicas y 20 cartas originales.
-- Opciones del anfitrión y frecuencia de sorpresa manual/cada tres turnos.
-- Backend Durable Object controla votaciones privadas, revelación y conteos agregados.
-- Pantalla central recibe las sorpresas sin permisos de voto/control.
-- Las acciones son voluntarias y no se guarda contenido hablado.
-- Documento completo: `docs/SPECIAL_ROUNDS.md`.
-- Pendiente comprobar CI, desplegar Worker, pasar smoke especial y fusionar frontend.
-
-## Fase 13 — Edición colombiana y variedad
-
-- Rama de trabajo `phase-13-special-content-packs` y PR #18.
-- 100 cartas especiales (tres packs) y 210 preguntas principales (versión `core-v3-210-co`).
-- Más historias de infancia, fe y espiritualidad inclusiva, chismes sanos, primeros amores y fiestas.
-- Dos preguntas sobre exceso de tragos **solo con edad mínima 18 años, intensidad 3**; no aparecen si el grupo tiene menores declarados.
-- 22 cartas especiales reescritas en registro colombiano (versión `special-v4-100-co`).
-- Pendiente gate CI, Worker desplegado y frontend actualizado; beta física humana no sustituida por pruebas automatizadas.
+Las pruebas en emuladores y los smoke automatizados no sustituyen estas comprobaciones presenciales. Más detalles: `docs/PHASE_13_CONTENT.md`, `docs/MOBILE_QA.md` y `docs/PRODUCTION.md`.
