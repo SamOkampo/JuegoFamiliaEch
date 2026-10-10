@@ -144,6 +144,7 @@ Criterios:
 ## Fase 13 — Contenido y variedad
 
 - [x] Catálogo original de 100 cartas especiales, 20 por modalidad, sin duplicados normalizados.
+- [x] Complemento del mazo principal: 210 preguntas, con recuerdos colombianos y filtro explícito Solo adultos (18+).
 - [x] Tres packs disponibles: Clásicos, Fiesta y Conexiones, con selección sincronizada.
 - [x] Etiquetas y filtrado por grupo, edad mínima (8/12/16) e intensidad (1/2/3) por carta.
 - [x] Conteos de cartas compatibles visibles en el lobby y cero sorpresas cuando no hay cartas elegibles.
