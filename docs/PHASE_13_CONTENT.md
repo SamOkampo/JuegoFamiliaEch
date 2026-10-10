@@ -9,7 +9,7 @@ El catálogo único de origen es `worker/src/special-content.json`. El frontend 
 - 100 cartas especiales originales: **20 por cada una** de las cinco modalidades.
 - Tres colecciones seleccionables: **Clásicos (40), Fiesta (30), Conexiones (30)**.
 - Cada carta tiene ID único estable, texto, instrucción, tiempo orientativo, grupo, edad mínima (8/12/16), intensidad (1/2/3), pack y dos opciones en votaciones de «Todos responden».
-- Versión del contenido: `special-v3-100`; las 160 preguntas normales permanecen en `core-v2-160`.
+- Versión del contenido: `special-v3-100`; las 210 preguntas principales usan `core-v3-210-co`.
 
 ### Clásicos
 Preguntas y dinámicas fáciles de empezar que funcionan como rompehielos. Incluye versiones aptas para 8 años y nivel ligero.
@@ -55,3 +55,7 @@ En el lobby se ve el número de cartas elegibles por pack y por modalidad. Cuand
 - Publicación del backend y frontend a Cloudflare tras gates verdes.
 
 **Fuera de Fase 13:** sesiones de prueba con menores y grupos familiares reales, registro de feedback y cambios editoriales derivados; son gates de la beta de Fase 14.
+
+## Ampliación complementaria del mazo principal
+
+Se amplió el mazo de 160 a **210 preguntas**, incluyendo recuerdos de infancia colombiana, fe/espiritualidad, chismes sanos, primeros amores y fiestas. Las preguntas sobre consumo de alcohol son optativas y visibles exclusivamente cuando todos los participantes son adultos (18+) y la intensidad máxima es 3. El frontend y el Worker comparten `core-v3-210-co` para rechazar clientes desactualizados.
