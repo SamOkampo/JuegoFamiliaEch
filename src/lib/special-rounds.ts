@@ -69,7 +69,8 @@ export function eligibleSpecialCardIndexes(
 }
 
 export function countSpecialCards(settings: SpecialCardFilters, kind?: SpecialKind): number {
-  return (kind ? [kind] : SPECIAL_KINDS).reduce(
+  const kinds: readonly SpecialKind[] = kind ? [kind] : SPECIAL_KINDS;
+  return kinds.reduce<number>(
     (total, current) => total + eligibleSpecialCardIndexes(current, settings).length,
     0,
   );
