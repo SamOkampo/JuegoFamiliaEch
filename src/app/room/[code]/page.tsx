@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import QRCode from "qrcode";
+import { FAMILY_ECHEVERRY_QUESTIONS, ECHEVERRY_DECK_VERSION, echeverryQuestionPool } from "@/lib/family-echeverry";
 import { SpecialRoundCard } from "@/components/special-round-card";
 import {
   SPECIAL_KINDS, SPECIAL_LABELS, SPECIAL_PACKS, SPECIAL_PACK_LABELS,
@@ -264,17 +265,20 @@ export default function RoomPage() {
       !room?.game ||
       !room.game.revealed ||
       room.game.questionIndex === null ||
-      QUESTIONS.length === 0
+      (room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS.length : QUESTIONS.length) === 0
     ) {
       return undefined;
     }
-    return QUESTIONS[room.game.questionIndex % QUESTIONS.length];
+    const deck = room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS : QUESTIONS;
+    return deck[room.game.questionIndex % deck.length];
   }, [room]);
 
   const questionPool = useMemo(
     () =>
       room
-        ? getQuestionPoolIndexes(QUESTIONS, room.settings)
+        ? room.mode === "echeverry"
+          ? echeverryQuestionPool(room.settings)
+          : getQuestionPoolIndexes(QUESTIONS, room.settings)
         : [],
     [room],
   );
@@ -383,7 +387,7 @@ export default function RoomPage() {
   function startGame() {
     if (!room) return;
 
-    const pool = getQuestionPoolIndexes(QUESTIONS, room.settings);
+    const pool = questionPool;
     if (pool.length < 2) {
       setError("Los filtros dejaron muy pocas preguntas. Ajusta la ronda.");
       return;
@@ -391,7 +395,7 @@ export default function RoomPage() {
 
     const sent = sendRoomEvent(socketRef.current, {
       type: "start",
-      deckVersion: QUESTION_DECK_VERSION,
+      deckVersion: room.mode === "echeverry" ? ECHEVERRY_DECK_VERSION : QUESTION_DECK_VERSION,
       questionPool: pool,
     });
     if (!sent) setError("Todavía no estás conectado a la sala.");
@@ -524,7 +528,7 @@ export default function RoomPage() {
     <main className="shell roomShell" id="main-content">
       <header className="roomHeader">
         <div>
-          <p className="eyebrow">SALA</p>
+          <p className="eyebrow">{room?.mode === "echeverry" ? "FAMILIA ECHEVERRY" : "SALA"}</p>
           <button
             className="roomCode"
             type="button"
@@ -608,7 +612,7 @@ export default function RoomPage() {
               <p className="eyebrow">LA HUELLA DE ESTA RONDA</p>
               <div className="savedMomentList">
                 {room.game.savedMoments.map((moment) => {
-                  const savedQuestion = QUESTIONS[moment.questionIndex];
+                  const savedQuestion = (room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS : QUESTIONS)[moment.questionIndex];
                   const savedPlayer = room.players.find(
                     (player) => player.id === moment.playerId,
                   );
@@ -718,9 +722,11 @@ export default function RoomPage() {
               <>
                 <div className="cardMeta">
                   <span>pregunta oculta</span>
-                  <span>
-                    {room.game.usedQuestionCount} de {room.game.questionPoolSize}
-                  </span>
+                  {room.mode === "echeverry" ? (
+                    <span>Familia Echeverry 💛</span>
+                  ) : (
+                    <span>{room.game.usedQuestionCount} de {room.game.questionPoolSize}</span>
+                  )}
                 </div>
                 <p className="hiddenPrompt">
                   {canControlTurn
