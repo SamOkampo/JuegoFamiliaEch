@@ -140,8 +140,8 @@
         "prompt": "¿Quién es más probable que convierta un día normal en una aventura?",
         "hint": "Todos eligen en secreto y el grupo conoce el resultado al final.",
         "seconds": 30,
-        "minAge": 12,
-        "intensity": 2,
+        "minAge": 8,
+        "intensity": 1,
         "audiences": [
           "friends",
           "mixed"
@@ -153,7 +153,7 @@
         "prompt": "¿Quién es más probable que empiece a cantar en una reunión?",
         "hint": "Piensa en esa persona que nunca deja pasar una buena canción.",
         "seconds": 30,
-        "minAge": 12,
+        "minAge": 8,
         "intensity": 2,
         "audiences": [
           "friends",
@@ -193,7 +193,7 @@
         "hint": "Piensa en quién disfrutaría organizando cada detalle.",
         "seconds": 30,
         "minAge": 8,
-        "intensity": 2,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -206,7 +206,7 @@
         "prompt": "¿Quién es más probable que invente una tradición para este grupo?",
         "hint": "Cada persona vota; luego cuenten cuál sería esa tradición.",
         "seconds": 30,
-        "minAge": 8,
+        "minAge": 12,
         "intensity": 2,
         "audiences": [
           "family",
@@ -221,7 +221,7 @@
         "hint": "Vota por quien siempre encuentra un camino interesante.",
         "seconds": 30,
         "minAge": 8,
-        "intensity": 3,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -234,8 +234,8 @@
         "prompt": "¿Quién es más probable que recuerde una conversación de hace diez años?",
         "hint": "Elige a alguien con buena memoria para las historias.",
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 8,
+        "intensity": 2,
         "audiences": [
           "family",
           "couple",
@@ -248,8 +248,8 @@
         "prompt": "¿Quién es más probable que emprenda una idea poco convencional?",
         "hint": "Voten con optimismo; lo inesperado también tiene su encanto.",
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -263,8 +263,8 @@
         "prompt": "¿Quién es más probable que anime al grupo cuando un plan sale mal?",
         "hint": "Un voto para reconocer a quien levanta el ánimo.",
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -462,8 +462,8 @@
           "Afuera 🌃"
         ],
         "seconds": 30,
-        "minAge": 12,
-        "intensity": 2,
+        "minAge": 8,
+        "intensity": 1,
         "audiences": [
           "friends",
           "mixed"
@@ -479,7 +479,7 @@
           "Ciudad 🌆"
         ],
         "seconds": 30,
-        "minAge": 12,
+        "minAge": 8,
         "intensity": 2,
         "audiences": [
           "friends",
@@ -531,7 +531,7 @@
         ],
         "seconds": 30,
         "minAge": 8,
-        "intensity": 2,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -548,7 +548,7 @@
           "Excursión 🌳"
         ],
         "seconds": 30,
-        "minAge": 8,
+        "minAge": 12,
         "intensity": 2,
         "audiences": [
           "family",
@@ -567,7 +567,7 @@
         ],
         "seconds": 30,
         "minAge": 8,
-        "intensity": 3,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -584,8 +584,8 @@
           "Plan hablado 💬"
         ],
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 8,
+        "intensity": 2,
         "audiences": [
           "family",
           "couple",
@@ -602,8 +602,8 @@
           "Fogata 🔥"
         ],
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -621,8 +621,8 @@
           "Conversar 💬"
         ],
         "seconds": 30,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -792,8 +792,8 @@
         "prompt": "Crea un saludo especial de cinco segundos para el grupo.",
         "hint": "Las personas pueden copiarlo o simplemente aplaudir.",
         "seconds": 20,
-        "minAge": 12,
-        "intensity": 2,
+        "minAge": 8,
+        "intensity": 1,
         "audiences": [
           "friends",
           "mixed"
@@ -805,7 +805,7 @@
         "prompt": "Cuenta una historia breve que empiece con «No van a creer esto».",
         "hint": "Puedes inventarla si prefieres no revelar experiencias personales.",
         "seconds": 20,
-        "minAge": 12,
+        "minAge": 8,
         "intensity": 2,
         "audiences": [
           "friends",
@@ -845,7 +845,7 @@
         "hint": "Es un reto sin puntos ni penalizaciones.",
         "seconds": 20,
         "minAge": 8,
-        "intensity": 2,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -858,7 +858,7 @@
         "prompt": "Elige una palabra y explica por qué te da risa.",
         "hint": "Puedes cambiar la palabra si te parece difícil.",
         "seconds": 20,
-        "minAge": 8,
+        "minAge": 12,
         "intensity": 2,
         "audiences": [
           "family",
@@ -873,7 +873,7 @@
         "hint": "También puedes contar una ocurrencia inventada.",
         "seconds": 20,
         "minAge": 8,
-        "intensity": 3,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -886,8 +886,8 @@
         "prompt": "Describe un lugar que te gustaría visitar como si estuvieras allí.",
         "hint": "Puedes imaginarlo sin contar nada privado.",
         "seconds": 20,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 8,
+        "intensity": 2,
         "audiences": [
           "family",
           "couple",
@@ -900,8 +900,8 @@
         "prompt": "Crea el título de una canción para recordar este encuentro.",
         "hint": "Si te nace, tararea una melodía breve.",
         "seconds": 20,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -915,8 +915,8 @@
         "prompt": "Explica una idea imposible con total seriedad durante veinte segundos.",
         "hint": "¡Entre más creativa, mejor! También puedes pasar.",
         "seconds": 20,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -1078,8 +1078,8 @@
         "prompt": "¿Cuál fue la reunión más divertida que recuerdan?",
         "hint": "Todos aportan un detalle, incluso quienes llegaron después.",
         "seconds": 60,
-        "minAge": 12,
-        "intensity": 2,
+        "minAge": 8,
+        "intensity": 1,
         "audiences": [
           "friends",
           "mixed"
@@ -1091,7 +1091,7 @@
         "prompt": "Construyan una historia donde cada persona agrega un personaje.",
         "hint": "Escuchen lo anterior antes de introducir el siguiente detalle.",
         "seconds": 60,
-        "minAge": 12,
+        "minAge": 8,
         "intensity": 2,
         "audiences": [
           "friends",
@@ -1131,7 +1131,7 @@
         "hint": "Se vale mezclar recuerdos y ficción, sin engañar a nadie.",
         "seconds": 60,
         "minAge": 8,
-        "intensity": 2,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -1144,7 +1144,7 @@
         "prompt": "Construyan juntos una historia usando tres palabras que elijan.",
         "hint": "Cada persona puede aportar una oración y pasar el turno.",
         "seconds": 60,
-        "minAge": 8,
+        "minAge": 12,
         "intensity": 2,
         "audiences": [
           "family",
@@ -1159,7 +1159,7 @@
         "hint": "Agreguen un recuerdo relacionado con la melodía.",
         "seconds": 60,
         "minAge": 8,
-        "intensity": 3,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -1172,8 +1172,8 @@
         "prompt": "Imaginen que se reencuentran en una ciudad dentro de veinte años.",
         "hint": "Cada uno cuenta qué ve y a quién saluda.",
         "seconds": 60,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 8,
+        "intensity": 2,
         "audiences": [
           "family",
           "couple",
@@ -1186,8 +1186,8 @@
         "prompt": "Compartan una tradición que les gustaría mantener en el futuro.",
         "hint": "Construyan entre todos cómo sería el siguiente encuentro.",
         "seconds": 60,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -1201,8 +1201,8 @@
         "prompt": "Escriban oralmente el comienzo de una película sobre su amistad.",
         "hint": "Una persona introduce la escena y las demás continúan.",
         "seconds": 60,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -1364,8 +1364,8 @@
         "prompt": "¿Qué enseñanza positiva recibiste de alguien que admiras?",
         "hint": "No hace falta mencionar nombres si prefieres reservarlos.",
         "seconds": 45,
-        "minAge": 12,
-        "intensity": 2,
+        "minAge": 8,
+        "intensity": 1,
         "audiences": [
           "friends",
           "mixed"
@@ -1377,7 +1377,7 @@
         "prompt": "Comparte un lugar donde te guste conversar con calma.",
         "hint": "Describe el ambiente sin necesidad de decir dónde está.",
         "seconds": 45,
-        "minAge": 12,
+        "minAge": 8,
         "intensity": 2,
         "audiences": [
           "friends",
@@ -1417,7 +1417,7 @@
         "hint": "Nadie tiene que compartir nada personal para participar.",
         "seconds": 45,
         "minAge": 8,
-        "intensity": 2,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -1430,7 +1430,7 @@
         "prompt": "Piensa en una fortaleza de alguien que está aquí.",
         "hint": "Menciona la fortaleza solo si te resulta cómodo.",
         "seconds": 45,
-        "minAge": 8,
+        "minAge": 12,
         "intensity": 2,
         "audiences": [
           "family",
@@ -1445,7 +1445,7 @@
         "hint": "Puede ser mínima, cotidiana y sin detalles privados.",
         "seconds": 45,
         "minAge": 8,
-        "intensity": 3,
+        "intensity": 1,
         "audiences": [
           "family",
           "couple",
@@ -1458,8 +1458,8 @@
         "prompt": "¿Qué significa para ti sentir que te escuchan?",
         "hint": "Puedes responder con una sola palabra o pasar.",
         "seconds": 45,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 8,
+        "intensity": 2,
         "audiences": [
           "family",
           "couple",
@@ -1472,8 +1472,8 @@
         "prompt": "¿En qué momento te sentiste orgulloso de aprender algo nuevo?",
         "hint": "No hace falta contar logros grandes ni compararse.",
         "seconds": 45,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
@@ -1487,8 +1487,8 @@
         "prompt": "¿Qué gesto te gustaría ofrecer más a quienes aprecias?",
         "hint": "La intención importa más que hacer promesas públicas.",
         "seconds": 45,
-        "minAge": 16,
-        "intensity": 3,
+        "minAge": 12,
+        "intensity": 2,
         "audiences": [
           "family",
           "friends",
