@@ -73,3 +73,12 @@ Antes de una beta amplia se debe leer el mazo completo, marcar formulaciones amb
 ## Versionado
 
 Cambios editoriales que alteren índices del mazo requieren cambiar `QUESTION_DECK_VERSION` y la versión equivalente del Worker para que un cliente desactualizado no inicie una partida con índices incompatibles.
+
+## Packs especiales (Fase 13)
+
+- Clásicos, Fiesta y Conexiones: 100 cartas originales distribuidas en cinco modalidades.
+- Cada carta tiene edad mínima (8/12/16), intensidad (1/2/3), audiencias permitidas y pack. El Worker valida los filtros antes de elegir la carta.
+- Si no hay cartas elegibles, la ronda no se fuerza ni se sustituye por contenido inadecuado.
+- Todos los retos se pueden pasar; abstenerse en votaciones está permitido.
+- CI verifica la unicidad de preguntas, metadatos y cobertura de combinaciones. El ensayo editorial con grupos humanos queda pendiente de la beta presencial.
+- Fuente de verdad: `worker/src/special-content.json`. Guía de aceptación: `docs/PHASE_13_CONTENT.md`.
