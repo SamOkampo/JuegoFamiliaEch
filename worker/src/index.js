@@ -225,6 +225,28 @@ function startSpecial(room, kind) {
   game.specialHistory.push({ kind, turnNumber: game.turnNumber });
 }
 
+function privatePlayerState(room, playerId) {
+  const game = room?.game;
+  if (!game) {
+    return { turnNumber: null, reaction: null, saved: false, specialChoice: null, contributed: false };
+  }
+  const moment = game.savedMoments?.find((item) => item.turnNumber === game.turnNumber);
+  return {
+    turnNumber: game.turnNumber,
+    reaction: game.reactionsByTurn?.[String(game.turnNumber)]?.[playerId] ?? null,
+    saved: Boolean(moment?.savedByPlayerIds?.includes(playerId)),
+    specialChoice: game.special?.votes?.[playerId] ?? null,
+    contributed: Boolean(game.special?.contributors?.includes(playerId)),
+  };
+}
+
+function sendPrivatePlayerState(ws, room, playerId) {
+  ws.send(JSON.stringify({
+    type: "private-state",
+    ...privatePlayerState(room, playerId),
+  }));
+}
+
 function safeSpecialSnapshot(room) {
   const special = room.game?.special;
   if (!special) return null;
@@ -250,6 +272,7 @@ function safeSpecialSnapshot(room) {
       room.players.some((player) => player.id === id),
     ).length,
     tally: special.revealed ? tally : null,
+    abstainCount: special.revealed ? (tally.abstain ?? 0) : null,
   };
 }
 
@@ -774,6 +797,7 @@ export class GameRoom extends DurableObject {
         room: publicSnapshot(this.room),
       }),
     );
+    sendPrivatePlayerState(server, this.room, playerId);
     await this.broadcastSnapshot();
 
     return new Response(null, { status: 101, webSocket: client });
@@ -904,6 +928,27 @@ export class GameRoom extends DurableObject {
           room: publicSnapshot(this.room),
         }),
       );
+      sendPrivatePlayerState(ws, this.room, player.id);
+      return;
+    }
+
+    if (event?.type === "play-again") {
+      if (player.id !== this.room.hostId) {
+        socketError(ws, "HOST_ONLY");
+        return;
+      }
+      if (this.room.status !== "finished" || !this.room.game) {
+        socketError(ws, "GAME_NOT_FINISHED");
+        return;
+      }
+      this.room.status = "lobby";
+      this.room.game = null;
+      for (const member of this.room.players) {
+        member.ready = false;
+      }
+      this.room.version += 1;
+      await this.persist();
+      await this.broadcastSnapshot();
       return;
     }
 
@@ -1056,9 +1101,10 @@ export class GameRoom extends DurableObject {
           socketError(ws, "SPECIAL_NOT_AVAILABLE");
           return;
         }
-        const valid = special.kind === "likely"
-          ? this.room.players.some((member) => member.id === event.choice)
-          : ["0", "1"].includes(event.choice);
+        const valid = event.choice === "abstain" ||
+          (special.kind === "likely"
+            ? this.room.players.some((member) => member.id === event.choice)
+            : ["0", "1"].includes(event.choice));
         if (!valid) {
           socketError(ws, "INVALID_SPECIAL_VOTE");
           return;

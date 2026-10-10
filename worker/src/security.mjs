@@ -100,6 +100,7 @@ export function validateClientEvent(event) {
     case "sync":
     case "display-token":
     case "finish":
+    case "play-again":
     case "leave":
       return { ok: true };
 

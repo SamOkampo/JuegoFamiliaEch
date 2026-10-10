@@ -2091,3 +2091,141 @@ input {
   }
   .specialVoteChoice { transition: none !important; }
 }
+
+/* Fase 12 — Premium onboarding and inclusive vote reveals. */
+.quickTour {
+  display: grid;
+  gap: 16px;
+  margin: 12px 0 24px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(182, 91, 68, 0.25);
+  border-radius: 24px;
+  background: linear-gradient(130deg, #fff9f1 0%, #f5e3d4 100%);
+  color: #35251f;
+}
+
+.quickTourHeader,
+.quickTourActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.quickTourHeader strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.1rem;
+}
+
+.quickTourToggle {
+  min-height: 44px;
+  border: 1px solid rgba(77, 42, 30, 0.15);
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: #fffaf5;
+  color: #51392f;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.quickTourBody { display: grid; gap: 16px; }
+
+.quickTourProgress { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.quickTourProgress span { height: 5px; border-radius: 12px; background: rgba(70, 49, 38, 0.14); }
+.quickTourProgress .active { background: #b65b44; }
+
+.quickTourStep {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+  min-height: 120px;
+  animation: jfe-content-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.quickTourSymbol {
+  display: grid;
+  place-items: center;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #f1c4a8;
+  font-size: 1.35rem;
+}
+
+.quickTourStep h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+.quickTourStep p {
+  margin: 0;
+  line-height: 1.55;
+  color: #735a4d;
+}
+.quickTourActions > .button { min-height: 44px; }
+
+.specialOutcome {
+  display: grid;
+  gap: 8px;
+  padding: clamp(16px, 3vw, 24px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(71, 40, 30, 0.15);
+  animation: special-reveal 570ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.specialOutcomeEyebrow {
+  font-size: 0.73rem;
+  letter-spacing: 0.1em;
+  font-weight: 850;
+  color: var(--special-accent);
+}
+.specialOutcome strong {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-family: Georgia, "Times New Roman", serif;
+}
+.specialOutcome p {
+  margin: 0;
+  line-height: 1.45;
+  font-weight: 750;
+}
+.specialOutcome .specialAbstentions {
+  color: #68574c;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+.specialAbstain {
+  width: 100%;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.55);
+}
+.specialResultTrack span {
+  will-change: transform;
+}
+@media (max-width: 480px) {
+  .quickTourActions > .button { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quickTourStep, .specialOutcome { animation: none !important; }
+}
+
+.finishGameControls { margin-top: 14px; }
+.finishConfirm {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(182, 91, 68, 0.28);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 245, 235, 0.94);
+}
+.finishConfirm p { margin: 0; line-height: 1.5; font-weight: 700; }
+.finishConfirmActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.finishConfirmActions .button { min-height: 44px; }
+@media (max-width: 450px) {
+  .finishConfirmActions .button { flex: 1; }
+}

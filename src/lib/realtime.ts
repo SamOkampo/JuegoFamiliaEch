@@ -34,6 +34,15 @@ export type SpecialSnapshot = {
   voteCount: number;
   contributorCount: number;
   tally: Record<string, number> | null;
+  abstainCount: number | null;
+};
+
+export type PrivatePlayerState = {
+  turnNumber: number | null;
+  reaction: ReactionType | null;
+  saved: boolean;
+  specialChoice: string | null;
+  contributed: boolean;
 };
 
 export type ReactionType = "heart" | "laugh" | "clap" | "wow";
@@ -115,6 +124,7 @@ export type ClientRoomEvent =
       saved: boolean;
       expectedTurnNumber: number;
     }
+  | { type: "play-again" }
   | { type: "finish" }
   | { type: "leave" };
 
@@ -308,6 +318,7 @@ export function roomErrorMessage(code: string): string {
       "Ese mensaje es demasiado grande.",
     RATE_LIMITED:
       "Demasiadas acciones seguidas. Espera unos segundos e inténtalo otra vez.",
+    GAME_NOT_FINISHED: "Primero termina la partida para volver al lobby.",
     SPECIAL_DISABLED: "Esta ronda especial está desactivada por el anfitrión.",
     SPECIAL_NOT_AVAILABLE: "Esta ronda ya terminó o todavía no está disponible.",
     SPECIAL_ACTIVE: "Termina u omite primero la ronda sorpresa.",

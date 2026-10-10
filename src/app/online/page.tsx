@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PwaInstallCard } from "@/components/pwa-install-card";
 import { LegalLinks } from "@/components/legal-links";
+import { QuickTour } from "@/components/quick-tour";
 import {
   createOnlineRoom,
   joinOnlineRoom,
@@ -81,6 +82,8 @@ export default function OnlinePage() {
           No necesitas cuenta.
         </p>
       </section>
+
+      <QuickTour />
 
       {error ? (
         <p className="errorBanner" role="alert">

@@ -172,6 +172,16 @@ try {
   const hidden = await firstVote;
   assert(hidden.game.special.tally === null, "Tally must be hidden after first vote");
 
+  const personal = expectMessage(
+    hostWs,
+    (x) => x.type === "private-state" && x.turnNumber === 1,
+    "private state on sync",
+  );
+  send(hostWs, "sync");
+  const privateState = await personal;
+  assert(privateState.specialChoice === guest.playerId, "Own vote restored privately");
+  assert(!("token" in privateState), "Personal state never includes credentials");
+
   const hiddenBoth = await execute(guestWs, "special-vote",
     { choice: guest.playerId, expectedTurnNumber: 1 },
     (r) => r.game?.special?.voteCount === 2,
@@ -212,14 +222,16 @@ try {
     (r) => r.game?.special?.voteCount === 1, "group first vote");
   assert(group1.game.special.tally === null, "Group vote hidden");
   await execute(guestWs, "special-vote",
-    { choice: "1", expectedTurnNumber: 3 },
-    (r) => r.game?.special?.voteCount === 2, "group second vote");
+    { choice: "abstain", expectedTurnNumber: 3 },
+    (r) => r.game?.special?.voteCount === 2, "group voluntary abstention");
   const groupRevealed = await execute(hostWs, "special-reveal",
     {expectedTurnNumber: 3},
     (r) => r.game?.special?.revealed,
     "group result reveal");
-  assert(groupRevealed.game.special.tally["1"] === 2,
+  assert(groupRevealed.game.special.tally["1"] === 1,
     "Group vote result should be accurate");
+  assert(groupRevealed.game.special.abstainCount === 1,
+    "Abstention should be counted separately");
 
   await execute(hostWs, "next-turn", {expectedTurnNumber: 3},
     (r) => r.game?.turnNumber === 4 && r.game.special === null,
@@ -257,6 +269,32 @@ try {
     (r) => r.game?.turnNumber === 9, "turn 9 after optional challenge");
   assert(ninth.game.special?.kind === "gold", "Third automatic kind is gold");
   assert(ninth.game.specialHistory.length >= 6, "History tracks each special round");
+
+  await expectError(guestWs, "play-again", {}, "HOST_ONLY");
+  const finished = await execute(hostWs, "finish", {},
+    (r) => r.status === "finished", "first game finished");
+  assert(finished.game?.turnNumber === 9, "Recap persists until replay");
+
+  const lobby = await execute(hostWs, "play-again", {},
+    (r) => r.status === "lobby" && r.game === null,
+    "replay returns everyone to lobby");
+  assert(lobby.code === host.code, "Same room code must be preserved");
+  assert(lobby.hostId === host.playerId, "Host must be preserved");
+  assert(lobby.players.length === 2, "Both people remain in same room");
+  assert(lobby.players.every((player) => !player.ready), "Ready flags reset");
+  assert(lobby.settings.specialModes.length === 5, "Room preferences are kept");
+  await expectError(hostWs, "play-again", {}, "GAME_NOT_FINISHED");
+
+  await execute(hostWs, "ready", { ready: true },
+    (r) => r.players.find((p) => p.id === host.playerId)?.ready,
+    "host ready again");
+  await execute(guestWs, "ready", { ready: true },
+    (r) => r.canStart, "all ready again");
+  const replay = await execute(hostWs, "start",
+    { deckVersion: "core-v2-160", questionPool: Array.from({ length: 24 }, (_, i) => i) },
+    (r) => r.status === "playing" && r.game?.turnNumber === 1,
+    "second game begins in same room");
+  assert(replay.game.specialHistory.length === 0, "Old special history cleared");
 
   console.log(
     "SPECIAL_ROUNDS_SMOKE_PASS",
