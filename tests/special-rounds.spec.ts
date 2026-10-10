@@ -52,3 +52,25 @@ test("host can configure all five surprise modes from mobile lobby", async ({ pa
   );
   expect(animationName).toBe("none");
 });
+
+test("host can opt into 18+ discussion only when declaring an adult-only group", async ({ page }) => {
+  await page.goto("/online");
+  await page.locator("#create-name").fill("HostColombia");
+  await page.getByRole("button", { name: "Crear sala" }).click();
+  await expect(page).toHaveURL(/\/room\/[A-Z0-9]{6}$/);
+
+  const settings = page.getByRole("region", { name: "Configurar preguntas" });
+  const age = settings.getByLabel("Persona más joven");
+  const intensity = settings.getByLabel("Profundidad máxima");
+  await expect(age).toHaveValue("12");
+  const initial = Number(await settings.locator(".poolCount strong").innerText());
+  await age.selectOption("18");
+  await expect(age).toHaveValue("18");
+  await intensity.selectOption("3");
+  await expect(intensity).toHaveValue("3");
+  await expect(settings.getByText(/nadie en la sala es menor de edad/i)).toBeVisible();
+  await expect.poll(async () => Number(await settings.locator(".poolCount strong").innerText())).toBeGreaterThan(initial);
+
+  await age.selectOption("12");
+  await expect(age).toHaveValue("12");
+});
