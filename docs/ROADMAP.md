@@ -149,7 +149,7 @@ Criterios:
 - [x] Conteos de cartas compatibles visibles en el lobby y cero sorpresas cuando no hay cartas elegibles.
 - [x] Rotación de cartas sin repetición hasta agotar el conjunto compatible, con protección contra repeticiones consecutivas.
 - [x] Validación editorial automatizada, matriz de filtros, smoke contra Cloudflare y reglas de contenido documentadas.
-- [ ] Gate final de CI verde + PR fusionado + despliegue backend/frontend verificado.
+- [x] PR #16 fusionado en main, CI verde, smoke realtime y frontend/backend desplegados y verificados en Cloudflare.
 
 La revisión con grupos humanos de distintas edades se realizará en la beta presencial (Fase 14), no puede validarse con CI.
 

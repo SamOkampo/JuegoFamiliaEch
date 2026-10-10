@@ -1,87 +1,43 @@
-# Estado del proyecto
+# Estado real del proyecto — 10 de octubre de 2026
 
-## Checkpoint actual
+## Resumen verificable
 
-- Fases 1 a 9 están cerradas e integradas en `main`.
-- Fase 10 — Producción sigue abierta porque conserva gates externos/humanos.
-- El bloque de producción que sí podía resolverse desde código/GitHub quedó fusionado en `6f08f6982398545e299c7d5610a34c887d43049b` después de CI verde.
-- PR #9 quedó fusionado.
-- Worker backend de Fase 10 desplegado al 100% en Cloudflare: `372fa9f9-6abf-4dbc-af3c-46b6fdcd46a4`.
+- **Fases 0–9 y 11–13: implementadas** y fusionadas en `main`.
+- **Fase 10**: hosting real, analítica y documentos beta publicados; faltan dominio comercial, QA físico, revisión legal definitiva y beta presencial.
+- **Fase 13 — Contenido y variedad: cerrada técnicamente**.
+- PR de Fase 13: [#16](https://github.com/SamOkampo/JuegoFamiliaEch/pull/16). Commit de integración: `d9597e3778a63a23dc65a7f93ef15766f3e59483`.
+- CI del PR: [run #75](https://github.com/SamOkampo/JuegoFamiliaEch/actions/runs/38018044641), verde.
+- CI del merge a `main`: [run #76](https://github.com/SamOkampo/JuegoFamiliaEch/actions/runs/38018266277), verde.
+- Backend fase 13: versión `095433a3-00a7-49fd-9d10-ff8ac3e76540`, 100 % en Cloudflare.
+- Frontend fase 13: versión `97658ed4-121a-4464-9f6b-c797f2c39aa3`, 100 % en Cloudflare.
 
-## Producción ya preparada
+## Juego y contenidos
 
-- Frontend Next.js preparado para Cloudflare Workers mediante OpenNext.
-- `wrangler.jsonc` y `open-next.config.ts` integrados.
-- Scripts disponibles:
-  - `npm run build:cloudflare`;
-  - `npm run preview:cloudflare`;
-  - `npm run deploy:web`.
-- CI pasa tanto `next build` como el build Cloudflare.
-- Rutas públicas de beta:
-  - `/privacy`;
-  - `/terms`.
-- Enlaces legales visibles desde landing y entrada multijugador.
-- Workers Observability continúa habilitado con query strings redactadas.
-- Métricas server-side estructuradas:
-  - `room_created`;
-  - `player_joined`;
-  - `game_started`;
-  - `game_finished`.
-- Métrica agregada de instalación PWA.
-- Error monitoring cliente sanitizado:
-  - runtime;
-  - promise;
-  - resource.
-- No se envían mensajes de error, stack traces, códigos de sala, nombres, tokens ni respuestas.
-- Telemetría protegida por allowlist y rate limiting.
-- Definiciones de activación/finalización documentadas en `docs/PRODUCTION.md`.
-- Analytics Engine queda como mejora opcional: la cuenta Cloudflare todavía no lo tiene habilitado, pero las métricas actuales funcionan mediante logs estructurados de Workers Observability.
-
-## Validación del bloque Fase 10
-
-CI #46 pasó completamente en verde:
-
-- Typecheck.
-- Unit tests.
-- Worker security unit tests.
-- Smoke realtime contra Cloudflare.
-- Security integration smoke.
-- Sintaxis Worker/service worker.
-- Next.js production build.
-- OpenNext/Cloudflare frontend build.
-- E2E WebKit/iPhone.
-- E2E Chromium/Android.
-
-## Fase 10 — pendientes externos/humanos
-
-- [ ] Ejecutar el deploy real del frontend `juego-familia-ech-web` con credenciales de Cloudflare o Workers Builds.
-- [ ] Elegir el nombre comercial definitivo.
-- [ ] Elegir/comprar o indicar el dominio definitivo y conectarlo.
-- [ ] Hacer smoke físico con iPhone Safari real + Android Chrome real.
-- [ ] Probar una beta con grupos humanos reales y registrar feedback.
-- [ ] Revisión jurídica final y canal formal de contacto antes de lanzamiento comercial abierto.
-
-## Infraestructura actual
-
-- Frontend: Next.js + TypeScript + PWA, build Cloudflare validado.
-- Realtime/backend: Cloudflare Worker.
-- Coordinación de salas: Durable Objects.
-- Persistencia por sala: SQLite del Durable Object.
-- Rate limiting: Durable Object SQLite independiente.
+- Frontend: [JuegoFamiliaEch](https://juego-familia-ech-web.socampoecheverry.workers.dev/online).
 - Backend: `https://juego-familia-ech.socampoecheverry.workers.dev`.
+- Next.js + React + Cloudflare Workers, Durable Objects SQLite y WebSockets.
+- Sin registro obligatorio, juego multijugador, pantalla central de solo lectura, PWA, reacciones y recuerdos efímeros.
+- 160 preguntas tradicionales originales (mazo `core-v2-160`).
+- **100 cartas especiales** (mazo `special-v3-100`): 20 cartas en cada una de las cinco modalidades.
+- **Packs Clásicos, Fiesta y Conexiones**: selección sincronizada del anfitrión.
+- Filtros editoriales por grupo, edad mínima e intensidad, aplicados por el Worker.
+- Reparto de cartas sin repetición hasta agotar las opciones compatibles de cada modalidad.
+- Catálogo editorial único en `worker/src/special-content.json`; metadatos del Worker generados y verificados automáticamente.
 
-## Gate actual
+## Comprobaciones de Fase 13
 
-Fase 10 no se declara cerrada todavía. El siguiente paso técnico de mayor impacto es desplegar el frontend preparado en Cloudflare Workers; después corresponde dominio y QA físico.
+- Unicidad de las 100 cartas y metadatos editoriales verificados por tests.
+- Todas las combinaciones grupo/edad/intensidad/pack cuentan con opciones compatibles.
+- Seguridad de settings de packs validada.
+- Smoke real Cloudflare verifica cartas aptas para 8 años/nivel 1, manejo de cero packs y 20 cartas consecutivas sin repetir.
+- Playwright WebKit/iPhone y Chromium/Android, TypeScript, build Next.js/OpenNext y CI en verde.
+- Observabilidad y privacidad sin guardar respuestas habladas; retención por sala de 12 horas.
 
+## Pendientes externos — beta presencial
 
-## Fase 11 — Rondas especiales en desarrollo
+1. Probar en al menos dos dispositivos físicos, iPhone Safari y Android Chrome.
+2. Reunir 4–6 participantes reales con diferentes edades; evaluar ritmo y aceptación de preguntas, sin exponer datos personales.
+3. Elegir marca y dominio comercial definitivo.
+4. Revisión jurídica final y canal de contacto antes de lanzamiento comercial abierto.
 
-- Rama: `phase-11-special-rounds`.
-- Cinco mecánicas y 20 cartas originales.
-- Opciones del anfitrión y frecuencia de sorpresa manual/cada tres turnos.
-- Backend Durable Object controla votaciones privadas, revelación y conteos agregados.
-- Pantalla central recibe las sorpresas sin permisos de voto/control.
-- Las acciones son voluntarias y no se guarda contenido hablado.
-- Documento completo: `docs/SPECIAL_ROUNDS.md`.
-- Pendiente comprobar CI, desplegar Worker, pasar smoke especial y fusionar frontend.
+Estos pendientes son parte del paso a beta pública y **no se presentan como pruebas realizadas**. Consulte `docs/PHASE_13_CONTENT.md` y `docs/MOBILE_QA.md`.
