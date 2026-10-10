@@ -1,5 +1,5 @@
 {
-  "version": "special-v3-100",
+  "version": "special-v4-100-co",
   "packs": [
     {
       "id": "classic",
@@ -21,8 +21,8 @@
     "likely": [
       {
         "id": "likely-01",
-        "prompt": "¿Quién es más probable que llegue tarde a su propia boda?",
-        "hint": "Elige a alguien del grupo, sin revelar tu voto todavía.",
+        "prompt": "¿Quién es más probable que llegue tarde hasta a su propia fiesta?",
+        "hint": "Voten con cariño; después salen los cuentos, sin echarle la culpa a nadie.",
         "seconds": 30,
         "minAge": 8,
         "intensity": 1,
@@ -81,8 +81,8 @@
       },
       {
         "id": "likely-05",
-        "prompt": "¿Quién es más probable que conozca a todo el mundo en una fiesta?",
-        "hint": "Piensa en quién hace amigos incluso en la fila del supermercado.",
+        "prompt": "¿Quién es más probable que sea el alma del parche en una reunión familiar?",
+        "hint": "Piensa en quien siempre encuentra cómo romper el hielo.",
         "seconds": 30,
         "minAge": 8,
         "intensity": 1,
@@ -123,8 +123,8 @@
       },
       {
         "id": "likely-08",
-        "prompt": "¿Quién es más probable que gane un concurso de baile improvisado?",
-        "hint": "Elige con cariño; después pueden contar por qué.",
+        "prompt": "¿Quién es más probable que se sepa todos los chismes inocentes de la familia?",
+        "hint": "Chismes sanos, de los que acaban en risas y no en peleas.",
         "seconds": 30,
         "minAge": 12,
         "intensity": 2,
@@ -176,8 +176,8 @@
       },
       {
         "id": "likely-12",
-        "prompt": "¿Quién es más probable que haga reír a todo el grupo con una sola mirada?",
-        "hint": "Elige sin presionar a nadie para explicar su voto.",
+        "prompt": "¿Quién es más probable que sepa quién estuvo tragado de quién en el colegio?",
+        "hint": "Voten en secreto y cuenten solo historias que quieran compartir.",
         "seconds": 30,
         "minAge": 12,
         "intensity": 2,
@@ -261,8 +261,8 @@
       },
       {
         "id": "likely-18",
-        "prompt": "¿Quién es más probable que anime al grupo cuando un plan sale mal?",
-        "hint": "Un voto para reconocer a quien levanta el ánimo.",
+        "prompt": "¿Quién es más probable que llegue con aguapanela y un buen consejo cuando uno está triste?",
+        "hint": "Una manera bonita de agradecer a quien siempre levanta el ánimo.",
         "seconds": 30,
         "minAge": 12,
         "intensity": 2,
@@ -308,11 +308,11 @@
     "everyone": [
       {
         "id": "everyone-01",
-        "prompt": "¿Qué plan elegiría este grupo para un día libre?",
-        "hint": "Cada persona elige una opción; después vemos cómo quedó el grupo.",
+        "prompt": "Si armamos paseo familiar este domingo, ¿qué plan gana?",
+        "hint": "Todos votan desde el celular y la decisión se revela al final.",
         "choices": [
-          "Playa 🏖️",
-          "Montaña ⛰️"
+          "Paseo de olla 🥘",
+          "Ciclovía 🚲"
         ],
         "seconds": 30,
         "minAge": 8,
@@ -327,11 +327,11 @@
       },
       {
         "id": "everyone-02",
-        "prompt": "¿Cuál prefieren para una noche juntos?",
-        "hint": "No hay respuesta correcta: ¡el grupo decide!",
+        "prompt": "¿Qué plan se arma hoy para compartir con el parche?",
+        "hint": "Que vote todo el mundo: acá nadie impone el plan.",
         "choices": [
-          "Película 🎬",
-          "Juegos 🎲"
+          "Cine 🎬",
+          "Parqués 🎲"
         ],
         "seconds": 30,
         "minAge": 8,
@@ -384,11 +384,11 @@
       },
       {
         "id": "everyone-05",
-        "prompt": "¿Qué prefieren cocinar un domingo entre todos?",
-        "hint": "Cada opción vale: piensen en el olor de esa comida.",
+        "prompt": "¿Qué comemos cuando se reúne toda la familia?",
+        "hint": "Pongan su favorito y luego cuenten quién lo prepara mejor.",
         "choices": [
-          "Pizza 🍕",
-          "Pasta 🍝"
+          "Empanadas 🥟",
+          "Arepas 🫓"
         ],
         "seconds": 30,
         "minAge": 8,
@@ -616,11 +616,11 @@
       },
       {
         "id": "everyone-18",
-        "prompt": "¿Qué valoran más de un encuentro entre amigos?",
-        "hint": "La pregunta no clasifica personas: solo preferencias.",
+        "prompt": "Para una tarde de historias, ¿qué prefieren?",
+        "hint": "Las dos opciones pueden terminar en conversación sabrosa.",
         "choices": [
-          "Risas 😂",
-          "Conversar 💬"
+          "Chismes sanos 🤭",
+          "Recuerdos 📷"
         ],
         "seconds": 30,
         "minAge": 12,
@@ -675,8 +675,8 @@
     "challenge": [
       {
         "id": "challenge-01",
-        "prompt": "Imita con cariño a alguien de tu familia durante 15 segundos.",
-        "hint": "Solo si te sientes cómodo. Puedes omitir el reto sin explicar nada.",
+        "prompt": "Imita con cariño a alguien de la familia diciendo su frase más típica.",
+        "hint": "Solo con respeto y si te nace; puedes pasar sin dar explicaciones.",
         "seconds": 15,
         "minAge": 8,
         "intensity": 1,
@@ -720,8 +720,8 @@
       },
       {
         "id": "challenge-04",
-        "prompt": "Haz que el grupo se ría usando únicamente gestos.",
-        "hint": "Sin presión: si no te apetece, pasa a la siguiente ronda.",
+        "prompt": "Haz que el parche suelte una carcajada usando solo la cara.",
+        "hint": "La idea es reírse juntos, no burlarse de nadie.",
         "seconds": 20,
         "minAge": 8,
         "intensity": 1,
@@ -791,8 +791,8 @@
       },
       {
         "id": "challenge-09",
-        "prompt": "Crea un saludo especial de cinco segundos para el grupo.",
-        "hint": "Las personas pueden copiarlo o simplemente aplaudir.",
+        "prompt": "Inventa un saludo de parche que sea imposible olvidar.",
+        "hint": "Invita al grupo a probarlo, pero nadie está obligado.",
         "seconds": 20,
         "minAge": 8,
         "intensity": 1,
@@ -871,8 +871,8 @@
       },
       {
         "id": "challenge-15",
-        "prompt": "Cuenta un chiste corto que sea apto para todo el grupo.",
-        "hint": "También puedes contar una ocurrencia inventada.",
+        "prompt": "Cuenta una anécdota de colegio que hoy parezca un chisme inocente.",
+        "hint": "Sin mencionar a quien no quiera salir en la historia, por favor.",
         "seconds": 20,
         "minAge": 8,
         "intensity": 1,
@@ -962,8 +962,8 @@
     "chain": [
       {
         "id": "chain-01",
-        "prompt": "Un viaje que todavía recordamos: construyamos la historia entre todos.",
-        "hint": "Una persona empieza y las demás añaden un detalle. Marca «Ya participé» cuando aportes algo.",
+        "prompt": "¿Se acuerdan de un paseo de olla o una salida familiar inolvidable?",
+        "hint": "Uno empieza el cuento y cada quien le mete un detalle, si quiere.",
         "seconds": 60,
         "minAge": 8,
         "intensity": 1,
@@ -1022,8 +1022,8 @@
       },
       {
         "id": "chain-05",
-        "prompt": "Recuerden el juego favorito que compartían cuando eran más pequeños.",
-        "hint": "Si no todos se conocen, pueden inventar juntos un juego nuevo.",
+        "prompt": "Reconstruyan entre todos el primer parche de amigos que recuerdan.",
+        "hint": "Cada persona aporta un pedacito; también vale inventar una historia.",
         "seconds": 60,
         "minAge": 8,
         "intensity": 1,
@@ -1144,8 +1144,8 @@
       },
       {
         "id": "chain-14",
-        "prompt": "Construyan juntos una historia usando tres palabras que elijan.",
-        "hint": "Cada persona puede aportar una oración y pasar el turno.",
+        "prompt": "Inventen un chisme buenísimo, pero completamente ficticio.",
+        "hint": "Que sea una historia divertida, sin nombres reales ni poner a nadie en evidencia.",
         "seconds": 60,
         "minAge": 12,
         "intensity": 2,
@@ -1158,8 +1158,8 @@
       },
       {
         "id": "chain-15",
-        "prompt": "Recuerden una canción que los reúna como grupo.",
-        "hint": "Agreguen un recuerdo relacionado con la melodía.",
+        "prompt": "¿Qué canción de diciembre o de una reunión los conecta con la infancia?",
+        "hint": "Uno empieza a contar y los demás agregan un recuerdo.",
         "seconds": 60,
         "minAge": 8,
         "intensity": 1,
@@ -1249,8 +1249,8 @@
     "gold": [
       {
         "id": "gold-01",
-        "prompt": "Dile a alguien del grupo algo que admiras de esa persona.",
-        "hint": "Puede ser algo pequeño. Nadie está obligado a compartir.",
+        "prompt": "Dile a alguien del grupo algo que de verdad admiras de esa persona.",
+        "hint": "Una frase sincera y sencilla vale más que un discurso. Puedes pasar.",
         "seconds": 45,
         "minAge": 8,
         "intensity": 1,
@@ -1309,8 +1309,8 @@
       },
       {
         "id": "gold-05",
-        "prompt": "¿Qué detalle sencillo de este encuentro quisieras recordar mañana?",
-        "hint": "No hace falta dar una respuesta profunda ni explicar por qué.",
+        "prompt": "¿Qué cosa chiquita de la vida agradeces hoy, así el día haya estado pesado?",
+        "hint": "Acá no hay que aparentar: cada quien comparte lo que quiera.",
         "seconds": 45,
         "minAge": 8,
         "intensity": 1,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": "gold-09",
-        "prompt": "¿Qué enseñanza positiva recibiste de alguien que admiras?",
-        "hint": "No hace falta mencionar nombres si prefieres reservarlos.",
+        "prompt": "¿Qué oración, reflexión o consejo te ha servido cuando las cosas se ponen difíciles?",
+        "hint": "Puede venir de tu fe, de una persona cercana o de la experiencia.",
         "seconds": 45,
         "minAge": 8,
         "intensity": 1,
@@ -1460,8 +1460,8 @@
       },
       {
         "id": "gold-16",
-        "prompt": "¿Qué significa para ti sentir que te escuchan?",
-        "hint": "Puedes responder con una sola palabra o pasar.",
+        "prompt": "¿Cuándo sentiste mucha paz o esperanza, aunque no todo estuviera bien?",
+        "hint": "Comparte desde tus creencias o desde la vida, sin presionar a nadie.",
         "seconds": 45,
         "minAge": 8,
         "intensity": 2,
@@ -1504,8 +1504,8 @@
       },
       {
         "id": "gold-19",
-        "prompt": "¿Qué frase te gustaría escuchar al terminar un día difícil?",
-        "hint": "Elige palabras amables sin exigir respuestas a nadie.",
+        "prompt": "¿Qué bendición, deseo o palabra bonita te gustaría dejarle a tu familia?",
+        "hint": "Un mensaje a tu manera, religioso o no. También puedes pasar.",
         "seconds": 45,
         "minAge": 16,
         "intensity": 3,
