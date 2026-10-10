@@ -10,7 +10,7 @@ The multiplayer backend lives in the Cloudflare Worker `juego-familia-ech`.
 - WebSocket Hibernation API via `ctx.acceptWebSocket()`.
 - Room expiration alarm: 12 hours.
 - Query-string redaction enabled in observability because WebSocket credentials travel in the upgrade URL.
-- Question deck version: `core-v2-160`.
+- Question deck version: `core-v3-210-co`.
 
 ## HTTP API
 
@@ -65,8 +65,8 @@ The browser owns the editorial catalog and computes a question pool from the syn
 
 The Worker validates that:
 
-- the client deck version is `core-v2-160`;
-- all indexes are integers between 0 and 159;
+- the client deck version is `core-v3-210-co`;
+- all indexes are integers between 0 and 209;
 - the pool is unique and contains at least two questions.
 
 The Worker then stores the pool in the Durable Object and chooses only from unused entries. Existing `core-v1` ephemeral rooms are normalized during the transition so a Worker deployment does not crash active rooms.
@@ -165,3 +165,8 @@ Server-side events:
 The log/data-point schema deliberately excludes room codes, names, player IDs, tokens and response content.
 
 The public `POST /api/telemetry` endpoint accepts only a closed allowlist of coarse client events/surfaces and uses the existing HTTP rate limiter. It does not accept arbitrary messages or stacks.
+
+
+## Mazo ampliado (Fase 13)
+
+El mazo principal `core-v3-210-co` incluye 210 preguntas con filtros de edad 8/12/16/18. Las preguntas sobre fiestas con alcohol requieren explícitamente `youngestAge=18` e intensidad 3. El Worker acepta índices 0–209 y rechaza versiones de mazo incompatibles. Los packs especiales `special-v3-100` mantienen su versionado independiente.
