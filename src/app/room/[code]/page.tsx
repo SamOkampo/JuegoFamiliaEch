@@ -43,7 +43,8 @@ import {
 const AGE_LABELS: Record<AgeBand, string> = {
   8: "8–11 años",
   12: "12–15 años",
-  16: "16+ años",
+  16: "16–17 años",
+  18: "Solo adultos (18+)",
 };
 
 const INTENSITY_LABELS: Record<QuestionIntensity, string> = {
@@ -884,7 +885,7 @@ export default function RoomPage() {
           <section className="contentSettings" aria-label="Configurar preguntas">
             <div>
               <p className="eyebrow">TIPO DE RONDA</p>
-              <strong>El mazo se adapta al grupo antes de empezar.</strong>
+              <strong>210 preguntas pa’ recordar, reírse y conocernos sin afán.</strong>
               <p className="muted">
                 Si el anfitrión cambia un filtro, todos vuelven a “No listo”
                 para confirmar la nueva ronda.
@@ -969,6 +970,10 @@ export default function RoomPage() {
               )
             ) : null}
 
+            <p className="muted" style={{ fontSize: "0.85rem" }}>
+              Elige «Solo adultos (18+)» únicamente si nadie en la sala es menor de edad.
+              Ahí pueden salir historias de fiestas y tragos; siempre se vale pasar.
+            </p>
             <p className="poolCount" role="status">
               <strong>{questionPool.length}</strong> preguntas disponibles con
               estos filtros.
@@ -979,7 +984,7 @@ export default function RoomPage() {
             <section className="contentSettings specialSettings" aria-label="Rondas especiales">
               <div>
                 <p className="eyebrow">RONDA SORPRESA</p>
-                <strong>100 cartas originales en 3 colecciones.</strong>
+                <strong>100 cartas sorpresa en 3 colecciones, con sabor colombiano.</strong>
                 <p className="muted">
                   Cada pack y modalidad se adapta a la edad, intensidad y tipo de grupo que elijan.
                 </p>
