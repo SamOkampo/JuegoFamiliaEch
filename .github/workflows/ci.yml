@@ -48,6 +48,9 @@ jobs:
       - name: Five special rounds integration smoke
         run: npm run test:special:cloudflare
 
+      - name: Family Echeverry room integration smoke
+        run: npm run test:family:cloudflare
+
       - name: Special content filtering and no-repetition integration smoke
         run: npm run test:special:content:cloudflare
 
