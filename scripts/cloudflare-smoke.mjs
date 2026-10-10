@@ -185,7 +185,7 @@ try {
 
   send(hostSocket, {
     type: "start",
-    deckVersion: "core-v2-160",
+    deckVersion: "core-v3-210-co",
     questionPool: [0, 1, 2, 3, 4, 5],
   });
 
