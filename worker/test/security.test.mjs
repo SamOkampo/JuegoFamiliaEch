@@ -22,10 +22,10 @@ test("player names normalize safely and reject controls/spoofing characters", ()
 });
 
 test("question pools reject duplicates and out-of-range indexes", () => {
-  assert.deepEqual(validateQuestionPool([0, 2, 159]), [0, 2, 159]);
+  assert.deepEqual(validateQuestionPool([0, 2, 209]), [0, 2, 159]);
   assert.equal(validateQuestionPool([0, 0]), null);
   assert.equal(validateQuestionPool([-1, 2]), null);
-  assert.equal(validateQuestionPool([0, 160]), null);
+  assert.equal(validateQuestionPool([0, 210]), null);
 });
 
 test("room settings are strict", () => {
@@ -192,4 +192,16 @@ test("editorial packs reject spoofed names, duplicates and invalid settings", ()
     type: "settings",
     settings: { ...base, specialPacks: ["<script>"] },
   }).ok, false);
+});
+
+test("adult age band is explicit and server-validated", () => {
+  const settings = {
+    groupType: "family", youngestAge: 18, maxIntensity: 3,
+    specialEvery: 3,
+    specialModes: ["likely", "everyone"],
+    specialPacks: ["classic", "conexiones"],
+  };
+  assert.equal(validateRoomSettings(settings), true);
+  assert.equal(validateRoomSettings({ ...settings, youngestAge: 17 }), false);
+  assert.equal(validateRoomSettings({ ...settings, youngestAge: "adult" }), false);
 });
