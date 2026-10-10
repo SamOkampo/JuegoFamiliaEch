@@ -22,6 +22,9 @@ import {
 
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const MAX_PLAYERS = 12;
+const ROOM_MODES = ["standard", "echeverry"];
+const ECHEVERRY_DECK_VERSION = "echeverry-v1";
+const ECHEVERRY_QUESTION_COUNT = 50;
 const ROOM_TTL_MS = 12 * 60 * 60 * 1000;
 const SOCKET_EVENT_LIMIT = 60;
 const SOCKET_EVENT_WINDOW_MS = 10_000;
@@ -373,6 +376,7 @@ function finishGame(room, reason) {
 function publicSnapshot(room) {
   return {
     code: room.code,
+    mode: room.mode ?? "standard",
     status: room.status,
     hostId: room.hostId,
     createdAt: room.createdAt,
@@ -563,6 +567,8 @@ export class GameRoom extends DurableObject {
     ctx.blockConcurrencyWhile(async () => {
       this.room = (await ctx.storage.get("room")) ?? null;
 
+      if (this.room) this.room.mode ??= "standard";
+
       if (this.room && !this.room.settings) {
         this.room.settings = { ...DEFAULT_ROOM_SETTINGS };
       }
@@ -699,10 +705,13 @@ export class GameRoom extends DurableObject {
     }
 
     const name = nameResult.value;
+    const mode = parsed.data?.mode ?? "standard";
+    if (!ROOM_MODES.includes(mode)) return json({ error: "INVALID_ROOM_MODE" }, 400);
 
     const now = Date.now();
     this.room = {
       code,
+      mode,
       status: "lobby",
       hostId: playerId,
       createdAt: new Date(now).toISOString(),
@@ -1054,7 +1063,9 @@ export class GameRoom extends DurableObject {
         ws.send(JSON.stringify({ type: "error", error: "ROOM_NOT_READY" }));
         return;
       }
-      if (event?.deckVersion !== DECK_VERSION) {
+      const expectedDeckVersion = this.room.mode === "echeverry"
+        ? ECHEVERRY_DECK_VERSION : DECK_VERSION;
+      if (event?.deckVersion !== expectedDeckVersion) {
         ws.send(
           JSON.stringify({ type: "error", error: "DECK_VERSION_MISMATCH" }),
         );
@@ -1062,7 +1073,8 @@ export class GameRoom extends DurableObject {
       }
 
       const questionPool = validateQuestionPool(event?.questionPool);
-      if (!questionPool) {
+      if (!questionPool || (this.room.mode === "echeverry" &&
+        questionPool.some((index) => index >= ECHEVERRY_QUESTION_COUNT))) {
         ws.send(JSON.stringify({ type: "error", error: "INVALID_QUESTION_POOL" }));
         return;
       }
@@ -1071,7 +1083,7 @@ export class GameRoom extends DurableObject {
         questionPool[secureRandomIndex(questionPool.length)];
       this.room.status = "playing";
       this.room.game = {
-        deckVersion: DECK_VERSION,
+        deckVersion: expectedDeckVersion,
         questionPool,
         currentPlayerId:
           this.room.players[secureRandomIndex(this.room.players.length)].id,
@@ -1569,6 +1581,8 @@ async function createRoom(request, env) {
   }
 
   const name = nameResult.value;
+  const mode = parsed.data?.mode ?? "standard";
+  if (!ROOM_MODES.includes(mode)) return json({ error: "INVALID_ROOM_MODE" }, 400);
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const code = randomRoomCode();
@@ -1580,7 +1594,7 @@ async function createRoom(request, env) {
       new Request("https://room/internal/init", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ code, name, playerId, token }),
+        body: JSON.stringify({ code, name, playerId, token, mode }),
       }),
     );
 
