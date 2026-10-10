@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import specialContent from "./special-metadata.mjs";
+import { FAMILY_QUESTION_RULES } from "./family-rules.mjs";
 import {
   AGE_BANDS,
   consumeFixedWindow,
@@ -1044,6 +1045,10 @@ export class GameRoom extends DurableObject {
         return;
       }
 
+      if (this.room.mode === "echeverry" && event.settings.groupType !== "family") {
+        socketError(ws, "INVALID_SETTINGS");
+        return;
+      }
       this.room.settings = normalizeRoomSettings(event.settings);
       for (const member of this.room.players) {
         member.ready = false;
@@ -1074,7 +1079,11 @@ export class GameRoom extends DurableObject {
 
       const questionPool = validateQuestionPool(event?.questionPool);
       if (!questionPool || (this.room.mode === "echeverry" &&
-        questionPool.some((index) => index >= ECHEVERRY_QUESTION_COUNT))) {
+        questionPool.some((index) => {
+          const rule = FAMILY_QUESTION_RULES[index];
+          return !rule || rule.minAge > this.room.settings.youngestAge ||
+            rule.intensity > this.room.settings.maxIntensity;
+        }))) {
         ws.send(JSON.stringify({ type: "error", error: "INVALID_QUESTION_POOL" }));
         return;
       }
