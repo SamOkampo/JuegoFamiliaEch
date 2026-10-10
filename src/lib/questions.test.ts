@@ -74,3 +74,40 @@ test("age and intensity filters exclude questions above the selected limits", ()
     assert.ok(question.audiences.includes("friends"));
   }
 });
+
+test("new Colombian themes are balanced, optional and age-appropriate", () => {
+  for (const category of ["espiritualidad", "chismes", "amores", "fiestas"] as const) {
+    assert.equal(QUESTIONS.filter((item) => item.category === category).length, 10);
+  }
+  assert.ok(QUESTIONS.some((item) => item.text.includes("primera traga")));
+  assert.ok(QUESTIONS.some((item) => item.text.includes("primer novio o novia")));
+  assert.ok(QUESTIONS.some((item) => item.text.includes("primera borrachera")));
+
+  const alcoholQuestions = QUESTIONS.filter((item) =>
+    /borrachera|pasó de tragos/i.test(item.text),
+  );
+  assert.equal(alcoholQuestions.length, 2);
+  assert.ok(alcoholQuestions.every((item) =>
+    item.minAge === 18 && item.intensity === 3 && item.category === "fiestas",
+  ));
+
+  for (const age of [8, 12, 16] as const) {
+    const indexes = getQuestionPoolIndexes(QUESTIONS, {
+      groupType: "family", youngestAge: age, maxIntensity: 3,
+    });
+    assert.ok(indexes.every((index) => QUESTIONS[index].minAge < 18));
+  }
+  const adultIndexes = getQuestionPoolIndexes(QUESTIONS, {
+    groupType: "family", youngestAge: 18, maxIntensity: 3,
+  });
+  assert.equal(adultIndexes.filter((index) => QUESTIONS[index].minAge === 18).length, 2);
+});
+
+test("spiritual and gossip questions offer non-coercive conversation choices", () => {
+  const spiritual = QUESTIONS.filter((item) => item.category === "espiritualidad");
+  const gossip = QUESTIONS.filter((item) => item.category === "chismes");
+  assert.equal(spiritual.length, 10);
+  assert.equal(gossip.length, 10);
+  assert.ok(spiritual.some((item) => /fe|Dios|oración|espiritualidad/i.test(item.text)));
+  assert.ok(gossip.some((item) => /chisme|malentendido|rumor/i.test(item.text)));
+});
