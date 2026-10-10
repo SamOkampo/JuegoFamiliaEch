@@ -901,7 +901,13 @@ export default function RoomPage() {
             {room ? (
               isHost ? (
                 <div className="filterGrid">
-                  <label>
+                  {room.mode === "echeverry" ? (
+                    <div className="familyModeFixed">
+                      <strong>Modo familiar 💛</strong>
+                      <span>Preguntas inspiradas en las reuniones y conversaciones de los Echeverry.</span>
+                    </div>
+                  ) : (
+                    <label>
                     Grupo
                     <select
                       value={room.settings.groupType}
@@ -922,6 +928,7 @@ export default function RoomPage() {
                       ))}
                     </select>
                   </label>
+                  )}
 
                   <label>
                     Persona más joven
