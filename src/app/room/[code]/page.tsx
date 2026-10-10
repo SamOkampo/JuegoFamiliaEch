@@ -69,6 +69,7 @@ export default function RoomPage() {
   const [mySpecialChoice, setMySpecialChoice] = useState<string | null>(null);
   const [specialContributed, setSpecialContributed] = useState(false);
   const [chosenSpecial, setChosenSpecial] = useState<SpecialKind>("likely");
+  const [confirmFinish, setConfirmFinish] = useState(false);
   const [displayUrl, setDisplayUrl] = useState("");
   const [displayFeedback, setDisplayFeedback] = useState("");
   const turnSignatureRef = useRef<string | null>(null);
@@ -219,6 +220,7 @@ export default function RoomPage() {
 
     turnSignatureRef.current = signature;
     setListenMode(false);
+    setConfirmFinish(false);
     const prior = personalStateRef.current;
     const sameTurn = prior?.turnNumber === room.game.turnNumber;
     setMyReaction(sameTurn ? prior.reaction : null);
@@ -833,13 +835,29 @@ export default function RoomPage() {
           ) : null}
 
           {isHost ? (
-            <button
-              type="button"
-              className="textButton dangerTextButton"
-              onClick={finishGame}
-            >
-              Terminar partida
-            </button>
+            <div className="finishGameControls">
+              {!confirmFinish ? (
+                <button
+                  type="button"
+                  className="textButton dangerTextButton"
+                  onClick={() => setConfirmFinish(true)}
+                >
+                  Terminar partida
+                </button>
+              ) : (
+                <div className="finishConfirm" role="group" aria-label="Confirmar cierre de partida">
+                  <p>¿Cerrar la partida para todos? Podrás empezar otra ronda con el mismo código.</p>
+                  <div className="finishConfirmActions">
+                    <button type="button" className="button secondary" onClick={() => setConfirmFinish(false)}>
+                      Seguir jugando
+                    </button>
+                    <button type="button" className="button primary" onClick={finishGame}>
+                      Sí, terminar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : null}
         </section>
       ) : (
