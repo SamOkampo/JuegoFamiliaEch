@@ -128,10 +128,10 @@ export function SpecialRoundCard({
                     </div>
                   </div>
                 ))}
-              <p className="specialHint">¡Ya pueden comentar por qué eligieron así!</p>
+              <p className="specialHint">¡Ahora sí, suelten el cuento! ¿Por qué votaron así?</p>
             </div>
           ) : readonly ? (
-            <p className="specialWaiting">Votos ocultos. El anfitrión revelará el resultado.</p>
+            <p className="specialWaiting">Los votos están guardaditos. Quien armó la sala revela cuando estén listos.</p>
           ) : (
             <>
               <div className="specialVoteGrid">
