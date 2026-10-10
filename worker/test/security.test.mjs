@@ -170,3 +170,26 @@ test("special-round controls validate mode, timing and vote choices", () => {
     true,
   );
 });
+
+test("editorial packs reject spoofed names, duplicates and invalid settings", () => {
+  const base = {
+    groupType: "family",
+    youngestAge: 8,
+    maxIntensity: 1,
+    specialEvery: 3,
+    specialModes: ["likely", "everyone", "challenge", "chain", "gold"],
+  };
+  assert.equal(validateRoomSettings({ ...base, specialPacks: ["classic", "fiesta", "conexiones"] }), true);
+  assert.equal(validateRoomSettings({ ...base, specialPacks: [] }), true);
+  assert.equal(validateRoomSettings({ ...base, specialPacks: ["fiesta", "fiesta"] }), false);
+  assert.equal(validateRoomSettings({ ...base, specialPacks: ["unknown"] }), false);
+  assert.equal(validateRoomSettings({ ...base, specialPacks: "classic" }), false);
+  assert.equal(validateClientEvent({
+    type: "settings",
+    settings: { ...base, specialPacks: ["conexiones"] },
+  }).ok, true);
+  assert.equal(validateClientEvent({
+    type: "settings",
+    settings: { ...base, specialPacks: ["<script>"] },
+  }).ok, false);
+});
