@@ -8,6 +8,7 @@ export const AGE_BANDS = [8, 12, 16];
 export const INTENSITIES = [1, 2, 3];
 export const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
 export const SPECIAL_KINDS = ["likely", "everyone", "challenge", "chain", "gold"];
+export const SPECIAL_PACKS = ["classic", "fiesta", "conexiones"];
 
 const FORBIDDEN_NAME_CHARS =
   /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/u;
@@ -83,7 +84,12 @@ export function validateRoomSettings(value) {
       (Array.isArray(value.specialModes) &&
         value.specialModes.length <= 5 &&
         new Set(value.specialModes).size === value.specialModes.length &&
-        value.specialModes.every((kind) => SPECIAL_KINDS.includes(kind))))
+        value.specialModes.every((kind) => SPECIAL_KINDS.includes(kind)))) &&
+    (value.specialPacks === undefined ||
+      (Array.isArray(value.specialPacks) &&
+        value.specialPacks.length <= 3 &&
+        new Set(value.specialPacks).size === value.specialPacks.length &&
+        value.specialPacks.every((pack) => SPECIAL_PACKS.includes(pack))))
   );
 }
 

@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Verify server metadata matches editorial catalog
+        run: node scripts/generate-special-worker-metadata.mjs --check
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -44,6 +47,9 @@ jobs:
 
       - name: Five special rounds integration smoke
         run: npm run test:special:cloudflare
+
+      - name: Special content filtering and no-repetition integration smoke
+        run: npm run test:special:content:cloudflare
 
       - name: Validate Worker syntax
         run: node --check worker/src/index.js

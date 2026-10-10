@@ -139,16 +139,19 @@ Criterios:
 - [x] Revalidar listo/no listo y conservar configuración antes de la siguiente partida.
 - [x] Recuperar votos, reacciones y recuerdos propios tras una reconexión sin exponer datos individuales.
 - [x] Confirmación para finalizar partida y soporte de movimiento reducido.
-- [ ] Integración en main y verificación de despliegue Cloudflare.
+- [x] PR #15 fusionado en main, CI y despliegue Cloudflare verificados.
 
 ## Fase 13 — Contenido y variedad
 
-Después de probar y pulir el juego base:
-- [ ] Ampliar y equilibrar las cartas especiales (actualmente cuatro por modalidad).
-- [ ] Añadir etiquetas de grupo, edad e intensidad para cada carta especial.
-- [ ] Evitar repeticiones frecuentes de rondas y tarjetas especiales.
-- [ ] Añadir más packs y variedades editoriales según resultados de beta.
-- [ ] Revisar las preguntas con grupos humanos reales.
+- [x] Catálogo original de 100 cartas especiales, 20 por modalidad, sin duplicados normalizados.
+- [x] Tres packs disponibles: Clásicos, Fiesta y Conexiones, con selección sincronizada.
+- [x] Etiquetas y filtrado por grupo, edad mínima (8/12/16) e intensidad (1/2/3) por carta.
+- [x] Conteos de cartas compatibles visibles en el lobby y cero sorpresas cuando no hay cartas elegibles.
+- [x] Rotación de cartas sin repetición hasta agotar el conjunto compatible, con protección contra repeticiones consecutivas.
+- [x] Validación editorial automatizada, matriz de filtros, smoke contra Cloudflare y reglas de contenido documentadas.
+- [ ] Gate final de CI verde + PR fusionado + despliegue backend/frontend verificado.
+
+La revisión con grupos humanos de distintas edades se realizará en la beta presencial (Fase 14), no puede validarse con CI.
 
 ## Expansión futura (posterior a validación)
 

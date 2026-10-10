@@ -2229,3 +2229,81 @@ input {
 @media (max-width: 450px) {
   .finishConfirmActions .button { flex: 1; }
 }
+
+/* Fase 13 — editorial packs with clear filtering feedback. */
+.specialPackFieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid rgba(91, 57, 43, 0.16);
+}
+.specialPackFieldset legend {
+  padding: 0 7px 0 0;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+.specialPackGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.specialPackChoice {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  min-height: 115px;
+  border: 1px solid rgba(88, 57, 44, 0.18);
+  border-radius: 17px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.specialPackChoice:has(input:checked) {
+  background: #fff7ef;
+  border-color: rgba(173, 91, 60, 0.65);
+  box-shadow: inset 0 0 0 1px rgba(173, 91, 60, 0.25);
+}
+.specialPackChoice input {
+  margin-top: 2px;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  accent-color: #b65b44;
+}
+.specialPackChoice span {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.specialPackChoice strong { font-size: 0.94rem; }
+.specialPackChoice small { color: #716055; font-size: 0.77rem; line-height: 1.4; }
+.specialPackChoice em { font-style: normal; color: #9b5239; font-size: 0.77rem; font-weight: 850; }
+.specialCatalogCount {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(182, 91, 68, 0.15);
+  border-radius: 14px;
+  background: #fff8f0;
+  color: #60483c;
+  font-size: 0.91rem;
+}
+.specialCatalogCount strong {
+  color: #a64f38;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.specialToggle small { color: #906451; font-weight: 750; }
+@media (hover: hover) and (pointer: fine) {
+  .specialPackChoice:hover { transform: translateY(-2px); }
+}
+@media (max-width: 740px) {
+  .specialPackGrid { grid-template-columns: 1fr; }
+  .specialPackChoice { min-height: 70px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .specialPackChoice { transition: none !important; }
+}

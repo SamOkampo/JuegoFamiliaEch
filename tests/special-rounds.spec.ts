@@ -8,7 +8,8 @@ test("host can configure all five surprise modes from mobile lobby", async ({ pa
 
   const section = page.getByRole("region", { name: "Rondas especiales" });
   await expect(section).toBeVisible();
-  await expect(section.getByRole("checkbox")).toHaveCount(5);
+  await expect(section.locator(".specialModeGrid").getByRole("checkbox")).toHaveCount(5);
+  await expect(section.locator(".specialPackGrid").getByRole("checkbox")).toHaveCount(3);
 
   for (const label of [
     "¿Quién es más probable?",
@@ -19,6 +20,19 @@ test("host can configure all five surprise modes from mobile lobby", async ({ pa
   ]) {
     await expect(section.getByRole("checkbox", { name: label })).toBeChecked();
   }
+
+  for (const pack of ["Clásicos", "Fiesta", "Conexiones"]) {
+    await expect(section.getByRole("checkbox", { name: new RegExp(pack) })).toBeChecked();
+  }
+
+  const activeCount = section.locator(".specialCatalogCount strong");
+  const baselineCount = Number(await activeCount.innerText());
+  expect(baselineCount).toBeGreaterThan(0);
+
+  await section.getByRole("checkbox", { name: /Fiesta/i }).uncheck();
+  await expect(section.getByRole("checkbox", { name: /Fiesta/i })).not.toBeChecked();
+  await expect.poll(async () => Number(await activeCount.innerText())).toBeLessThan(baselineCount);
+  await section.getByRole("checkbox", { name: /Fiesta/i }).check();
 
   const frequency = section.getByLabel("Frecuencia");
   await expect(frequency).toHaveValue("3");

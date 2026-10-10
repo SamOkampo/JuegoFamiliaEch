@@ -1,0 +1,1537 @@
+{
+  "version": "special-v3-100",
+  "packs": [
+    {
+      "id": "classic",
+      "label": "Clásicos",
+      "description": "Rompehielos y conversaciones para cualquier reunión."
+    },
+    {
+      "id": "fiesta",
+      "label": "Fiesta",
+      "description": "Retos creativos, votos divertidos y planes compartidos."
+    },
+    {
+      "id": "conexiones",
+      "label": "Conexiones",
+      "description": "Momentos tranquilos, historias y vínculos."
+    }
+  ],
+  "cards": {
+    "likely": [
+      {
+        "id": "likely-01",
+        "prompt": "¿Quién es más probable que llegue tarde a su propia boda?",
+        "hint": "Elige a alguien del grupo, sin revelar tu voto todavía.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-02",
+        "prompt": "¿Quién es más probable que organice un viaje sorpresa?",
+        "hint": "Todos votan en secreto desde sus teléfonos.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-03",
+        "prompt": "¿Quién es más probable que se convierta en una celebridad?",
+        "hint": "Vota por alguien de la sala; puede ser por algo muy divertido.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-04",
+        "prompt": "¿Quién es más probable que se ría en un momento solemne?",
+        "hint": "Los resultados aparecen cuando el anfitrión los revela.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-05",
+        "prompt": "¿Quién es más probable que conozca a todo el mundo en una fiesta?",
+        "hint": "Piensa en quién hace amigos incluso en la fila del supermercado.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-06",
+        "prompt": "¿Quién es más probable que invente una receta deliciosa por accidente?",
+        "hint": "Un voto por talento culinario, ¡o por imaginación desbordada!",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-07",
+        "prompt": "¿Quién es más probable que pierda algo que tiene en la mano?",
+        "hint": "No se vale revelar los votos antes de tiempo.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-08",
+        "prompt": "¿Quién es más probable que gane un concurso de baile improvisado?",
+        "hint": "Elige con cariño; después pueden contar por qué.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "likely-09",
+        "prompt": "¿Quién es más probable que convierta un día normal en una aventura?",
+        "hint": "Todos eligen en secreto y el grupo conoce el resultado al final.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-10",
+        "prompt": "¿Quién es más probable que empiece a cantar en una reunión?",
+        "hint": "Piensa en esa persona que nunca deja pasar una buena canción.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-11",
+        "prompt": "¿Quién es más probable que se aprenda todas las frases de una película?",
+        "hint": "No hace falta demostrarlo: un voto y una sonrisa bastan.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-12",
+        "prompt": "¿Quién es más probable que haga reír a todo el grupo con una sola mirada?",
+        "hint": "Elige sin presionar a nadie para explicar su voto.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-13",
+        "prompt": "¿Quién es más probable que prepare el mejor picnic sorpresa?",
+        "hint": "Piensa en quién disfrutaría organizando cada detalle.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-14",
+        "prompt": "¿Quién es más probable que invente una tradición para este grupo?",
+        "hint": "Cada persona vota; luego cuenten cuál sería esa tradición.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "likely-15",
+        "prompt": "¿Quién es más probable que se convierta en guía de un viaje improvisado?",
+        "hint": "Vota por quien siempre encuentra un camino interesante.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "likely-16",
+        "prompt": "¿Quién es más probable que recuerde una conversación de hace diez años?",
+        "hint": "Elige a alguien con buena memoria para las historias.",
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "likely-17",
+        "prompt": "¿Quién es más probable que emprenda una idea poco convencional?",
+        "hint": "Voten con optimismo; lo inesperado también tiene su encanto.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "likely-18",
+        "prompt": "¿Quién es más probable que anime al grupo cuando un plan sale mal?",
+        "hint": "Un voto para reconocer a quien levanta el ánimo.",
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "likely-19",
+        "prompt": "¿Quién es más probable que escriba un libro sobre sus aventuras?",
+        "hint": "Imaginen el título de ese libro después de votar.",
+        "seconds": 30,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "likely-20",
+        "prompt": "¿Quién es más probable que sorprenda a todos con una habilidad secreta?",
+        "hint": "Pueden votar sin revelar qué habilidad imaginan.",
+        "seconds": 30,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      }
+    ],
+    "everyone": [
+      {
+        "id": "everyone-01",
+        "prompt": "¿Qué plan elegiría este grupo para un día libre?",
+        "hint": "Cada persona elige una opción; después vemos cómo quedó el grupo.",
+        "choices": [
+          "Playa 🏖️",
+          "Montaña ⛰️"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-02",
+        "prompt": "¿Cuál prefieren para una noche juntos?",
+        "hint": "No hay respuesta correcta: ¡el grupo decide!",
+        "choices": [
+          "Película 🎬",
+          "Juegos 🎲"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-03",
+        "prompt": "¿Una aventura inesperada o un plan tranquilo?",
+        "hint": "Vota antes de revelar el resultado.",
+        "choices": [
+          "Aventura 🚀",
+          "Relax 🧘"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-04",
+        "prompt": "¿Qué harían primero si ganaran un viaje?",
+        "hint": "Todos participan desde su propio celular.",
+        "choices": [
+          "Explorar 🗺️",
+          "Comer rico 🍽️"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-05",
+        "prompt": "¿Qué prefieren cocinar un domingo entre todos?",
+        "hint": "Cada opción vale: piensen en el olor de esa comida.",
+        "choices": [
+          "Pizza 🍕",
+          "Pasta 🍝"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-06",
+        "prompt": "¿Qué música abriría una fiesta de este grupo?",
+        "hint": "Voten en secreto y luego pongan a sonar el estilo ganador.",
+        "choices": [
+          "Salsa 💃",
+          "Pop 🎤"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-07",
+        "prompt": "¿Qué actividad les alegraría más una tarde lluviosa?",
+        "hint": "Elijan su favorita; no hay empates malos.",
+        "choices": [
+          "Cocinar 🥣",
+          "Jugar 🎲"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-08",
+        "prompt": "¿Qué animal elegirían como mascota imaginaria del grupo?",
+        "hint": "La mascota no tiene que ser real: solo divertida.",
+        "choices": [
+          "Gato 🐈",
+          "Perro 🐕"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "everyone-09",
+        "prompt": "¿Dónde celebrarían una fecha especial?",
+        "hint": "Todos eligen y después comparan las razones.",
+        "choices": [
+          "En casa 🏠",
+          "Afuera 🌃"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-10",
+        "prompt": "¿Qué harían en una escapada de último minuto?",
+        "hint": "Piensen en cómo quieren sentirse ese día.",
+        "choices": [
+          "Pueblo 🏡",
+          "Ciudad 🌆"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-11",
+        "prompt": "¿Qué preferirían aprender juntos este mes?",
+        "hint": "Después de votar pueden convertir la idea en plan.",
+        "choices": [
+          "Baile 🕺",
+          "Cocina 👩‍🍳"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-12",
+        "prompt": "¿Cuál sería la mejor banda sonora de una aventura?",
+        "hint": "Nada de respuestas correctas: solo gustos distintos.",
+        "choices": [
+          "Rock 🎸",
+          "Electrónica 🎧"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-13",
+        "prompt": "¿Con qué empezarían una mañana libre?",
+        "hint": "Elijan el plan que más les entusiasme hoy.",
+        "choices": [
+          "Desayuno 🥞",
+          "Paseo 🚶"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-14",
+        "prompt": "¿Qué recuerdo nuevo les gustaría crear pronto?",
+        "hint": "Voten y conversen sobre cómo hacerlo realidad.",
+        "choices": [
+          "Foto grupal 📷",
+          "Excursión 🌳"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "everyone-15",
+        "prompt": "¿Qué experiencia probarían por primera vez?",
+        "hint": "Una votación para descubrir nuevas curiosidades.",
+        "choices": [
+          "Teatro 🎭",
+          "Concierto 🎵"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "everyone-16",
+        "prompt": "¿Qué prefieren cuando alguien quiere sorprenderlos?",
+        "hint": "No hay obligación de contar historias privadas.",
+        "choices": [
+          "Plan secreto 🎁",
+          "Plan hablado 💬"
+        ],
+        "seconds": 30,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "everyone-17",
+        "prompt": "¿Cuál sería el mejor final para un viaje inolvidable?",
+        "hint": "Comparen cómo imagina cada persona un gran cierre.",
+        "choices": [
+          "Atardecer 🌅",
+          "Fogata 🔥"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "everyone-18",
+        "prompt": "¿Qué valoran más de un encuentro entre amigos?",
+        "hint": "La pregunta no clasifica personas: solo preferencias.",
+        "choices": [
+          "Risas 😂",
+          "Conversar 💬"
+        ],
+        "seconds": 30,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "everyone-19",
+        "prompt": "¿Qué les gustaría hacer juntos el próximo año?",
+        "hint": "Pueden transformar la elección en una meta común.",
+        "choices": [
+          "Aprender 📚",
+          "Viajar ✈️"
+        ],
+        "seconds": 30,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "everyone-20",
+        "prompt": "¿Qué elegirían para celebrar un logro compartido?",
+        "hint": "Revelen la votación y propongan una celebración.",
+        "choices": [
+          "Cena 🍽️",
+          "Excursión 🥾"
+        ],
+        "seconds": 30,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      }
+    ],
+    "challenge": [
+      {
+        "id": "challenge-01",
+        "prompt": "Imita con cariño a alguien de tu familia durante 15 segundos.",
+        "hint": "Solo si te sientes cómodo. Puedes omitir el reto sin explicar nada.",
+        "seconds": 15,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-02",
+        "prompt": "Cuenta una anécdota graciosa de hace años en 20 segundos.",
+        "hint": "Una historia que pueda contar todo el mundo. Se puede pasar.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-03",
+        "prompt": "Haz tu mejor actuación de presentador de noticias contando una buena noticia familiar.",
+        "hint": "Tienes 20 segundos; no hace falta hacerlo perfecto.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-04",
+        "prompt": "Haz que el grupo se ría usando únicamente gestos.",
+        "hint": "Sin presión: si no te apetece, pasa a la siguiente ronda.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-05",
+        "prompt": "Representa tu animal favorito sin usar palabras.",
+        "hint": "Quien no quiera actuar puede pasar sin dar explicaciones.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-06",
+        "prompt": "Inventa el nombre de una película sobre este grupo.",
+        "hint": "Si quieres, agrega el género y la escena inicial.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-07",
+        "prompt": "Describe un objeto imaginario como si lo vendieras por televisión.",
+        "hint": "Vale improvisar con humor; nadie tiene que comprar nada.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-08",
+        "prompt": "Di tres cosas que te hacen sonreír hoy.",
+        "hint": "Pueden ser pequeñas o sorprendentes; compartir es opcional.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "challenge-09",
+        "prompt": "Crea un saludo especial de cinco segundos para el grupo.",
+        "hint": "Las personas pueden copiarlo o simplemente aplaudir.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-10",
+        "prompt": "Cuenta una historia breve que empiece con «No van a creer esto».",
+        "hint": "Puedes inventarla si prefieres no revelar experiencias personales.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-11",
+        "prompt": "Presenta a otra persona como si fuera una estrella de cine.",
+        "hint": "Hazlo con respeto y pídele permiso antes de actuar.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-12",
+        "prompt": "Inventa un comercial de diez segundos para una fruta.",
+        "hint": "Las ideas absurdas también son bienvenidas.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-13",
+        "prompt": "Dibuja un objeto en el aire y deja que lo adivinen.",
+        "hint": "Es un reto sin puntos ni penalizaciones.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-14",
+        "prompt": "Elige una palabra y explica por qué te da risa.",
+        "hint": "Puedes cambiar la palabra si te parece difícil.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "challenge-15",
+        "prompt": "Cuenta un chiste corto que sea apto para todo el grupo.",
+        "hint": "También puedes contar una ocurrencia inventada.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "challenge-16",
+        "prompt": "Describe un lugar que te gustaría visitar como si estuvieras allí.",
+        "hint": "Puedes imaginarlo sin contar nada privado.",
+        "seconds": 20,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "challenge-17",
+        "prompt": "Crea el título de una canción para recordar este encuentro.",
+        "hint": "Si te nace, tararea una melodía breve.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "challenge-18",
+        "prompt": "Explica una idea imposible con total seriedad durante veinte segundos.",
+        "hint": "¡Entre más creativa, mejor! También puedes pasar.",
+        "seconds": 20,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "challenge-19",
+        "prompt": "Representa con gestos cómo celebras una buena noticia.",
+        "hint": "El objetivo es compartir alegría, no hacerlo perfecto.",
+        "seconds": 20,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "challenge-20",
+        "prompt": "Invita al grupo a un brindis imaginario por algo positivo.",
+        "hint": "Cada persona decide libremente si quiere participar.",
+        "seconds": 20,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      }
+    ],
+    "chain": [
+      {
+        "id": "chain-01",
+        "prompt": "Un viaje que todavía recordamos: construyamos la historia entre todos.",
+        "hint": "Una persona empieza y las demás añaden un detalle. Marca «Ya participé» cuando aportes algo.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-02",
+        "prompt": "Un momento en que nos reímos muchísimo.",
+        "hint": "Cada persona suma una pieza del recuerdo. No hace falta escribir la historia.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-03",
+        "prompt": "La celebración más inolvidable que compartimos.",
+        "hint": "Turnos libres para recordar detalles; cada uno puede participar o pasar.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-04",
+        "prompt": "Un día común que terminó siendo especial.",
+        "hint": "Reconstruyan juntos qué pasó, dónde estaban y qué sintieron.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-05",
+        "prompt": "Recuerden el juego favorito que compartían cuando eran más pequeños.",
+        "hint": "Si no todos se conocen, pueden inventar juntos un juego nuevo.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-06",
+        "prompt": "Reconstruyan una comida inolvidable que hayan compartido.",
+        "hint": "Cada uno aporta un sabor, persona o conversación.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-07",
+        "prompt": "Inventen entre todos la historia del objeto que está más cerca.",
+        "hint": "Se permite hacer ficción si no tienen recuerdos compartidos.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-08",
+        "prompt": "Empiecen una historia con «Todo comenzó con una llamada…».",
+        "hint": "Cada persona añade una frase, sin obligación de participar.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "chain-09",
+        "prompt": "¿Cuál fue la reunión más divertida que recuerdan?",
+        "hint": "Todos aportan un detalle, incluso quienes llegaron después.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-10",
+        "prompt": "Construyan una historia donde cada persona agrega un personaje.",
+        "hint": "Escuchen lo anterior antes de introducir el siguiente detalle.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-11",
+        "prompt": "Recuerden cómo conocieron a alguien importante de este grupo.",
+        "hint": "Quien no estuvo puede preguntar o imaginar un detalle.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-12",
+        "prompt": "Inventen un viaje en tren que nadie pueda olvidar.",
+        "hint": "Una frase por persona hace crecer la aventura.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-13",
+        "prompt": "Armen una historia sobre una sorpresa que salió mejor de lo esperado.",
+        "hint": "Se vale mezclar recuerdos y ficción, sin engañar a nadie.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-14",
+        "prompt": "Construyan juntos una historia usando tres palabras que elijan.",
+        "hint": "Cada persona puede aportar una oración y pasar el turno.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "chain-15",
+        "prompt": "Recuerden una canción que los reúna como grupo.",
+        "hint": "Agreguen un recuerdo relacionado con la melodía.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "chain-16",
+        "prompt": "Imaginen que se reencuentran en una ciudad dentro de veinte años.",
+        "hint": "Cada uno cuenta qué ve y a quién saluda.",
+        "seconds": 60,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "chain-17",
+        "prompt": "Compartan una tradición que les gustaría mantener en el futuro.",
+        "hint": "Construyan entre todos cómo sería el siguiente encuentro.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "chain-18",
+        "prompt": "Escriban oralmente el comienzo de una película sobre su amistad.",
+        "hint": "Una persona introduce la escena y las demás continúan.",
+        "seconds": 60,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "chain-19",
+        "prompt": "Reconstruyan un desafío que resolvieron en equipo.",
+        "hint": "Cada quien aporta una acción, sin señalar culpables.",
+        "seconds": 60,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "chain-20",
+        "prompt": "Inventen la historia de una carta que viajó por muchos lugares.",
+        "hint": "Cada persona decide una nueva etapa del recorrido.",
+        "seconds": 60,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      }
+    ],
+    "gold": [
+      {
+        "id": "gold-01",
+        "prompt": "Dile a alguien del grupo algo que admiras de esa persona.",
+        "hint": "Puede ser algo pequeño. Nadie está obligado a compartir.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-02",
+        "prompt": "Agradece a alguien por un gesto que quizás pasó desapercibido.",
+        "hint": "Un momento para hablar con calma. También puedes pasar.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-03",
+        "prompt": "Comparte una cualidad del grupo que te haga sentir acompañado.",
+        "hint": "Lo importante es escucharse, no hacerlo perfecto.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-04",
+        "prompt": "Si pudieras guardar un instante con estas personas, ¿cuál sería?",
+        "hint": "Una carta para cerrar los ojos y recordar. Sin presión.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-05",
+        "prompt": "¿Qué detalle sencillo de este encuentro quisieras recordar mañana?",
+        "hint": "No hace falta dar una respuesta profunda ni explicar por qué.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-06",
+        "prompt": "Dedica una frase amable a alguien de la sala.",
+        "hint": "Puede ser una frase breve o un agradecimiento sincero.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-07",
+        "prompt": "¿Qué pequeño gesto te hace sentir bienvenido cuando llegas a un lugar?",
+        "hint": "Comparte solo lo que te nazca; también puedes escuchar.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-08",
+        "prompt": "Nombra una cosa buena que ocurrió esta semana.",
+        "hint": "Puede ser algo cotidiano como una conversación agradable.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "mixed"
+        ],
+        "pack": "classic"
+      },
+      {
+        "id": "gold-09",
+        "prompt": "¿Qué enseñanza positiva recibiste de alguien que admiras?",
+        "hint": "No hace falta mencionar nombres si prefieres reservarlos.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-10",
+        "prompt": "Comparte un lugar donde te guste conversar con calma.",
+        "hint": "Describe el ambiente sin necesidad de decir dónde está.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-11",
+        "prompt": "¿Qué cualidad quisieras que nunca faltara en este grupo?",
+        "hint": "Todas las respuestas respetuosas son válidas.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-12",
+        "prompt": "Envía un deseo amable para el próximo encuentro.",
+        "hint": "Puedes decirlo en voz alta o simplemente sonreír.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "friends",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-13",
+        "prompt": "¿Qué recuerdo compartido te inspira gratitud hoy?",
+        "hint": "Nadie tiene que compartir nada personal para participar.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-14",
+        "prompt": "Piensa en una fortaleza de alguien que está aquí.",
+        "hint": "Menciona la fortaleza solo si te resulta cómodo.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "fiesta"
+      },
+      {
+        "id": "gold-15",
+        "prompt": "¿Cuál fue una sorpresa agradable que recibiste últimamente?",
+        "hint": "Puede ser mínima, cotidiana y sin detalles privados.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 1,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "gold-16",
+        "prompt": "¿Qué significa para ti sentir que te escuchan?",
+        "hint": "Puedes responder con una sola palabra o pasar.",
+        "seconds": 45,
+        "minAge": 8,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "gold-17",
+        "prompt": "¿En qué momento te sentiste orgulloso de aprender algo nuevo?",
+        "hint": "No hace falta contar logros grandes ni compararse.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "gold-18",
+        "prompt": "¿Qué gesto te gustaría ofrecer más a quienes aprecias?",
+        "hint": "La intención importa más que hacer promesas públicas.",
+        "seconds": 45,
+        "minAge": 12,
+        "intensity": 2,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "gold-19",
+        "prompt": "¿Qué frase te gustaría escuchar al terminar un día difícil?",
+        "hint": "Elige palabras amables sin exigir respuestas a nadie.",
+        "seconds": 45,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      },
+      {
+        "id": "gold-20",
+        "prompt": "¿Qué te gustaría celebrar del tiempo que comparten hoy?",
+        "hint": "Cierra la ronda agradeciendo algo que sí esté presente.",
+        "seconds": 45,
+        "minAge": 16,
+        "intensity": 3,
+        "audiences": [
+          "family",
+          "friends",
+          "couple",
+          "mixed"
+        ],
+        "pack": "conexiones"
+      }
+    ]
+  }
+}
