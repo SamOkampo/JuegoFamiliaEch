@@ -2,12 +2,16 @@
   "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "juego-familia-ech",
   "main": "src/index.js",
-  "compatibility_date": "2026-10-05",
+  "compatibility_date": "2026-10-06",
   "durable_objects": {
     "bindings": [
       {
         "name": "GAME_ROOMS",
         "class_name": "GameRoom"
+      },
+      {
+        "name": "RATE_LIMITS",
+        "class_name": "RateLimiter"
       }
     ]
   },
@@ -15,9 +19,14 @@
     "GameRoom": {
       "type": "durable-object",
       "storage": "sqlite"
+    },
+    "RateLimiter": {
+      "type": "durable-object",
+      "storage": "sqlite"
     }
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "redact_query_string": true
   }
 }
