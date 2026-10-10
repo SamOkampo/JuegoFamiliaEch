@@ -12,13 +12,13 @@ Rondas disponibles:
 4. **Recuerdo en cadena.** El grupo reconstruye una historia en voz alta; cada persona puede marcar «Ya participé». No se guarda lo dicho.
 5. **Carta dorada.** Consigna especial de agradecimiento o reconocimiento, completamente opcional.
 
-Se incluyen **20 cartas originales** (cuatro por modo).
+Se incluyen **100 cartas originales** (20 por modo) en tres colecciones: **Clásicos, Fiesta y Conexiones**. Cada carta tiene metadatos de edad, intensidad y audiencia. Consulta `docs/PHASE_13_CONTENT.md`.
 
 ## Frecuencia, controles y ritmo
 
 - Nuevo lobby: sorpresas automáticas **cada tres turnos** por defecto, o modo manual.
-- El anfitrión puede desmarcar cualquier tipo; si no quedan tipos activos, no se insertan sorpresas.
-- Las sorpresas automáticas rotan entre los modos habilitados y se activan al iniciar el turno correspondiente.
+- El anfitrión puede desmarcar tipos y packs; si los filtros dejan cero cartas elegibles, no se insertan sorpresas.
+- Las sorpresas automáticas buscan modalidades habilitadas y compatibles, priorizando una distinta de la última cuando hay alternativas. Las cartas elegibles se consumen sin repetición antes de reiniciar el ciclo.
 - El anfitrión también puede lanzar una sorpresa manual cuando la pregunta normal todavía no se ha revelado.
 - Durante una sorpresa, el anfitrión o la persona del turno puede avanzar. El reto nunca bloquea la partida por tiempo.
 - El cronómetro es **orientativo**, sin penalizaciones ni saltos automáticos.
