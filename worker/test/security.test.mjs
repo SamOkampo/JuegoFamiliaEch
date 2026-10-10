@@ -193,3 +193,15 @@ test("editorial packs reject spoofed names, duplicates and invalid settings", ()
     settings: { ...base, specialPacks: ["<script>"] },
   }).ok, false);
 });
+
+test("adult age band is explicit and server-validated", () => {
+  const settings = {
+    groupType: "family", youngestAge: 18, maxIntensity: 3,
+    specialEvery: 3,
+    specialModes: ["likely", "everyone"],
+    specialPacks: ["classic", "conexiones"],
+  };
+  assert.equal(validateRoomSettings(settings), true);
+  assert.equal(validateRoomSettings({ ...settings, youngestAge: 17 }), false);
+  assert.equal(validateRoomSettings({ ...settings, youngestAge: "adult" }), false);
+});
