@@ -22,10 +22,10 @@ test("player names normalize safely and reject controls/spoofing characters", ()
 });
 
 test("question pools reject duplicates and out-of-range indexes", () => {
-  assert.deepEqual(validateQuestionPool([0, 2, 159]), [0, 2, 159]);
+  assert.deepEqual(validateQuestionPool([0, 2, 209]), [0, 2, 159]);
   assert.equal(validateQuestionPool([0, 0]), null);
   assert.equal(validateQuestionPool([-1, 2]), null);
-  assert.equal(validateQuestionPool([0, 160]), null);
+  assert.equal(validateQuestionPool([0, 210]), null);
 });
 
 test("room settings are strict", () => {
