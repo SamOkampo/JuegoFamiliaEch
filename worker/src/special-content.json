@@ -224,6 +224,7 @@
         "intensity": 1,
         "audiences": [
           "family",
+          "friends",
           "couple",
           "mixed"
         ],
@@ -570,6 +571,7 @@
         "intensity": 1,
         "audiences": [
           "family",
+          "friends",
           "couple",
           "mixed"
         ],
@@ -876,6 +878,7 @@
         "intensity": 1,
         "audiences": [
           "family",
+          "friends",
           "couple",
           "mixed"
         ],
@@ -1162,6 +1165,7 @@
         "intensity": 1,
         "audiences": [
           "family",
+          "friends",
           "couple",
           "mixed"
         ],
@@ -1448,6 +1452,7 @@
         "intensity": 1,
         "audiences": [
           "family",
+          "friends",
           "couple",
           "mixed"
         ],
