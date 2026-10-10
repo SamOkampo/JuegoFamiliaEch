@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { calculateVoteOutcome } from "@/lib/vote-results";
 import { SPECIAL_CARDS, SPECIAL_EMOJI, SPECIAL_LABELS, type SpecialKind } from "@/lib/special-rounds";
 import type { RoomPlayer, SpecialSnapshot } from "@/lib/realtime";
 
@@ -55,6 +56,7 @@ export function SpecialRoundCard({
 
   const tallies = special.revealed ? special.tally ?? {} : {};
   const maximum = Math.max(1, ...Object.values(tallies));
+  const outcome = calculateVoteOutcome(special.revealed ? tallies : null, choices);
   const accent = special.kind === "gold" ? "gold" : special.kind;
   const totalVoters = players.length;
 
@@ -94,6 +96,24 @@ export function SpecialRoundCard({
           </p>
           {special.revealed ? (
             <div className="specialResults" aria-label="Resultados de la votación">
+              <div className="specialOutcome" role="status" aria-live="polite">
+                <span className="specialOutcomeEyebrow">RESULTADO REVELADO</span>
+                <strong>
+                  {outcome.isEmpty
+                    ? "Esta vez no hubo votos por opciones"
+                    : outcome.isTie
+                      ? "¡Tenemos empate!"
+                      : "La opción más votada"}
+                </strong>
+                {!outcome.isEmpty ? (
+                  <p>{outcome.winners.join(" · ")}</p>
+                ) : null}
+                {outcome.abstentions > 0 ? (
+                  <p className="specialAbstentions">
+                    {outcome.abstentions} {outcome.abstentions === 1 ? "persona prefirió pasar" : "personas prefirieron pasar"}.
+                  </p>
+                ) : null}
+              </div>
               {choices
                 .slice()
                 .sort((a, b) => (tallies[b.id] ?? 0) - (tallies[a.id] ?? 0))
@@ -127,8 +147,20 @@ export function SpecialRoundCard({
                   </button>
                 ))}
               </div>
+              <button
+                type="button"
+                className={"specialVoteChoice specialAbstain " + (myChoice === "abstain" ? "selected" : "")}
+                aria-pressed={myChoice === "abstain"}
+                onClick={() => onVote?.("abstain")}
+              >
+                {myChoice === "abstain" ? "✓ " : ""}Prefiero pasar
+              </button>
               {myChoice ? (
-                <p className="specialHint" role="status">Tu voto está enviado. Puedes cambiarlo antes de revelar.</p>
+                <p className="specialHint" role="status">
+                  {myChoice === "abstain"
+                    ? "Has decidido pasar. Puedes cambiar tu elección antes de revelar."
+                    : "Tu voto está enviado. Puedes cambiarlo antes de revelar."}
+                </p>
               ) : null}
             </>
           )}
