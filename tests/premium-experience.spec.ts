@@ -4,21 +4,21 @@ test("quick tutorial walks through three steps and is remembered locally", async
   await page.goto("/online");
   const guide = page.getByRole("region", { name: "Guía para jugar" });
   await expect(guide).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Reúnanse en una sala" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Armen el parche" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Siguiente paso" }).click();
-  await expect(guide.getByRole("heading", { name: "Prepárense y revelen" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Échenle ojo a la pregunta" })).toBeVisible();
   await guide.getByRole("button", { name: "Siguiente paso" }).click();
-  await expect(guide.getByRole("heading", { name: "Hablen, sorpréndanse y repitan" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "¡A echar cuento sin afán!" })).toBeVisible();
 
   await guide.getByRole("button", { name: "¡Entendido!" }).click();
-  await expect(guide.getByRole("heading", { name: "Hablen, sorpréndanse y repitan" })).toHaveCount(0);
+  await expect(guide.getByRole("heading", { name: "¡A echar cuento sin afán!" })).toHaveCount(0);
 
   await page.reload();
   await expect(guide.getByRole("button", { name: "Ver cómo jugar" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Ver cómo jugar" }).click();
-  await expect(guide.getByRole("heading", { name: "Reúnanse en una sala" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Armen el parche" })).toBeVisible();
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect.poll(
