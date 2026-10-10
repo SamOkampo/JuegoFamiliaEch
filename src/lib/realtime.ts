@@ -1,4 +1,4 @@
-import type { SpecialKind } from "./special-rounds";
+import type { SpecialKind, SpecialPack } from "./special-rounds";
 import type {
   AgeBand,
   GroupType,
@@ -23,6 +23,7 @@ export type RoomSettings = {
   maxIntensity: QuestionIntensity;
   specialEvery: 0 | 3;
   specialModes: SpecialKind[];
+  specialPacks: SpecialPack[];
 };
 
 export type SpecialSnapshot = {
@@ -320,6 +321,7 @@ export function roomErrorMessage(code: string): string {
       "Demasiadas acciones seguidas. Espera unos segundos e inténtalo otra vez.",
     GAME_NOT_FINISHED: "Primero termina la partida para volver al lobby.",
     SPECIAL_DISABLED: "Esta ronda especial está desactivada por el anfitrión.",
+    SPECIAL_NO_ELIGIBLE_CARD: "Ninguna carta de esta modalidad cumple los filtros actuales. Cambia el pack, la edad o la intensidad.",
     SPECIAL_NOT_AVAILABLE: "Esta ronda ya terminó o todavía no está disponible.",
     SPECIAL_ACTIVE: "Termina u omite primero la ronda sorpresa.",
     INVALID_SPECIAL: "La ronda sorpresa elegida no es válida.",
