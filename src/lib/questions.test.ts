@@ -11,9 +11,9 @@ import {
   type QuestionFilter,
 } from "./questions";
 
-test("core deck contains 160 original question records", () => {
-  assert.equal(QUESTIONS.length, 160);
-  assert.equal(new Set(QUESTIONS.map((question) => question.id)).size, 160);
+test("core deck contains 210 Colombian original question records", () => {
+  assert.equal(QUESTIONS.length, 210);
+  assert.equal(new Set(QUESTIONS.map((question) => question.id)).size, 210);
 });
 
 test("question texts are unique after editorial normalization", () => {
@@ -23,24 +23,22 @@ test("question texts are unique after editorial normalization", () => {
   assert.equal(new Set(normalized).size, QUESTIONS.length);
 });
 
-test("every category has exactly 20 questions", () => {
+test("eight original categories have 20 questions, childhood 30, and four new categories have 10", () => {
   const categories = Object.keys(
     QUESTION_CATEGORY_LABELS,
   ) as QuestionCategory[];
 
   for (const category of categories) {
-    assert.equal(
-      QUESTIONS.filter((question) => question.category === category).length,
-      20,
-      category,
-    );
+    const expected = category === "infancia" ? 30 :
+      ["espiritualidad", "chismes", "amores", "fiestas"].includes(category) ? 10 : 20;
+    assert.equal(QUESTIONS.filter((q) => q.category === category).length, expected, category);
   }
 });
 
 test("question metadata stays within supported editorial bounds", () => {
   for (const question of QUESTIONS) {
     assert.ok([1, 2, 3].includes(question.intensity), question.id);
-    assert.ok([8, 12, 16].includes(question.minAge), question.id);
+    assert.ok([8, 12, 16, 18].includes(question.minAge), question.id);
     assert.ok(question.audiences.length > 0, question.id);
     assert.ok(question.text.length >= 20, question.id);
     assert.ok(question.text.length <= 180, question.id);
