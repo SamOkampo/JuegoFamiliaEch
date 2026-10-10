@@ -144,6 +144,8 @@ Criterios:
 ## Fase 13 — Contenido y variedad
 
 - [x] Catálogo original de 100 cartas especiales, 20 por modalidad, sin duplicados normalizados.
+- [x] Mazo principal ampliado a 210 preguntas con infancia colombiana, espiritualidad, chismes sanos, primeros amores y fiestas.
+- [x] Filtro de sala **18+** para anécdotas de tragos y protección por edad e intensidad.
 - [x] Tres packs disponibles: Clásicos, Fiesta y Conexiones, con selección sincronizada.
 - [x] Etiquetas y filtrado por grupo, edad mínima (8/12/16) e intensidad (1/2/3) por carta.
 - [x] Conteos de cartas compatibles visibles en el lobby y cero sorpresas cuando no hay cartas elegibles.
