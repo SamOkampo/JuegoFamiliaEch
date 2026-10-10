@@ -126,7 +126,7 @@ export function validateClientEvent(event) {
         : { ok: false, error: "INVALID_SETTINGS" };
 
     case "start":
-      if (event.deckVersion !== DECK_VERSION) {
+      if (![DECK_VERSION, "echeverry-v1"].includes(event.deckVersion)) {
         return { ok: false, error: "DECK_VERSION_MISMATCH" };
       }
       return validateQuestionPool(event.questionPool)

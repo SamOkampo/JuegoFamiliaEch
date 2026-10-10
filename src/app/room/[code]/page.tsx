@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import QRCode from "qrcode";
+import { FAMILY_ECHEVERRY_QUESTIONS, ECHEVERRY_DECK_VERSION, echeverryQuestionPool } from "@/lib/family-echeverry";
 import { SpecialRoundCard } from "@/components/special-round-card";
 import {
   SPECIAL_KINDS, SPECIAL_LABELS, SPECIAL_PACKS, SPECIAL_PACK_LABELS,
@@ -264,17 +265,20 @@ export default function RoomPage() {
       !room?.game ||
       !room.game.revealed ||
       room.game.questionIndex === null ||
-      QUESTIONS.length === 0
+      (room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS.length : QUESTIONS.length) === 0
     ) {
       return undefined;
     }
-    return QUESTIONS[room.game.questionIndex % QUESTIONS.length];
+    const deck = room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS : QUESTIONS;
+    return deck[room.game.questionIndex % deck.length];
   }, [room]);
 
   const questionPool = useMemo(
     () =>
       room
-        ? getQuestionPoolIndexes(QUESTIONS, room.settings)
+        ? room.mode === "echeverry"
+          ? echeverryQuestionPool(room.settings)
+          : getQuestionPoolIndexes(QUESTIONS, room.settings)
         : [],
     [room],
   );
@@ -383,7 +387,7 @@ export default function RoomPage() {
   function startGame() {
     if (!room) return;
 
-    const pool = getQuestionPoolIndexes(QUESTIONS, room.settings);
+    const pool = questionPool;
     if (pool.length < 2) {
       setError("Los filtros dejaron muy pocas preguntas. Ajusta la ronda.");
       return;
@@ -391,7 +395,7 @@ export default function RoomPage() {
 
     const sent = sendRoomEvent(socketRef.current, {
       type: "start",
-      deckVersion: QUESTION_DECK_VERSION,
+      deckVersion: room.mode === "echeverry" ? ECHEVERRY_DECK_VERSION : QUESTION_DECK_VERSION,
       questionPool: pool,
     });
     if (!sent) setError("Todavía no estás conectado a la sala.");
@@ -524,7 +528,7 @@ export default function RoomPage() {
     <main className="shell roomShell" id="main-content">
       <header className="roomHeader">
         <div>
-          <p className="eyebrow">SALA</p>
+          <p className="eyebrow">{room?.mode === "echeverry" ? "FAMILIA ECHEVERRY" : "SALA"}</p>
           <button
             className="roomCode"
             type="button"
@@ -608,7 +612,7 @@ export default function RoomPage() {
               <p className="eyebrow">LA HUELLA DE ESTA RONDA</p>
               <div className="savedMomentList">
                 {room.game.savedMoments.map((moment) => {
-                  const savedQuestion = QUESTIONS[moment.questionIndex];
+                  const savedQuestion = (room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS : QUESTIONS)[moment.questionIndex];
                   const savedPlayer = room.players.find(
                     (player) => player.id === moment.playerId,
                   );
@@ -718,9 +722,11 @@ export default function RoomPage() {
               <>
                 <div className="cardMeta">
                   <span>pregunta oculta</span>
-                  <span>
-                    {room.game.usedQuestionCount} de {room.game.questionPoolSize}
-                  </span>
+                  {room.mode === "echeverry" ? (
+                    <span>Familia Echeverry 💛</span>
+                  ) : (
+                    <span>{room.game.usedQuestionCount} de {room.game.questionPoolSize}</span>
+                  )}
                 </div>
                 <p className="hiddenPrompt">
                   {canControlTurn
@@ -885,7 +891,7 @@ export default function RoomPage() {
           <section className="contentSettings" aria-label="Configurar preguntas">
             <div>
               <p className="eyebrow">TIPO DE RONDA</p>
-              <strong>210 preguntas pa’ recordar, reírse y conocernos sin afán.</strong>
+              <strong>{room?.mode === "echeverry" ? "Historias, chismes sanos y primeros amores de los Echeverry." : "210 preguntas pa’ recordar, reírse y conocernos sin afán."}</strong>
               <p className="muted">
                 Si el anfitrión cambia un filtro, todos vuelven a “No listo”
                 para confirmar la nueva ronda.
@@ -895,7 +901,13 @@ export default function RoomPage() {
             {room ? (
               isHost ? (
                 <div className="filterGrid">
-                  <label>
+                  {room.mode === "echeverry" ? (
+                    <div className="familyModeFixed">
+                      <strong>Modo familiar 💛</strong>
+                      <span>Preguntas inspiradas en las reuniones y conversaciones de los Echeverry.</span>
+                    </div>
+                  ) : (
+                    <label>
                     Grupo
                     <select
                       value={room.settings.groupType}
@@ -916,6 +928,7 @@ export default function RoomPage() {
                       ))}
                     </select>
                   </label>
+                  )}
 
                   <label>
                     Persona más joven
@@ -974,17 +987,20 @@ export default function RoomPage() {
               Elige «Solo adultos (18+)» únicamente si nadie en la sala es menor de edad.
               Ahí pueden salir historias de fiestas y tragos; siempre se vale pasar.
             </p>
-            <p className="poolCount" role="status">
-              <strong>{questionPool.length}</strong> preguntas disponibles con
-              estos filtros.
-            </p>
+            {room?.mode !== "echeverry" ? (
+              <p className="poolCount" role="status">
+                <strong>{questionPool.length}</strong> preguntas disponibles con estos filtros.
+              </p>
+            ) : (
+              <p className="muted">Las preguntas aparecen durante la partida. Siempre puedes pasar.</p>
+            )}
           </section>
 
           {room ? (
             <section className="contentSettings specialSettings" aria-label="Rondas especiales">
               <div>
                 <p className="eyebrow">RONDA SORPRESA</p>
-                <strong>100 cartas sorpresa en 3 colecciones, con sabor colombiano.</strong>
+                <strong>{room.mode === "echeverry" ? "Sorpresas para reír y conversar juntos." : "100 cartas sorpresa en 3 colecciones, con sabor colombiano."}</strong>
                 <p className="muted">
                   Cada pack y modalidad se adapta a la edad, intensidad y tipo de grupo que elijan.
                 </p>
@@ -1023,17 +1039,19 @@ export default function RoomPage() {
                             <span>
                               <strong>{SPECIAL_PACK_LABELS[pack]}</strong>
                               <small>{SPECIAL_PACK_DESCRIPTIONS[pack]}</small>
-                              <em>{count} cartas para estos filtros</em>
+                              {room.mode === "echeverry" ? null : <em>{count} cartas para estos filtros</em>}
                             </span>
                           </label>
                         );
                       })}
                     </div>
                   </fieldset>
-                  <p className="specialCatalogCount" role="status">
-                    <strong>{countSpecialCards(activeSpecialSettings ?? room.settings)}</strong>
-                    {" "}cartas especiales compatibles con el grupo
-                  </p>
+                  {room.mode !== "echeverry" ? (
+                    <p className="specialCatalogCount" role="status">
+                      <strong>{countSpecialCards(activeSpecialSettings ?? room.settings)}</strong>
+                      {" "}cartas especiales compatibles con el grupo
+                    </p>
+                  ) : null}
                   <div className="specialModeGrid">
                     {SPECIAL_KINDS.map((kind) => (
                       <label className="specialToggle" key={kind}>
@@ -1048,7 +1066,7 @@ export default function RoomPage() {
                             updateRoomSettings({ specialModes: [...modes] });
                           }}
                         />
-                        <span>{SPECIAL_LABELS[kind]} <small>({countSpecialCards(activeSpecialSettings ?? room.settings, kind)})</small></span>
+                        <span>{SPECIAL_LABELS[kind]} {room.mode === "echeverry" ? null : <small>({countSpecialCards(activeSpecialSettings ?? room.settings, kind)})</small>}</span>
                       </label>
                     ))}
                   </div>
@@ -1062,8 +1080,7 @@ export default function RoomPage() {
                   {room.settings.specialEvery === 3 ? "Cada 3 turnos" : "Manual"}
                   {" · "}
                   {room.settings.specialPacks.map((pack) => SPECIAL_PACK_LABELS[pack]).join(", ") || "Sin packs"}
-                  {" · "}
-                  {countSpecialCards(room.settings)} cartas compatibles
+                  {room.mode === "echeverry" ? null : <>{" · "}{countSpecialCards(room.settings)} cartas compatibles</>}
                 </p>
               )}
               <p className="momentPrivacy">

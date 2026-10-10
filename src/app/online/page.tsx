@@ -12,11 +12,13 @@ import {
   normalizeRoomCode,
   roomErrorMessage,
   saveRoomSession,
+  type RoomMode,
 } from "@/lib/realtime";
 
 export default function OnlinePage() {
   const router = useRouter();
   const [createName, setCreateName] = useState("");
+  const [roomMode, setRoomMode] = useState<RoomMode>("standard");
   const [joinName, setJoinName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
@@ -41,7 +43,7 @@ export default function OnlinePage() {
     setBusy("create");
     setError("");
     try {
-      const { session } = await createOnlineRoom(name);
+      const { session } = await createOnlineRoom(name, roomMode);
       saveRoomSession(session);
       router.push("/room/" + session.code);
     } catch (cause) {
@@ -107,6 +109,19 @@ export default function OnlinePage() {
               Recibirás un código de seis caracteres y un QR para compartir.
             </p>
           </div>
+          <fieldset className="familyModeChooser">
+            <legend>¿Qué vamos a jugar?</legend>
+            <label className={"familyModeOption " + (roomMode === "standard" ? "selected" : "")}>
+              <input type="radio" name="room-mode" value="standard"
+                checked={roomMode === "standard"} onChange={() => setRoomMode("standard")} />
+              <span><strong>Juego para todos</strong><small>Preguntas y sorpresas para cualquier grupo.</small></span>
+            </label>
+            <label className={"familyModeOption " + (roomMode === "echeverry" ? "selected" : "")}>
+              <input type="radio" name="room-mode" value="echeverry"
+                checked={roomMode === "echeverry"} onChange={() => setRoomMode("echeverry")} />
+              <span><strong>Familia Echeverry 💛</strong><small>Chismes sanos, primeros amores, primeras veces y recuerdos de familia.</small></span>
+            </label>
+          </fieldset>
           <label htmlFor="create-name">Tu nombre</label>
           <input
             id="create-name"
