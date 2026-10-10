@@ -6,7 +6,7 @@ El mazo de JuegoFamiliaEch es contenido original del proyecto. No se copian ni s
 
 ## Estructura del mazo
 
-La versión `core-v2-160` contiene 160 preguntas: 20 por cada una de ocho categorías.
+La versión `core-v3-210-co` contiene 210 preguntas: las ocho categorías originales, una ampliación de infancia colombiana y cuatro nuevas categorías (fe y espiritualidad, chismes sanos, primeros amores, fiestas y anécdotas).
 
 - Recuerdos
 - Infancia
@@ -82,3 +82,7 @@ Cambios editoriales que alteren índices del mazo requieren cambiar `QUESTION_DE
 - Todos los retos se pueden pasar; abstenerse en votaciones está permitido.
 - CI verifica la unicidad de preguntas, metadatos y cobertura de combinaciones. El ensayo editorial con grupos humanos queda pendiente de la beta presencial.
 - Fuente de verdad: `worker/src/special-content.json`. Guía de aceptación: `docs/PHASE_13_CONTENT.md`.
+
+## Edad adulta opcional
+
+El filtro **Solo adultos (18+)** debe elegirse únicamente si todos los participantes tienen 18 años o más. Las preguntas relativas a embriaguez se restringen a edad mínima 18 e intensidad 3. Nadie está obligado a responder, y el juego no graba las respuestas.
