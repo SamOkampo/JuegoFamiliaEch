@@ -108,7 +108,7 @@ async function makeRoom(tag, settings) {
   await execute(guestWs, "ready", { ready: true },
     (room) => room.canStart, "guest ready");
   const start = await execute(hostWs, "start", {
-    deckVersion: "core-v2-160",
+    deckVersion: "core-v3-210-co",
     questionPool: Array.from({length:32}, (_, i) => i),
   }, (room) => room.status === "playing" && room.game?.turnNumber === 1,
   "game starts");
