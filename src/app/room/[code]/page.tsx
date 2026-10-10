@@ -103,12 +103,10 @@ export default function RoomPage() {
       if (payload.type === "private-state") {
         const privateState = payload as PrivatePlayerState & { type: "private-state" };
         personalStateRef.current = privateState;
-        if (privateState.turnNumber !== null) {
-          setMyReaction(privateState.reaction);
-          setMomentSaved(privateState.saved);
-          setMySpecialChoice(privateState.specialChoice);
-          setSpecialContributed(privateState.contributed);
-        }
+        setMyReaction(privateState.reaction);
+        setMomentSaved(privateState.saved);
+        setMySpecialChoice(privateState.specialChoice);
+        setSpecialContributed(privateState.contributed);
         return;
       }
 
@@ -211,6 +209,7 @@ export default function RoomPage() {
   useEffect(() => {
     if (!room?.game || room.status !== "playing") {
       turnSignatureRef.current = null;
+      personalStateRef.current = null;
       return;
     }
 
