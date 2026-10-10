@@ -15,7 +15,7 @@ const groups = ["family", "friends", "couple", "mixed"] as const;
 const normalize = (value: string) => value.toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
 test("100 distinct original special cards across five kinds and three packs", () => {
-  assert.equal(SPECIAL_DECK_VERSION, "special-v3-100");
+  assert.equal(SPECIAL_DECK_VERSION, "special-v4-100-co");
   assert.deepEqual(SPECIAL_PACKS, ["classic", "fiesta", "conexiones"]);
   const ids = new Set<string>();
   const prompts = new Set<string>();

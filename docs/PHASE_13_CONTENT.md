@@ -9,7 +9,7 @@ El catálogo único de origen es `worker/src/special-content.json`. El frontend 
 - 100 cartas especiales originales: **20 por cada una** de las cinco modalidades.
 - Tres colecciones seleccionables: **Clásicos (40), Fiesta (30), Conexiones (30)**.
 - Cada carta tiene ID único estable, texto, instrucción, tiempo orientativo, grupo, edad mínima (8/12/16), intensidad (1/2/3), pack y dos opciones en votaciones de «Todos responden».
-- Versión del contenido: `special-v3-100`; las 160 preguntas normales permanecen en `core-v2-160`.
+- Versión del contenido: `special-v4-100-co`; las 210 preguntas principales permanecen en `core-v3-210-co`.
 
 ### Clásicos
 Preguntas y dinámicas fáciles de empezar que funcionan como rompehielos. Incluye versiones aptas para 8 años y nivel ligero.
@@ -55,3 +55,13 @@ En el lobby se ve el número de cartas elegibles por pack y por modalidad. Cuand
 - Publicación del backend y frontend a Cloudflare tras gates verdes.
 
 **Fuera de Fase 13:** sesiones de prueba con menores y grupos familiares reales, registro de feedback y cambios editoriales derivados; son gates de la beta de Fase 14.
+
+## Edición colombiana y más historias familiares
+
+- El mazo principal crece a **210 preguntas**, con nuevas categorías: **Fe y espiritualidad**, **Chismes sanos**, **Primeros amores** y **Fiestas y anécdotas**; más 10 nuevas preguntas de infancia.
+- Las formulaciones son conversacionales, familiares y accesibles: recreo, onces, paseo de olla, traga, parche y cuentos de barrio, sin usar jerga en todas las frases.
+- Las preguntas de religión no presuponen creencias; se acepta una respuesta filosófica o personal.
+- Los chismes deben ser inocentes y no exponer la intimidad de personas ausentes.
+- Dos anécdotas sobre consumo excesivo de alcohol están marcadas **18+, intensidad 3** y solo aparecen cuando el anfitrión declara que nadie en la sala es menor de edad; el filtro no verifica identidades.
+- Se reescribieron 22 cartas especiales para un registro más cercano, manteniendo 100 cartas y tres colecciones.
+- Fuente y versión del mazo normal: `src/lib/questions.ts`, `core-v3-210-co`; fuente del especial: `worker/src/special-content.json`, `special-v4-100-co`.

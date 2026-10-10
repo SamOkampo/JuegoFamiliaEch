@@ -1,10 +1,10 @@
 export const MAX_JSON_BODY_BYTES = 4096;
 export const MAX_WS_MESSAGE_BYTES = 2048;
 export const PLAYER_NAME_MAX_LENGTH = 24;
-export const QUESTION_COUNT = 160;
-export const DECK_VERSION = "core-v2-160";
+export const QUESTION_COUNT = 210;
+export const DECK_VERSION = "core-v3-210-co";
 export const GROUP_TYPES = ["family", "friends", "couple", "mixed"];
-export const AGE_BANDS = [8, 12, 16];
+export const AGE_BANDS = [8, 12, 16, 18];
 export const INTENSITIES = [1, 2, 3];
 export const REACTION_TYPES = ["heart", "laugh", "clap", "wow"];
 export const SPECIAL_KINDS = ["likely", "everyone", "challenge", "chain", "gold"];

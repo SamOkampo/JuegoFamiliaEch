@@ -6,17 +6,17 @@ const STORAGE_KEY = "jfe:quick-tour:v1";
 const STEPS = [
   {
     symbol: "①",
-    title: "Reúnanse en una sala",
+    title: "Armen el parche",
     body: "Una persona crea la sala. Las demás escanean el QR o escriben el código desde su teléfono.",
   },
   {
     symbol: "②",
-    title: "Prepárense y revelen",
+    title: "Échenle ojo a la pregunta",
     body: "El anfitrión elige el ambiente. Todos marcan Estoy listo. Cuando toca responder, la pregunta aparece para todos.",
   },
   {
     symbol: "③",
-    title: "Hablen, sorpréndanse y repitan",
+    title: "¡A echar cuento sin afán!",
     body: "Dejen el celular mientras alguien cuenta su historia. Prueben las sorpresas y, al terminar, jueguen otra ronda en la misma sala.",
   },
 ] as const;
