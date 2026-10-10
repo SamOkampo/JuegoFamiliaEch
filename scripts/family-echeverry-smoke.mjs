@@ -107,7 +107,7 @@ try {
   const inappropriate = await action(hostWs, {
     type: "start",
     deckVersion: "echeverry-v1",
-    questionPool: [0, 1],
+    questionPool: [0, 14],
   }, (x) => x.type === "error" && x.error === "INVALID_QUESTION_POOL",
   "under-age prompt blocked");
   assert(inappropriate.error === "INVALID_QUESTION_POOL",
