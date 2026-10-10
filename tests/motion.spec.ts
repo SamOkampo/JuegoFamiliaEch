@@ -6,7 +6,7 @@ test("arrival motion is visible in normal mode and disabled when motion is reduc
   await page.goto("/online");
 
   const title = page.getByRole("heading", {
-    name: "Cada persona, su teléfono. Una sola conversación.",
+    name: "Cada persona, su celular. ¡Y que salgan los buenos cuentos!",
   });
   await expect(title).toBeVisible();
 
