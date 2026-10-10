@@ -85,3 +85,12 @@ Fase 10 no se declara cerrada todavía. El siguiente paso técnico de mayor impa
 - Las acciones son voluntarias y no se guarda contenido hablado.
 - Documento completo: `docs/SPECIAL_ROUNDS.md`.
 - Pendiente comprobar CI, desplegar Worker, pasar smoke especial y fusionar frontend.
+
+## Fase 13 — Edición colombiana y variedad
+
+- Rama de trabajo `phase-13-special-content-packs` y PR #18.
+- 100 cartas especiales (tres packs) y 210 preguntas principales (versión `core-v3-210-co`).
+- Más historias de infancia, fe y espiritualidad inclusiva, chismes sanos, primeros amores y fiestas.
+- Dos preguntas sobre exceso de tragos **solo con edad mínima 18 años, intensidad 3**; no aparecen si el grupo tiene menores declarados.
+- 22 cartas especiales reescritas en registro colombiano (versión `special-v4-100-co`).
+- Pendiente gate CI, Worker desplegado y frontend actualizado; beta física humana no sustituida por pruebas automatizadas.
