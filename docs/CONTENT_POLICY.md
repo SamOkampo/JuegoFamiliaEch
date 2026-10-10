@@ -6,7 +6,7 @@ El mazo de JuegoFamiliaEch es contenido original del proyecto. No se copian ni s
 
 ## Estructura del mazo
 
-La versión `core-v2-160` contiene 160 preguntas: 20 por cada una de ocho categorías.
+La versión `core-v3-210-co` contiene **210 preguntas**, con voz colombiana cercana: ocho categorías originales y cuatro temáticas nuevas, más diez relatos adicionales de infancia.
 
 - Recuerdos
 - Infancia
@@ -16,13 +16,17 @@ La versión `core-v2-160` contiene 160 preguntas: 20 por cada una de ocho catego
 - Nosotros
 - Gratitud
 - Profundas
+- Fe y espiritualidad
+- Chismes sanos
+- Primeros amores
+- Fiestas y anécdotas
 
 Cada pregunta tiene:
 
 - un ID estable;
 - categoría;
 - intensidad 1, 2 o 3;
-- edad mínima editorial: 8, 12 o 16;
+- edad mínima editorial: 8, 12, 16 o 18;
 - tipos de grupo compatibles;
 - texto original.
 
@@ -32,7 +36,7 @@ Cada pregunta tiene:
 
 **Nivel 2 — conectar.** Requiere algo más de reflexión personal, pero no presupone trauma, conflicto ni intimidad sensible. Base editorial 12+.
 
-**Nivel 3 — profundo.** Identidad, decisiones, límites, cambios, sueños o aprendizajes personales. Base editorial 16+. Nunca debe obligar a revelar trauma, salud, sexualidad, religión, política, situación económica o información privada.
+**Nivel 3 — profundo.** Identidad, decisiones, límites, cambios, sueños o aprendizajes personales. Base editorial 16+; los recuerdos relacionados con exceso de alcohol se etiquetan 18+ y requieren un grupo con la persona más joven de al menos 18 años. Nunca debe obligar a revelar trauma, salud, sexualidad, religión, política, situación económica o información privada.
 
 ## Reglas de seguridad editorial
 
@@ -47,7 +51,7 @@ Una pregunta no debe:
 - forzar reconciliación, perdón o contacto con otra persona;
 - convertir temas sensibles en reto, castigo o puntuación.
 
-El jugador siempre puede cambiar una pregunta sin tener que explicar por qué.
+El jugador siempre puede cambiar una pregunta sin tener que explicar por qué. Fe y espiritualidad se plantean de forma inclusiva: se puede hablar de oración, creencias, filosofía o sencillamente esperanza; no se obliga a practicar una religión. El «chisme sano» no debe exponer intimidad de terceros, acusaciones ni humillar. Los primeros amores también se pueden omitir. La anécdota de una primera borrachera es **solo para adultos**, nunca propone beber ni glorifica el exceso.
 
 ## Grupos y edad
 
@@ -59,11 +63,11 @@ Los filtros no son una garantía legal ni sustituyen criterio del anfitrión; so
 
 CI verifica:
 
-- 160 preguntas en el mazo core;
+- 210 preguntas en el mazo core;
 - IDs únicos;
 - textos no duplicados después de normalización;
-- 20 preguntas por categoría;
-- rangos válidos de edad e intensidad;
+- 20 preguntas en cada categoría original salvo Infancia (30); 10 en cada una de las cuatro categorías nuevas;
+- rangos válidos de edad (incluido filtro 18+) e intensidad, más bloqueo automático de preguntas de alcohol cuando hay menores;
 - pools de filtros no vacíos y coherentes.
 
 ## Revisión humana
@@ -81,4 +85,4 @@ Cambios editoriales que alteren índices del mazo requieren cambiar `QUESTION_DE
 - Si no hay cartas elegibles, la ronda no se fuerza ni se sustituye por contenido inadecuado.
 - Todos los retos se pueden pasar; abstenerse en votaciones está permitido.
 - CI verifica la unicidad de preguntas, metadatos y cobertura de combinaciones. El ensayo editorial con grupos humanos queda pendiente de la beta presencial.
-- Fuente de verdad: `worker/src/special-content.json`. Guía de aceptación: `docs/PHASE_13_CONTENT.md`.
+- El mazo especial tiene redacción colombiana amable en 22 cartas y versión `special-v4-100-co`. Fuente de verdad: `worker/src/special-content.json`. Guía de aceptación: `docs/PHASE_13_CONTENT.md`.
