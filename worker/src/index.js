@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import specialContent from "./special-content.json" with { type: "json" };
+import specialContent from "./special-metadata.mjs";
 import {
   AGE_BANDS,
   consumeFixedWindow,
