@@ -16,7 +16,8 @@
     "preview:cloudflare": "npm run build:cloudflare && opennextjs-cloudflare preview",
     "deploy:web": "npm run build:cloudflare && opennextjs-cloudflare deploy",
     "test:special:cloudflare": "node scripts/special-rounds-smoke.mjs",
-    "test:special:content:cloudflare": "node scripts/special-content-smoke.mjs"
+    "test:special:content:cloudflare": "node scripts/special-content-smoke.mjs",
+    "test:family:cloudflare": "node scripts/family-echeverry-smoke.mjs"
   },
   "dependencies": {
     "next": "16.3.8",
