@@ -83,7 +83,7 @@ test("pack selections respect empty or combined sets", () => {
     groupType: "family", youngestAge: 16, maxIntensity: 3,
     specialPacks: ["classic", "fiesta", "conexiones"],
   };
-  assert.equal(countSpecialCards(settings), 94); // some friends-only cards excluded
+  assert.equal(countSpecialCards(settings), 80); // four friends-only cards per mode are excluded
   assert.equal(countSpecialCards({ ...settings, specialPacks: [] }), 0);
   for (const kind of SPECIAL_KINDS) {
     assert.ok(eligibleSpecialCardIndexes(kind, { ...settings, specialPacks: ["classic"] }).length >= 4);
