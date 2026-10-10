@@ -110,8 +110,8 @@ Criterios:
 
 ## Fase 10 — Producción
 
-- [ ] Hosting.
-- [ ] Dominio.
+- [x] Frontend publicado y desplegado automáticamente mediante Cloudflare Workers Builds.
+- [ ] Dominio comercial definitivo.
 - [x] Analítica mínima y respetuosa con logs estructurados de Workers Observability y sin PII de sala.
 - [x] Observabilidad backend + conteo cliente sanitizado de clases de error.
 - [x] Aviso de privacidad y términos beta publicados en `/privacy` y `/terms`.
@@ -128,13 +128,31 @@ Criterios:
 - [x] Retos voluntarios con temporizador orientativo y avance sin penalización.
 - [x] Participación grupal sin almacenar respuestas.
 - [x] Animaciones distintas con soporte de movimiento reducido.
-- [ ] Cerrar tras CI integrado, smoke realtime de sorpresas, merge y despliegue verificado.
+- [x] CI integrado, smoke realtime, PR #14 fusionado y despliegue en Cloudflare verificados.
 
-## Fase 12 — Expansión
+## Fase 12 — Experiencia premium
 
-Solo después de validar el juego base:
-- [ ] Seguimientos opcionales con IA.
-- [ ] Packs adicionales.
+- [x] Guía interactiva de tres pasos, fácil de saltar y volver a abrir.
+- [x] Revelaciones de votación con ganador, empates y resultados vacíos.
+- [x] Abstención voluntaria individual sin marcar ganadores falsos.
+- [x] Reiniciar la partida en la misma sala, sin cambiar código ni participantes.
+- [x] Revalidar listo/no listo y conservar configuración antes de la siguiente partida.
+- [x] Recuperar votos, reacciones y recuerdos propios tras una reconexión sin exponer datos individuales.
+- [x] Confirmación para finalizar partida y soporte de movimiento reducido.
+- [ ] Integración en main y verificación de despliegue Cloudflare.
+
+## Fase 13 — Contenido y variedad
+
+Después de probar y pulir el juego base:
+- [ ] Ampliar y equilibrar las cartas especiales (actualmente cuatro por modalidad).
+- [ ] Añadir etiquetas de grupo, edad e intensidad para cada carta especial.
+- [ ] Evitar repeticiones frecuentes de rondas y tarjetas especiales.
+- [ ] Añadir más packs y variedades editoriales según resultados de beta.
+- [ ] Revisar las preguntas con grupos humanos reales.
+
+## Expansión futura (posterior a validación)
+
+- [ ] Seguimientos opcionales con IA (privacidad/consentimiento por diseñar).
 - [ ] Cuentas opcionales.
-- [ ] Biblioteca de recuerdos.
-- [ ] Monetización.
+- [ ] Biblioteca persistente de recuerdos con consentimiento explícito.
+- [ ] Modelo de monetización validado.
