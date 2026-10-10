@@ -1,4 +1,4 @@
-export const QUESTION_DECK_VERSION = "core-v2-160";
+export const QUESTION_DECK_VERSION = "core-v3-210-co";
 
 export type QuestionCategory =
   | "recuerdos"
@@ -8,11 +8,15 @@ export type QuestionCategory =
   | "suenos"
   | "nosotros"
   | "gratitud"
-  | "profundas";
+  | "profundas"
+  | "espiritualidad"
+  | "chismes"
+  | "amores"
+  | "fiestas";
 
 export type GroupType = "family" | "friends" | "couple" | "mixed";
 export type QuestionIntensity = 1 | 2 | 3;
-export type AgeBand = 8 | 12 | 16;
+export type AgeBand = 8 | 12 | 16 | 18;
 
 export type Question = {
   id: string;
@@ -44,6 +48,10 @@ export const QUESTION_CATEGORY_LABELS: Record<QuestionCategory, string> = {
   nosotros: "Nosotros",
   gratitud: "Gratitud",
   profundas: "Profundas",
+  espiritualidad: "Fe y espiritualidad",
+  chismes: "Chismes sanos",
+  amores: "Primeros amores",
+  fiestas: "Fiestas y anécdotas",
 };
 
 export const GROUP_TYPE_LABELS: Record<GroupType, string> = {
@@ -324,7 +332,7 @@ export const QUESTIONS: Question[] = [
       "friends",
       "mixed"
     ],
-    "text": "¿Qué juego de tu infancia podía entretenerte durante horas?"
+    "text": "¿A qué jugaban por horas en el barrio: golosa, yermis, escondidas o un invento de ustedes?"
   },
   {
     "id": "inf-002",
@@ -360,7 +368,7 @@ export const QUESTIONS: Question[] = [
       "friends",
       "mixed"
     ],
-    "text": "¿Qué merienda o dulce te parecía un premio enorme cuando eras pequeño?"
+    "text": "¿Qué te emocionaba más para las onces: una mogolla, una chocolatina o algo hecho en casa?"
   },
   {
     "id": "inf-005",
@@ -408,7 +416,7 @@ export const QUESTIONS: Question[] = [
       "friends",
       "mixed"
     ],
-    "text": "¿Qué frase de los adultos escuchabas mucho y ahora entiendes diferente?"
+    "text": "¿Qué frase típica de tu mamá, tu papá o tus abuelos te daba risa de niño y hoy repites?"
   },
   {
     "id": "inf-009",
@@ -420,7 +428,7 @@ export const QUESTIONS: Question[] = [
       "friends",
       "mixed"
     ],
-    "text": "¿Qué travesura inocente recuerdas con más detalle?"
+    "text": "¿Qué travesura de infancia te hizo pensar «ahora sí me van a regañar» y terminó en un cuento buenísimo?"
   },
   {
     "id": "inf-010",
@@ -574,7 +582,7 @@ export const QUESTIONS: Question[] = [
       "family",
       "mixed"
     ],
-    "text": "¿Qué frase típica de nuestra familia podría ir estampada en una camiseta?"
+    "text": "¿Qué frase tan colombiana dice alguien en tu familia que merecería estar estampada en una camiseta?"
   },
   {
     "id": "fam-003",
@@ -607,7 +615,7 @@ export const QUESTIONS: Question[] = [
       "family",
       "mixed"
     ],
-    "text": "¿Qué tipo de domingo representa mejor a nuestra familia?"
+    "text": "¿Cómo era el domingo perfecto en tu familia: paseo, almuerzo largo, ciclovía o quedarse en casa?"
   },
   {
     "id": "fam-006",
@@ -785,7 +793,7 @@ export const QUESTIONS: Question[] = [
       "couple",
       "mixed"
     ],
-    "text": "¿Cuál es una metida de pata tuya que ahora puedes contar riéndote?"
+    "text": "A ver, suelta el cuento: ¿cuál fue una metida de pata tuya que hoy te da muchísima risa?"
   },
   {
     "id": "ris-002",
@@ -2073,6 +2081,636 @@ export const QUESTIONS: Question[] = [
       "mixed"
     ],
     "text": "¿Qué conversación te gustaría tener con más calma y menos orgullo?"
+  },
+  {
+    "id": "inf-021",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué era lo mejor del recreo: jugar, comprar algo en la tienda o encontrarte con tus amigos?"
+  },
+  {
+    "id": "inf-022",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Cuál fue ese paseo de olla, paseo familiar o salida del colegio que todavía recuerdas?"
+  },
+  {
+    "id": "inf-023",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué hacías apenas escuchabas que habían llegado las onces?"
+  },
+  {
+    "id": "inf-024",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Quién era el campeón o la campeona de las escondidas en tu cuadra?"
+  },
+  {
+    "id": "inf-025",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué canción, ronda o juego de palmas te sabes todavía sin pensarlo?"
+  },
+  {
+    "id": "inf-026",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Cuál era la disculpa más creativa que inventabas cuando no hacías la tarea?"
+  },
+  {
+    "id": "inf-027",
+    "category": "infancia",
+    "intensity": 2,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué hacía tu abuela, tu abuelo o una persona cercana que te hacía sentir en casa?"
+  },
+  {
+    "id": "inf-028",
+    "category": "infancia",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Recuerdas tu primer día de colegio? ¿Qué fue lo más curioso de ese día?"
+  },
+  {
+    "id": "inf-029",
+    "category": "infancia",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Cuál fue tu primer parche de amigos y qué locuras inocentes hacían?"
+  },
+  {
+    "id": "inf-030",
+    "category": "infancia",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué secreto de infancia era un drama en ese momento y ahora te parece una bobada?"
+  },
+  {
+    "id": "esp-001",
+    "category": "espiritualidad",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Hay una oración, una frase o una idea que te dé tranquilidad cuando tienes un día pesado?"
+  },
+  {
+    "id": "esp-002",
+    "category": "espiritualidad",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué agradeces hoy, así sea algo pequeñito que casi nadie nota?"
+  },
+  {
+    "id": "esp-003",
+    "category": "espiritualidad",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál es una tradición espiritual o familiar que te gusta y por qué?"
+  },
+  {
+    "id": "esp-004",
+    "category": "espiritualidad",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Alguna vez sentiste una paz difícil de explicar en medio de un problema?"
+  },
+  {
+    "id": "esp-005",
+    "category": "espiritualidad",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué te enseñó una persona mayor sobre la fe, la esperanza o la vida?"
+  },
+  {
+    "id": "esp-006",
+    "category": "espiritualidad",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué canción, salmo, reflexión o silencio te ha acompañado en un momento difícil?"
+  },
+  {
+    "id": "esp-007",
+    "category": "espiritualidad",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "Si pudieras hacerle una pregunta a Dios, al universo o a la vida, ¿cuál sería?"
+  },
+  {
+    "id": "esp-008",
+    "category": "espiritualidad",
+    "intensity": 3,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Te ha pasado algo que te haya hecho cambiar tu manera de ver la espiritualidad?"
+  },
+  {
+    "id": "esp-009",
+    "category": "espiritualidad",
+    "intensity": 3,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué significa para ti perdonar sin dejar de cuidarte?"
+  },
+  {
+    "id": "esp-010",
+    "category": "espiritualidad",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué consejo espiritual o de vida te gustaría dejarles a los más pequeños de la familia?"
+  },
+  {
+    "id": "chi-001",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "A ver, chisme sano: ¿qué malentendido del colegio terminó siendo un cuento para reírse?"
+  },
+  {
+    "id": "chi-002",
+    "category": "chismes",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué noticia buena se regó por toda la familia antes de que pudieran contarla?"
+  },
+  {
+    "id": "chi-003",
+    "category": "chismes",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Alguna vez te hicieron una fiesta sorpresa y todo el mundo sabía menos tú?"
+  },
+  {
+    "id": "chi-004",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué chisme inocente del barrio terminó siendo puro cuento?"
+  },
+  {
+    "id": "chi-005",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Cuál es el rumor más absurdo que escuchaste sobre ti y que hoy te da risa?"
+  },
+  {
+    "id": "chi-006",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Cuándo supiste que alguien estaba tragado y se le notaba a kilómetros?"
+  },
+  {
+    "id": "chi-007",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué historia divertida salió de un mensaje enviado al chat equivocado?"
+  },
+  {
+    "id": "chi-008",
+    "category": "chismes",
+    "intensity": 3,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué cosa tuya cree saber toda la familia, pero en realidad la historia es otra?"
+  },
+  {
+    "id": "chi-009",
+    "category": "chismes",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Qué secreto bonito guardaste hasta poder darle una sorpresa a alguien?"
+  },
+  {
+    "id": "chi-010",
+    "category": "chismes",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "mixed"
+    ],
+    "text": "¿Alguna vez dijiste «no le cuente a nadie» y al rato todo el mundo ya sabía?"
+  },
+  {
+    "id": "amo-001",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Te acuerdas de tu primera traga? ¿Qué te gustaba tanto de esa persona?"
+  },
+  {
+    "id": "amo-002",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál fue tu primera serenata, carta o detalle romántico, aunque fuera de colegio?"
+  },
+  {
+    "id": "amo-003",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Alguna vez alguien te gustó y todo el salón se dio cuenta antes que tú?"
+  },
+  {
+    "id": "amo-004",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cómo fue tu primer novio o novia, si te nace compartir esa historia?"
+  },
+  {
+    "id": "amo-005",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál fue la cita más cómica o inesperada que has tenido?"
+  },
+  {
+    "id": "amo-006",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué consejo amoroso te dio una tía o un amigo y resultó útil, o todo lo contrario?"
+  },
+  {
+    "id": "amo-007",
+    "category": "amores",
+    "intensity": 3,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Recuerdas la primera vez que te rompieron el corazón? Puedes pasar si prefieres."
+  },
+  {
+    "id": "amo-008",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué hiciste para llamar la atención de alguien y ahora te da pena de la buena?"
+  },
+  {
+    "id": "amo-009",
+    "category": "amores",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál fue una señal clarísima de que estabas tragado y no lo querías aceptar?"
+  },
+  {
+    "id": "amo-010",
+    "category": "amores",
+    "intensity": 3,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "Si pudieras darle un consejo amable a tu yo de su primer amor, ¿cuál sería?"
+  },
+  {
+    "id": "fie-001",
+    "category": "fiestas",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué canción de una fiesta familiar logra que hasta los más serios bailen?"
+  },
+  {
+    "id": "fie-002",
+    "category": "fiestas",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué celebración terminó en carcajadas por algo completamente inesperado?"
+  },
+  {
+    "id": "fie-003",
+    "category": "fiestas",
+    "intensity": 1,
+    "minAge": 8,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Quién se sabía todos los pasos de baile en las fiestas de antes?"
+  },
+  {
+    "id": "fie-004",
+    "category": "fiestas",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué fiesta de quince, matrimonio o cumpleaños recuerdas por una historia curiosa?"
+  },
+  {
+    "id": "fie-005",
+    "category": "fiestas",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál fue tu primer baile en una fiesta y cómo te fue?"
+  },
+  {
+    "id": "fie-006",
+    "category": "fiestas",
+    "intensity": 2,
+    "minAge": 12,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿En qué fiesta terminaste cantando a grito herido una canción que te sabías completa?"
+  },
+  {
+    "id": "fie-007",
+    "category": "fiestas",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Qué plan de parche prometía ser tranquilo y terminó en tremenda aventura?"
+  },
+  {
+    "id": "fie-008",
+    "category": "fiestas",
+    "intensity": 2,
+    "minAge": 16,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "¿Cuál fue una fiesta que empezó mal y terminó siendo de las mejores?"
+  },
+  {
+    "id": "fie-009",
+    "category": "fiestas",
+    "intensity": 3,
+    "minAge": 18,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "Solo entre adultos: ¿cómo fue tu primera borrachera, si quieres contarla, y qué aprendiste de esa experiencia?"
+  },
+  {
+    "id": "fie-010",
+    "category": "fiestas",
+    "intensity": 3,
+    "minAge": 18,
+    "audiences": [
+      "family",
+      "friends",
+      "couple",
+      "mixed"
+    ],
+    "text": "Solo entre adultos: ¿qué anécdota te dejó una noche en que alguien se pasó de tragos, sin poner a nadie en evidencia?"
   }
 ];
 
