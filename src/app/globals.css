@@ -2213,3 +2213,19 @@ input {
 @media (prefers-reduced-motion: reduce) {
   .quickTourStep, .specialOutcome { animation: none !important; }
 }
+
+.finishGameControls { margin-top: 14px; }
+.finishConfirm {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(182, 91, 68, 0.28);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 245, 235, 0.94);
+}
+.finishConfirm p { margin: 0; line-height: 1.5; font-weight: 700; }
+.finishConfirmActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.finishConfirmActions .button { min-height: 44px; }
+@media (max-width: 450px) {
+  .finishConfirmActions .button { flex: 1; }
+}
