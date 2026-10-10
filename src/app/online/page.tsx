@@ -76,7 +76,7 @@ export default function OnlinePage() {
     <main className="shell" id="main-content">
       <section className="hero">
         <p className="eyebrow">MULTIJUGADOR</p>
-        <h1>Cada persona, su teléfono. Una sola conversación.</h1>
+        <h1>Cada persona, su celular. ¡Y que salgan los buenos cuentos!</h1>
         <p className="lede">
           Crea una sala o entra con el código de alguien que esté contigo.
           No necesitas cuenta.
@@ -102,7 +102,7 @@ export default function OnlinePage() {
         <form className="panel onlineCard" onSubmit={handleCreate}>
           <div>
             <p className="eyebrow">NUEVA SALA</p>
-            <h2>Yo voy a reunir al grupo</h2>
+            <h2>Yo armo el parche</h2>
             <p className="muted">
               Recibirás un código de seis caracteres y un QR para compartir.
             </p>
@@ -128,7 +128,7 @@ export default function OnlinePage() {
         <form className="panel onlineCard" onSubmit={handleJoin}>
           <div>
             <p className="eyebrow">UNIRME</p>
-            <h2>Ya tengo un código</h2>
+            <h2>Me invitaron a una sala</h2>
             <p className="muted">
               Puedes escribirlo o llegar aquí escaneando el QR de la sala.
             </p>
@@ -174,7 +174,7 @@ export default function OnlinePage() {
       <PwaInstallCard />
 
       <p className="backLink">
-        <Link href="/">← Volver al prototipo local</Link>
+        <Link href="/">← Jugar en este celular</Link>
       </p>
 
       <LegalLinks />
