@@ -131,7 +131,7 @@ try {
     (room) => room.canStart, "both ready");
 
   const started = await execute(hostWs, "start",
-    { deckVersion: "core-v2-160", questionPool: Array.from({length:24}, (_, i) => i) },
+    { deckVersion: "core-v3-210-co", questionPool: Array.from({length:24}, (_, i) => i) },
     (room) => room.status === "playing" && room.game?.turnNumber === 1,
     "game starts");
 
@@ -291,7 +291,7 @@ try {
   await execute(guestWs, "ready", { ready: true },
     (r) => r.canStart, "all ready again");
   const replay = await execute(hostWs, "start",
-    { deckVersion: "core-v2-160", questionPool: Array.from({ length: 24 }, (_, i) => i) },
+    { deckVersion: "core-v3-210-co", questionPool: Array.from({ length: 24 }, (_, i) => i) },
     (r) => r.status === "playing" && r.game?.turnNumber === 1,
     "second game begins in same room");
   assert(replay.game.specialHistory.length === 0, "Old special history cleared");
