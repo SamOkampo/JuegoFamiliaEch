@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import specialContent from "./special-content.json" with { type: "json" };
 import {
   AGE_BANDS,
   consumeFixedWindow,
@@ -11,6 +12,7 @@ import {
   QUESTION_COUNT,
   REACTION_TYPES,
   SPECIAL_KINDS,
+  SPECIAL_PACKS,
   readJsonObject,
   validateClientEvent,
   validatePlayerName,
@@ -30,6 +32,7 @@ const DEFAULT_ROOM_SETTINGS = {
   maxIntensity: 2,
   specialEvery: 3,
   specialModes: [...SPECIAL_KINDS],
+  specialPacks: [...SPECIAL_PACKS],
 };
 
 function corsHeaders() {
@@ -206,15 +209,44 @@ function normalizeRoomSettings(value) {
     maxIntensity: Number(value.maxIntensity),
     specialEvery: value.specialEvery === undefined ? 0 : value.specialEvery,
     specialModes: value.specialModes === undefined ? [] : [...value.specialModes],
+    specialPacks: value.specialPacks === undefined ? [...SPECIAL_PACKS] : [...value.specialPacks],
   };
+}
+
+function eligibleSpecialCardIndexes(room, kind) {
+  const cards = specialContent.cards[kind] ?? [];
+  const settings = room.settings;
+  const packs = settings.specialPacks ?? SPECIAL_PACKS;
+  return cards.flatMap((card, index) =>
+    card.minAge <= settings.youngestAge &&
+    card.intensity <= settings.maxIntensity &&
+    card.audiences.includes(settings.groupType) &&
+    packs.includes(card.pack)
+      ? [index] : [],
+  );
 }
 
 function startSpecial(room, kind) {
   const game = room.game;
-  if (!game || !SPECIAL_KINDS.includes(kind)) return;
+  if (!game || !SPECIAL_KINDS.includes(kind)) return false;
+  const eligible = eligibleSpecialCardIndexes(room, kind);
+  if (eligible.length === 0) return false;
+
+  const history = game.specialHistory ?? [];
+  const used = new Set(history
+    .filter((item) => item.kind === kind && Number.isInteger(item.cardIndex))
+    .map((item) => item.cardIndex));
+  let candidates = eligible.filter((index) => !used.has(index));
+  if (candidates.length === 0) {
+    const recent = [...history].reverse().find((item) => item.kind === kind);
+    candidates = eligible.length > 1
+      ? eligible.filter((index) => index !== recent?.cardIndex)
+      : eligible;
+  }
+  const cardIndex = candidates[secureRandomIndex(candidates.length)];
   game.special = {
     kind,
-    cardIndex: secureRandomIndex(4),
+    cardIndex,
     turnNumber: game.turnNumber,
     startedAt: new Date().toISOString(),
     revealed: false,
@@ -222,7 +254,18 @@ function startSpecial(room, kind) {
     contributors: [],
   };
   game.specialHistory ??= [];
-  game.specialHistory.push({ kind, turnNumber: game.turnNumber });
+  game.specialHistory.push({ kind, turnNumber: game.turnNumber, cardIndex });
+  return true;
+}
+
+function startAutomaticSpecial(room, modes, preferredIndex) {
+  if (modes.length === 0) return;
+  const prior = room.game?.specialHistory?.at(-1)?.kind;
+  const order = modes.slice(preferredIndex).concat(modes.slice(0, preferredIndex));
+  const available = order.filter((kind) => eligibleSpecialCardIndexes(room, kind).length > 0);
+  if (available.length === 0) return;
+  const kind = available.find((candidate) => candidate !== prior) ?? available[0];
+  startSpecial(room, kind);
 }
 
 function privatePlayerState(room, playerId) {
@@ -530,6 +573,7 @@ export class GameRoom extends DurableObject {
       if (this.room && this.room.settings) {
         this.room.settings.specialEvery ??= 0;
         this.room.settings.specialModes ??= [];
+        this.room.settings.specialPacks ??= [...SPECIAL_PACKS];
       }
       if (this.room?.game) {
         this.room.game.special ??= null;
@@ -1078,7 +1122,10 @@ export class GameRoom extends DurableObject {
         socketError(ws, "SPECIAL_DISABLED");
         return;
       }
-      startSpecial(this.room, event.kind);
+      if (!startSpecial(this.room, event.kind)) {
+        socketError(ws, "SPECIAL_NO_ELIGIBLE_CARD");
+        return;
+      }
       this.room.version += 1;
       await this.persist();
       await this.broadcastSnapshot();
@@ -1345,7 +1392,7 @@ export class GameRoom extends DurableObject {
         ) {
           const kindIndex =
             (Math.floor(this.room.game.turnNumber / 3) - 1) % modes.length;
-          startSpecial(this.room, modes[kindIndex]);
+          startAutomaticSpecial(this.room, modes, kindIndex);
         }
       }
 
