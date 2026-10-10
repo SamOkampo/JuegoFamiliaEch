@@ -144,12 +144,14 @@ Criterios:
 ## Fase 13 — Contenido y variedad
 
 - [x] Catálogo original de 100 cartas especiales, 20 por modalidad, sin duplicados normalizados.
+- [x] Mazo principal ampliado a 210 preguntas con infancia colombiana, espiritualidad, chismes sanos, primeros amores y fiestas.
+- [x] Filtro de sala **18+** para anécdotas de tragos y protección por edad e intensidad.
 - [x] Tres packs disponibles: Clásicos, Fiesta y Conexiones, con selección sincronizada.
 - [x] Etiquetas y filtrado por grupo, edad mínima (8/12/16) e intensidad (1/2/3) por carta.
 - [x] Conteos de cartas compatibles visibles en el lobby y cero sorpresas cuando no hay cartas elegibles.
 - [x] Rotación de cartas sin repetición hasta agotar el conjunto compatible, con protección contra repeticiones consecutivas.
 - [x] Validación editorial automatizada, matriz de filtros, smoke contra Cloudflare y reglas de contenido documentadas.
-- [x] PR #16 fusionado en main, CI verde, smoke realtime y frontend/backend desplegados y verificados en Cloudflare.
+- [ ] Gate final de CI verde + PR fusionado + despliegue backend/frontend verificado.
 
 La revisión con grupos humanos de distintas edades se realizará en la beta presencial (Fase 14), no puede validarse con CI.
 
