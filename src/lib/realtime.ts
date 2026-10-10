@@ -76,8 +76,11 @@ export type RoomGameState = {
   finishReason: "deck-complete" | "host-ended" | null;
 };
 
+export type RoomMode = "standard" | "echeverry";
+
 export type RoomSnapshot = {
   code: string;
+  mode: RoomMode;
   status: "lobby" | "playing" | "finished";
   hostId: string;
   createdAt: string;
@@ -161,8 +164,9 @@ async function postRoom(
 
 export async function createOnlineRoom(
   name: string,
+  mode: RoomMode = "standard",
 ): Promise<{ session: RoomSession; room: RoomSnapshot }> {
-  const payload = await postRoom("/api/rooms", { name });
+  const payload = await postRoom("/api/rooms", { name, mode });
   return {
     session: {
       code: payload.code,
@@ -315,6 +319,7 @@ export function roomErrorMessage(code: string): string {
       "El servidor esperaba datos JSON.",
     INVALID_SETTINGS:
       "La configuración de la ronda no es válida.",
+    INVALID_ROOM_MODE: "Selecciona un modo de juego válido.",
     MESSAGE_TOO_LARGE:
       "Ese mensaje es demasiado grande.",
     RATE_LIMITED:
