@@ -24,6 +24,7 @@ import {
   roomErrorMessage,
   sendRoomEvent,
   type ReactionType,
+  type PrivatePlayerState,
   type RoomSession,
   type RoomSnapshot,
   type RoomSettings,
@@ -71,6 +72,7 @@ export default function RoomPage() {
   const [displayUrl, setDisplayUrl] = useState("");
   const [displayFeedback, setDisplayFeedback] = useState("");
   const turnSignatureRef = useRef<string | null>(null);
+  const personalStateRef = useRef<PrivatePlayerState | null>(null);
 
   useEffect(() => {
     const saved = loadRoomSession(code);
@@ -94,7 +96,21 @@ export default function RoomPage() {
         saved?: boolean;
         turnNumber?: number;
         choice?: string;
+        specialChoice?: string | null;
+        contributed?: boolean;
       };
+
+      if (payload.type === "private-state") {
+        const privateState = payload as PrivatePlayerState & { type: "private-state" };
+        personalStateRef.current = privateState;
+        if (privateState.turnNumber !== null) {
+          setMyReaction(privateState.reaction);
+          setMomentSaved(privateState.saved);
+          setMySpecialChoice(privateState.specialChoice);
+          setSpecialContributed(privateState.contributed);
+        }
+        return;
+      }
 
       if (payload.type === "snapshot" && payload.room) {
         setRoom(payload.room);
@@ -193,7 +209,10 @@ export default function RoomPage() {
   }, [inviteUrl]);
 
   useEffect(() => {
-    if (!room?.game || room.status !== "playing") return;
+    if (!room?.game || room.status !== "playing") {
+      turnSignatureRef.current = null;
+      return;
+    }
 
     const signature =
       room.game.turnNumber + ":" + room.game.currentPlayerId;
@@ -201,10 +220,12 @@ export default function RoomPage() {
 
     turnSignatureRef.current = signature;
     setListenMode(false);
-    setMyReaction(null);
-    setMomentSaved(false);
-    setMySpecialChoice(null);
-    setSpecialContributed(false);
+    const prior = personalStateRef.current;
+    const sameTurn = prior?.turnNumber === room.game.turnNumber;
+    setMyReaction(sameTurn ? prior.reaction : null);
+    setMomentSaved(sameTurn ? prior.saved : false);
+    setMySpecialChoice(sameTurn ? prior.specialChoice : null);
+    setSpecialContributed(sameTurn ? prior.contributed : false);
 
     if (
       hapticsEnabled &&
@@ -461,6 +482,11 @@ export default function RoomPage() {
     if (!sent) setError("Todavía no estás conectado a la sala.");
   }
 
+  function playAgain() {
+    const sent = sendRoomEvent(socketRef.current, { type: "play-again" });
+    if (!sent) setError("Todavía no estás conectado a la sala.");
+  }
+
   function leaveRoom() {
     sendRoomEvent(socketRef.current, { type: "leave" });
     clearRoomSession(code);
@@ -610,6 +636,15 @@ export default function RoomPage() {
               : "El anfitrión decidió cerrar la ronda."}
           </p>
 
+          {isHost ? (
+            <button type="button" className="button primary wide" onClick={playAgain}>
+              ↻ Jugar otra ronda en esta sala
+            </button>
+          ) : (
+            <p className="muted syncedNote" role="status">
+              ¿Otra ronda? El anfitrión puede reunirlos de nuevo sin cambiar el código.
+            </p>
+          )}
           <button type="button" className="button secondary wide" onClick={leaveRoom}>
             Salir de la sala
           </button>
