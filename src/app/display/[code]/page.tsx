@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
 import { SpecialRoundCard } from "@/components/special-round-card";
+import { FAMILY_ECHEVERRY_QUESTIONS } from "@/lib/family-echeverry";
 import {
   GROUP_TYPE_LABELS,
   QUESTION_CATEGORY_LABELS,
@@ -88,7 +89,7 @@ export default function CentralDisplayPage() {
       return undefined;
     }
 
-    return QUESTIONS[room.game.questionIndex];
+    return (room.mode === "echeverry" ? FAMILY_ECHEVERRY_QUESTIONS : QUESTIONS)[room.game.questionIndex];
   }, [room]);
 
   async function toggleFullscreen() {
@@ -123,7 +124,7 @@ export default function CentralDisplayPage() {
     <main className="centralDisplay">
       <header className="displayTopbar">
         <div>
-          <p className="displayKicker">PANTALLA CENTRAL · SOLO LECTURA</p>
+          <p className="displayKicker">{room?.mode === "echeverry" ? "FAMILIA ECHEVERRY · PANTALLA" : "PANTALLA CENTRAL · SOLO LECTURA"}</p>
           <strong className="displayRoomCode">{code}</strong>
         </div>
 
