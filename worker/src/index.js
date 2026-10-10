@@ -747,7 +747,8 @@ export class GameRoom extends DurableObject {
     if (this.room.status !== "lobby") {
       return json({ error: "ROOM_ALREADY_STARTED" }, 409);
     }
-    if (this.room.players.length >= MAX_PLAYERS) {
+    const roomCapacity = this.room.mode === "echeverry" ? 40 : MAX_PLAYERS;
+    if (this.room.players.length >= roomCapacity) {
       return json({ error: "ROOM_FULL" }, 409);
     }
 
