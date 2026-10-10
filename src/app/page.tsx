@@ -76,7 +76,7 @@ export default function HomePage() {
       <main className="shell">
         <section className="hero">
           <p className="eyebrow">JUEGOFAMILIAECH</p>
-          <h1>Una ronda para conocernos mejor.</h1>
+          <h1>Saquemos un ratico para echar cuento.</h1>
           <p className="lede">
             Prueba el modo local en un solo teléfono o crea una sala online para
             que cada persona juegue desde su propio dispositivo.
