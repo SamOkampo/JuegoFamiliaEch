@@ -2307,3 +2307,53 @@ input {
 @media (prefers-reduced-motion: reduce) {
   .specialPackChoice { transition: none !important; }
 }
+
+/* Private-context-inspired mode: only generic curated prompts enter the public app. */
+.familyModeChooser {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 16px;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+.familyModeChooser legend {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+.familyModeOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+.familyModeOption.selected {
+  border-color: rgba(182, 91, 68, 0.55);
+  background: #fff7ec;
+}
+.familyModeOption input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  accent-color: #b65b44;
+}
+.familyModeOption span { display: grid; gap: 4px; }
+.familyModeOption strong { font-weight: 800; }
+.familyModeOption small { color: #665950; line-height: 1.4; }
+.familyModeFixed {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(182, 91, 68, 0.25);
+  border-radius: 13px;
+  background: #fff7ec;
+}
+.familyModeFixed span { font-size: 0.88rem; color: #665950; }
+@media (prefers-reduced-motion: reduce) {
+  .familyModeOption { transition: none; }
+}
