@@ -3,7 +3,10 @@
 import Link from "next/link";
 import QRCode from "qrcode";
 import { SpecialRoundCard } from "@/components/special-round-card";
-import { SPECIAL_KINDS, SPECIAL_LABELS, type SpecialKind } from "@/lib/special-rounds";
+import {
+  SPECIAL_KINDS, SPECIAL_LABELS, SPECIAL_PACKS, SPECIAL_PACK_LABELS,
+  SPECIAL_PACK_DESCRIPTIONS, countSpecialCards, type SpecialKind,
+} from "@/lib/special-rounds";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
@@ -274,6 +277,11 @@ export default function RoomPage() {
         : [],
     [room],
   );
+
+  const activeSpecialSettings = settingsDraft ?? room?.settings;
+  const eligibleModes = room
+    ? room.settings.specialModes.filter((kind) => countSpecialCards(room.settings, kind) > 0)
+    : [];
 
   const isHost = Boolean(session && room && session.playerId === room.hostId);
   const canControlTurn = Boolean(
@@ -812,22 +820,22 @@ export default function RoomPage() {
             </p>
           )}
 
-          {isHost && !room.game.revealed && !room.game.special && room.settings.specialModes.length > 0 ? (
+          {isHost && !room.game.revealed && !room.game.special && eligibleModes.length > 0 ? (
             <div className="specialManual">
               <label htmlFor="special-mode-select">Sorpresa adicional</label>
               <select
                 id="special-mode-select"
-                value={room.settings.specialModes.includes(chosenSpecial) ? chosenSpecial : room.settings.specialModes[0]}
+                value={eligibleModes.includes(chosenSpecial) ? chosenSpecial : eligibleModes[0]}
                 onChange={(event) => setChosenSpecial(event.target.value as SpecialKind)}
               >
-                {room.settings.specialModes.map((kind) => (
+                {eligibleModes.map((kind) => (
                   <option key={kind} value={kind}>{SPECIAL_LABELS[kind]}</option>
                 ))}
               </select>
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => launchSpecial(room.settings.specialModes.includes(chosenSpecial) ? chosenSpecial : room.settings.specialModes[0])}
+                onClick={() => launchSpecial(eligibleModes.includes(chosenSpecial) ? chosenSpecial : eligibleModes[0])}
               >
                 🎲 Lanzar sorpresa ahora
               </button>
@@ -971,9 +979,9 @@ export default function RoomPage() {
             <section className="contentSettings specialSettings" aria-label="Rondas especiales">
               <div>
                 <p className="eyebrow">RONDA SORPRESA</p>
-                <strong>Cinco maneras de romper la rutina.</strong>
+                <strong>100 cartas originales en 3 colecciones.</strong>
                 <p className="muted">
-                  Votaciones secretas, decisiones de todo el grupo, retos opcionales, recuerdos en cadena y cartas doradas.
+                  Cada pack y modalidad se adapta a la edad, intensidad y tipo de grupo que elijan.
                 </p>
               </div>
               {isHost ? (
@@ -988,6 +996,39 @@ export default function RoomPage() {
                       <option value={0}>Solo sorpresas manuales</option>
                     </select>
                   </label>
+                  <fieldset className="specialPackFieldset" aria-label="Packs de rondas">
+                    <legend>Colecciones de cartas</legend>
+                    <div className="specialPackGrid">
+                      {SPECIAL_PACKS.map((pack) => {
+                        const filters = activeSpecialSettings ?? room.settings;
+                        const count = countSpecialCards({ ...filters, specialPacks: [pack] });
+                        return (
+                          <label className="specialPackChoice" key={pack}>
+                            <input
+                              type="checkbox"
+                              checked={(activeSpecialSettings?.specialPacks ?? SPECIAL_PACKS).includes(pack)}
+                              onChange={(event) => {
+                                const active = settingsDraftRef.current?.specialPacks ?? room.settings.specialPacks ?? [...SPECIAL_PACKS];
+                                const packs = event.target.checked
+                                  ? SPECIAL_PACKS.filter((item) => active.includes(item) || item === pack)
+                                  : active.filter((item) => item !== pack);
+                                updateRoomSettings({ specialPacks: [...packs] });
+                              }}
+                            />
+                            <span>
+                              <strong>{SPECIAL_PACK_LABELS[pack]}</strong>
+                              <small>{SPECIAL_PACK_DESCRIPTIONS[pack]}</small>
+                              <em>{count} cartas para estos filtros</em>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                  <p className="specialCatalogCount" role="status">
+                    <strong>{countSpecialCards(activeSpecialSettings ?? room.settings)}</strong>
+                    {" "}cartas especiales compatibles con el grupo
+                  </p>
                   <div className="specialModeGrid">
                     {SPECIAL_KINDS.map((kind) => (
                       <label className="specialToggle" key={kind}>
@@ -1002,7 +1043,7 @@ export default function RoomPage() {
                             updateRoomSettings({ specialModes: [...modes] });
                           }}
                         />
-                        <span>{SPECIAL_LABELS[kind]}</span>
+                        <span>{SPECIAL_LABELS[kind]} <small>({countSpecialCards(activeSpecialSettings ?? room.settings, kind)})</small></span>
                       </label>
                     ))}
                   </div>
@@ -1014,10 +1055,14 @@ export default function RoomPage() {
                     : room.settings.specialModes.map((kind) => SPECIAL_LABELS[kind]).join(" · ")}
                   {" · "}
                   {room.settings.specialEvery === 3 ? "Cada 3 turnos" : "Manual"}
+                  {" · "}
+                  {room.settings.specialPacks.map((pack) => SPECIAL_PACK_LABELS[pack]).join(", ") || "Sin packs"}
+                  {" · "}
+                  {countSpecialCards(room.settings)} cartas compatibles
                 </p>
               )}
               <p className="momentPrivacy">
-                Todas las rondas se pueden omitir. Los votos solo se muestran cuando el anfitrión revela los resultados.
+                Cada sorpresa respeta los filtros editoriales del grupo. Se pueden omitir retos y votar por «Prefiero pasar».
               </p>
             </section>
           ) : null}
