@@ -885,7 +885,7 @@ export default function RoomPage() {
           <section className="contentSettings" aria-label="Configurar preguntas">
             <div>
               <p className="eyebrow">TIPO DE RONDA</p>
-              <strong>El mazo se adapta al grupo antes de empezar.</strong>
+              <strong>210 preguntas pa’ recordar, reírse y conocernos sin afán.</strong>
               <p className="muted">
                 Si el anfitrión cambia un filtro, todos vuelven a “No listo”
                 para confirmar la nueva ronda.
@@ -970,6 +970,10 @@ export default function RoomPage() {
               )
             ) : null}
 
+            <p className="muted" style={{ fontSize: "0.85rem" }}>
+              Elige «Solo adultos (18+)» únicamente si nadie en la sala es menor de edad.
+              Ahí pueden salir historias de fiestas y tragos; siempre se vale pasar.
+            </p>
             <p className="poolCount" role="status">
               <strong>{questionPool.length}</strong> preguntas disponibles con
               estos filtros.
