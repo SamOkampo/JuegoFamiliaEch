@@ -57,7 +57,7 @@ test("host can opt into 18+ discussion only when declaring an adult-only group",
   await page.goto("/online");
   await page.locator("#create-name").fill("HostColombia");
   await page.getByRole("button", { name: "Crear sala" }).click();
-  await expect(page).toHaveURL(/\\/room\\/[A-Z0-9]{6}$/);
+  await expect(page).toHaveURL(/\/room\/[A-Z0-9]{6}$/);
 
   const settings = page.getByRole("region", { name: "Configurar preguntas" });
   const age = settings.getByLabel("Persona más joven");
