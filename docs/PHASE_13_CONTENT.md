@@ -4,7 +4,7 @@
 
 ## Catálogo v3
 
-El catálogo único de origen es `worker/src/special-content.json`. El frontend Next.js y el Worker Cloudflare consumen **el mismo archivo** para evitar desfases editoriales.
+El catálogo único de origen es `worker/src/special-content.json`. El frontend Next.js lo usa directamente; un generador produce `worker/src/special-metadata.mjs` con solo los filtros necesarios para Cloudflare. CI comprueba que la copia compacta coincida **exactamente** con el JSON original, sin duplicar la edición manual.
 
 - 100 cartas especiales originales: **20 por cada una** de las cinco modalidades.
 - Tres colecciones seleccionables: **Clásicos (40), Fiesta (30), Conexiones (30)**.
