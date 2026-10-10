@@ -43,7 +43,8 @@ import {
 const AGE_LABELS: Record<AgeBand, string> = {
   8: "8–11 años",
   12: "12–15 años",
-  16: "16+ años",
+  16: "16–17 años",
+  18: "Solo adultos (18+)",
 };
 
 const INTENSITY_LABELS: Record<QuestionIntensity, string> = {
@@ -979,7 +980,7 @@ export default function RoomPage() {
             <section className="contentSettings specialSettings" aria-label="Rondas especiales">
               <div>
                 <p className="eyebrow">RONDA SORPRESA</p>
-                <strong>100 cartas originales en 3 colecciones.</strong>
+                <strong>100 cartas sorpresa en 3 colecciones, con sabor colombiano.</strong>
                 <p className="muted">
                   Cada pack y modalidad se adapta a la edad, intensidad y tipo de grupo que elijan.
                 </p>
