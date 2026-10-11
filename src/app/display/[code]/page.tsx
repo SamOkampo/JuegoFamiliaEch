@@ -1,10 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { useResilientWebSocket } from "@/hooks/use-resilient-websocket";
 import { SpecialRoundCard } from "@/components/special-round-card";
 import { FAMILY_ECHEVERRY_QUESTIONS } from "@/lib/family-echeverry";
+import { buildRoomInviteUrl } from "@/lib/presential";
 import {
   GROUP_TYPE_LABELS,
   QUESTION_CATEGORY_LABELS,
@@ -24,6 +26,7 @@ export default function CentralDisplayPage() {
   const [room, setRoom] = useState<RoomSnapshot | null>(null);
   const [error, setError] = useState("");
   const [displayToken, setDisplayToken] = useState("");
+  const [joinQrDataUrl, setJoinQrDataUrl] = useState("");
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1));
@@ -38,6 +41,26 @@ export default function CentralDisplayPage() {
 
     setDisplayToken(token);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    const joinUrl = buildRoomInviteUrl(window.location.origin, code);
+    void QRCode.toDataURL(joinUrl, {
+      width: 320,
+      margin: 2,
+      errorCorrectionLevel: "M",
+    })
+      .then((url) => {
+        if (active) setJoinQrDataUrl(url);
+      })
+      .catch(() => {
+        if (active) setJoinQrDataUrl("");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [code]);
 
   function handleDisplaySocketMessage(event: MessageEvent) {
     try {
@@ -156,14 +179,30 @@ export default function CentralDisplayPage() {
         </section>
       ) : room.status === "lobby" ? (
         <section className="displayLobby">
-          <div className="displayHeroBlock">
-            <p className="displayEyebrow">ENTREN A LA SALA</p>
-            <h1>{code}</h1>
-            <p>
-              {GROUP_TYPE_LABELS[room.settings.groupType]} ·{" "}
-              {room.players.filter((player) => player.ready).length} de{" "}
-              {room.players.length} listos
-            </p>
+          <div className="displayLobbyJoin">
+            <div className="displayHeroBlock">
+              <p className="displayEyebrow">ENTREN A LA SALA</p>
+              <h1>{code}</h1>
+              <p>
+                {GROUP_TYPE_LABELS[room.settings.groupType]} ·{" "}
+                {room.players.filter((player) => player.ready).length} de{" "}
+                {room.players.length} listos
+              </p>
+            </div>
+            <div className="displayJoinQr" aria-label="QR para entrar a la sala">
+              {joinQrDataUrl ? (
+                <img
+                  src={joinQrDataUrl}
+                  width={320}
+                  height={320}
+                  alt={"Escanea para entrar a la sala " + code}
+                />
+              ) : (
+                <p>Generando QR de la sala…</p>
+              )}
+              <strong>Escanea para entrar</strong>
+              <span>Se abre el formulario para unirse con tu nombre.</span>
+            </div>
           </div>
 
           <div className="displayPlayerGrid">

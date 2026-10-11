@@ -787,7 +787,7 @@ input {
 
 .inviteActions {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -2356,4 +2356,59 @@ input {
 .familyModeFixed span { font-size: 0.88rem; color: #665950; }
 @media (prefers-reduced-motion: reduce) {
   .familyModeOption { transition: none; }
+}
+
+
+/* Join QR stays visible in presentation mode until the game starts. */
+.displayLobbyJoin {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(225px, 340px);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4vw, 60px);
+}
+
+.displayLobbyJoin .displayHeroBlock h1 {
+  font-size: clamp(3.5rem, 10vw, 8.5rem);
+  overflow-wrap: anywhere;
+}
+
+.displayJoinQr {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: clamp(16px, 2vw, 26px);
+  border-radius: 26px;
+  background: #fffaf4;
+  color: #35251f;
+  text-align: center;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.16);
+}
+
+.displayJoinQr img {
+  display: block;
+  width: min(100%, 320px);
+  height: auto;
+  aspect-ratio: 1;
+  image-rendering: auto;
+}
+
+.displayJoinQr strong {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+.displayJoinQr span,
+.displayJoinQr p {
+  margin: 0;
+  color: #665146;
+  font-size: clamp(0.8rem, 1.3vw, 1rem);
+  line-height: 1.4;
+}
+
+@media (max-width: 820px) {
+  .displayLobbyJoin {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .displayJoinQr { width: min(340px, 100%); }
 }
