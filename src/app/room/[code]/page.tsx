@@ -65,7 +65,6 @@ export default function RoomPage() {
   const [error, setError] = useState("");
   const [inviteUrl, setInviteUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
-  const [showInvite, setShowInvite] = useState(false);
   const [inviteFeedback, setInviteFeedback] = useState("");
   const [hapticsEnabled, setHapticsEnabled] = useState(false);
   const [listenMode, setListenMode] = useState(false);
@@ -1099,14 +1098,6 @@ export default function RoomPage() {
             <div className="inviteActions">
               <button
                 type="button"
-                className="button secondary"
-                onClick={() => setShowInvite((current) => !current)}
-                aria-expanded={showInvite}
-              >
-                {showInvite ? "Ocultar QR" : "Mostrar QR"}
-              </button>
-              <button
-                type="button"
                 className="button primary"
                 onClick={shareInvite}
               >
@@ -1114,8 +1105,7 @@ export default function RoomPage() {
               </button>
             </div>
 
-            {showInvite ? (
-              <div className="qrWrap">
+            <div className="qrWrap">
                 {qrDataUrl ? (
                   <img
                     src={qrDataUrl}
@@ -1130,8 +1120,7 @@ export default function RoomPage() {
                   Al escanearlo se abre la sala <strong>{code}</strong> lista
                   para escribir el nombre.
                 </p>
-              </div>
-            ) : null}
+            </div>
 
             {inviteFeedback ? (
               <p className="inviteFeedback" role="status">
